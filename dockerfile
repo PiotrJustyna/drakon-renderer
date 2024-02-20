@@ -1,6 +1,6 @@
-FROM alpine:3.19.0
+FROM alpine:3.19.1
 
-ARG USER_NAME=root
+WORKDIR "/root/code/drakon"
 
 RUN \
   apk update \
@@ -8,11 +8,7 @@ RUN \
   apk add \
     git \
     openssh \
-    dotnet7-sdk \
-    curl
-
-WORKDIR "/tmp/code"
-
-RUN git config --global --add safe.directory "/tmp/code"
+    curl && \
+  git config --global --add safe.directory "/root/code/drakon"
 
 CMD [ "/bin/sh" ]
