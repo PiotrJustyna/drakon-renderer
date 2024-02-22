@@ -9,6 +9,7 @@ RUN \
     git \
     openssh \
     curl \
+    zlib-dev \
     g++ \
     ghc \
     cabal && \
