@@ -8,7 +8,10 @@ RUN \
   apk add \
     git \
     openssh \
-    curl && \
+    curl \
+    g++ \
+    ghc \
+    cabal && \
   git config --global --add safe.directory "/root/code/drakon"
 
 CMD [ "/bin/sh" ]

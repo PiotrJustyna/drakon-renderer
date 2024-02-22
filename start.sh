@@ -2,7 +2,7 @@
 
 CERTIFICATE_DIRECTORY="$HOME/.ssh/"
 
-docker build \
+docker buildx build \
   -t "drakon-renderer:latest" \
   -f "dockerfile" \
   . \
