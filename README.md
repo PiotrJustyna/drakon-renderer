@@ -11,4 +11,5 @@
 * `cabal install --lib diagrams-lib`
 * `cabal install --lib diagrams-svg`
 * `cabal install --lib base`
-* `ghc --make HelloWorld.lhs`
+* `ghc HelloWorld.hs` 
+* `./HelloWorld -o circle.svg -w 400`
