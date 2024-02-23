@@ -23,9 +23,14 @@
 > step :: Diagram B
 > step = fromOffsets
 >   [V2 0 0,
->   V2 0 1,
->   V2 2 0,
->   V2 0 (-1),
->   V2 (-2) 0]
+>   V2 0 0.25,
+>   V2 0.5 0,
+>   V2 0 (-0.25),
+>   V2 (-0.5) 0]
+>   # lw veryThin
+>   # showOrigin
 >
-> main = mainWith step
+> drakonPoints :: [Point V2 Double]
+> drakonPoints = map p2 $ [(x, y) | x <- [0..5], y <- [0..5]]
+>
+> main = mainWith $ atPoints drakonPoints (repeat step)
