@@ -20,17 +20,21 @@
 > vectorShape :: Diagram B
 > vectorShape = fromOffsets . map r2 $ [(0,0), (1,1), (-2,1), (-1,-4)]
 > 
-> step :: Diagram B
-> step = fromOffsets
+> stepsOrigins :: [Point V2 Double]
+> stepsOrigins = map p2 $ [(x, y) | x <- [0], y <- [0, (-1), (-2)]]
+>
+> step :: Int -> Diagram B
+> step x = fromOffsets
 >   [V2 0 0,
->   V2 0 0.25,
->   V2 0.5 0,
->   V2 0 (-0.25),
->   V2 (-0.5) 0]
->   # lw veryThin
+>   V2 0 0.5,
+>   V2 0.75 0,
+>   V2 0 (-0.5),
+>   V2 (-0.75) 0]
 >   # showOrigin
+>   # lw veryThin
+>   # named x
 >
-> drakonPoints :: [Point V2 Double]
-> drakonPoints = map p2 $ [(x, y) | x <- [0..5], y <- [0..5]]
->
-> main = mainWith $ atPoints drakonPoints (repeat step)
+> main = mainWith $
+>   atPoints stepsOrigins [step x | x <- [0..]]
+>   # connectOutside (0 :: Int) (1 :: Int)
+>   # connectOutside (1 :: Int) (2 :: Int)
