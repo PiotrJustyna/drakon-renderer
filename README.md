@@ -21,3 +21,4 @@
 
 * [drakon](https://drakonhub.com/read/docs)
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
+* [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
