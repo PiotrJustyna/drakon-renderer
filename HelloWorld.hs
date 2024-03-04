@@ -13,12 +13,7 @@ stepName :: Step -> Double
 stepName Step { originCoordinates = x, name = y } = y
 
 stepShape :: Double -> Diagram B
-stepShape x = fromOffsets
-    [V2 0 0,
-    V2 0 0.5,
-    V2 0.75 0,
-    V2 0 (-0.5),
-    V2 (-0.75) 0]
+stepShape x = rect 0.75 0.5
     # showOrigin
     # named x
 
