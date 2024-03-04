@@ -22,8 +22,8 @@ steps = [
     Step {
         originCoordinates = p2 (x, y),
         name = x * 10 + y }
-    | x <- [0 .. 1],
-    y <- [0 .. 2]]
+    | x <- [0],
+    y <- [0, -1, -2, -3]]
 
 connections :: [Step] -> [QDiagram B V2 Double Any -> QDiagram B V2 Double Any]
 connections (x1: x2: xn) =
