@@ -4,6 +4,7 @@
 
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
+import Diagrams.TwoD.Text
 
 data StepType
     = StartType
@@ -22,7 +23,7 @@ stepShape :: Double -> Diagram B
 stepShape x = rect 0.95 0.4 # showOrigin # named x
 
 startShape :: Double -> Diagram B
-startShape x = roundedRect 0.95 0.4 0.5 # showOrigin # named x
+startShape x = text "hello" <> roundedRect 0.95 0.4 0.5 # showOrigin # named x
 
 endShape :: Double -> Diagram B
 endShape = startShape
