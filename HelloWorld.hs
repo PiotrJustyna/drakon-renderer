@@ -23,10 +23,10 @@ stepShape :: Double -> Diagram B
 stepShape x = rect 0.95 0.4 # showOrigin # named x
 
 startShape :: Double -> Diagram B
-startShape x = text "hello" <> roundedRect 0.95 0.4 0.5 # showOrigin # named x
+startShape x = text "start" # fontSize (local 0.1) # light # font "courier" <> roundedRect 0.95 0.4 0.5 # showOrigin # named x
 
 endShape :: Double -> Diagram B
-endShape = startShape
+endShape x = text "end" # fontSize (local 0.1) # thinWeight # font "courier" <> roundedRect 0.95 0.4 0.5 # showOrigin # named x
 
 uniqueName :: Double -> Double -> Double
 uniqueName x y = x * 10 + (abs y)

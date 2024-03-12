@@ -2,18 +2,12 @@
 
 ## development environment
 
-* start - `./start.sh`
+* start - `./host.sh`
 * exit - `exit`
 
 ## hello world
 
-* `cabal update`
-* `cabal install --lib diagrams`
-* `cabal install --lib diagrams-lib`
-* `cabal install --lib diagrams-svg`
-* `cabal install --lib base`
-* `ghc HelloWorld.hs` 
-* `./HelloWorld -o hello-world.svg -w 400`
+* `ghc HelloWorld.hs && ./HelloWorld -o hello-world.svg -w 400`
 
 ![hello-world](./hello-world.svg)
 
