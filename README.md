@@ -7,7 +7,7 @@
 
 ## hello world
 
-* `ghc HelloWorld.hs && ./HelloWorld -o hello-world.svg -w 400`
+* `ghc HelloWorld.hs && ./HelloWorld -o hello-world.svg -w 200`
 
 ![hello-world](./hello-world.svg)
 

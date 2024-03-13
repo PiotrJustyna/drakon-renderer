@@ -38,7 +38,7 @@ steps =
     ++ [Step { originCoordinates = p2 (0, -4), name = uniqueName 0 4, stepType = EndType }]
 
 connections :: [Step] -> [QDiagram B V2 Double Any -> QDiagram B V2 Double Any]
-connections (x1: x2: xn) = connectOutside (stepName x1) (stepName x2): connections (x2: xn)
+connections (x1: x2: xn) = connectOutside' (with & arrowHead .~ noHead) (stepName x1) (stepName x2): connections (x2: xn)
 connections (x1: []) = []
 connections [] = []
 
