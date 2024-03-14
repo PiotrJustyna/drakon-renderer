@@ -6,7 +6,10 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.TwoD.Text
 
-data Tree a = Leaf a | Node (Tree a) a (Tree a)
+data Tree a =
+    Leaf a
+    | Node1 a (Tree a)
+    | Node2 (Tree a) a (Tree a)
 
 type StepName = Double
 
@@ -54,17 +57,18 @@ decisionShape x = fromOffsets
 uniqueName :: Double -> Double -> Double
 uniqueName x y = x * 10 + (abs y)
 
-steps :: [Step]
-steps =
-    Main.Start (uniqueName 0.0 0.0) (p2 (0.0, 0.0))
-    : Main.Decision (uniqueName 0.0 (-1.0)) (p2 (0.0, -1.0))
-    : [Main.Command (uniqueName x y) (p2 (x, y)) | x <- [0.0], y <- [-2.0, -3.0, -4.0]]
-    ++ [Main.End (uniqueName 0.0 (-5.0)) (p2 (0.0, -5.0))]
+newSteps :: Tree Step
+newSteps =
+    Node1
+        (Main.Start (uniqueName 0.0 0.0) (p2 (0.0, 0.0)))
+        (Node1
+            (Main.Command (uniqueName 0.0 (-1.0)) (p2 (0.0, -1.0)))
+            (Leaf (Main.End (uniqueName 0.0 (-2.0)) (p2 (0.0, -2.0)))))
 
-connections :: [Step] -> [QDiagram B V2 Double Any -> QDiagram B V2 Double Any]
-connections (x1 : x2 : xn) = connectOutside' (with & arrowHead .~ noHead) (stepName x1) (stepName x2) : connections (x2 : xn)
-connections (x1 : []) = []
-connections [] = []
+flattenSteps :: Tree Step -> [Step]
+flattenSteps (Leaf x) = [x]
+flattenSteps (Node1 x y) = [x] ++ flattenSteps y
+flattenSteps (Node2 x y z) = flattenSteps x ++ [y] ++ flattenSteps z
 
 correctShape :: Step -> Diagram B
 correctShape (Main.Start x _) = startShape x
@@ -73,6 +77,5 @@ correctShape (Main.Decision x _) = decisionShape x
 correctShape (Main.Command x _) = stepShape x
 
 main = mainWith $
-    position [(stepOriginCoordinates x, correctShape x) | x <- steps]
-    # applyAll (connections steps)
+    position [(stepOriginCoordinates x, correctShape x) | x <- flattenSteps newSteps]
     # lw veryThin
