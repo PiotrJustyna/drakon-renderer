@@ -6,19 +6,29 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.TwoD.Text
 
-data StepType
-    = StartType
-    | RegularStep
-    | DecisionStep
-    | EndType
+data Tree a = Leaf a | Node (Tree a) a (Tree a)
 
-data Step = Step {
-    originCoordinates :: Point V2 Double,
-    name :: Double,
-    stepType :: StepType }
+type StepName = Double
+
+type OriginCoordinates = Point V2 Double
+
+data Step =
+    Start StepName OriginCoordinates
+    | End StepName OriginCoordinates
+    | Command StepName OriginCoordinates
+    | Decision StepName OriginCoordinates
 
 stepName :: Step -> Double
-stepName Step { originCoordinates = x, name = y, stepType = z } = y
+stepName (Main.Start x _) = x
+stepName (Main.End x _) = x
+stepName (Main.Command x _) = x
+stepName (Main.Decision x _) = x
+
+stepOriginCoordinates :: Step -> OriginCoordinates
+stepOriginCoordinates (Main.Start _ x) = x
+stepOriginCoordinates (Main.End _ x) = x
+stepOriginCoordinates (Main.Command _ x) = x
+stepOriginCoordinates (Main.Decision _ x) = x
 
 stepShape :: Double -> Diagram B
 stepShape x = rect 0.95 0.4 # showOrigin # named x
@@ -46,23 +56,23 @@ uniqueName x y = x * 10 + (abs y)
 
 steps :: [Step]
 steps =
-    Step { originCoordinates = p2 (0, 0), name = uniqueName 0 0, stepType = StartType }
-    : Step { originCoordinates = p2 (0, -1), name = uniqueName 0 (-1), stepType = DecisionStep }
-    : [Step { originCoordinates = p2 (x, y), name = uniqueName x y, stepType = RegularStep } | x <- [0], y <- [-2, -3, -4]]
-    ++ [Step { originCoordinates = p2 (0, -5), name = uniqueName 0 (-5), stepType = EndType }]
+    Main.Start (uniqueName 0.0 0.0) (p2 (0.0, 0.0))
+    : Main.Decision (uniqueName 0.0 (-1.0)) (p2 (0.0, -1.0))
+    : [Main.Command (uniqueName x y) (p2 (x, y)) | x <- [0.0], y <- [-2.0, -3.0, -4.0]]
+    ++ [Main.End (uniqueName 0.0 (-5.0)) (p2 (0.0, -5.0))]
 
 connections :: [Step] -> [QDiagram B V2 Double Any -> QDiagram B V2 Double Any]
-connections (x1: x2: xn) = connectOutside' (with & arrowHead .~ noHead) (stepName x1) (stepName x2): connections (x2: xn)
-connections (x1: []) = []
+connections (x1 : x2 : xn) = connectOutside' (with & arrowHead .~ noHead) (stepName x1) (stepName x2) : connections (x2 : xn)
+connections (x1 : []) = []
 connections [] = []
 
-correctShape :: StepType -> Double -> Diagram B
-correctShape StartType = startShape
-correctShape EndType = endShape
-correctShape DecisionStep = decisionShape
-correctShape _ = stepShape
+correctShape :: Step -> Diagram B
+correctShape (Main.Start x _) = startShape x
+correctShape (Main.End x _) = endShape x
+correctShape (Main.Decision x _) = decisionShape x
+correctShape (Main.Command x _) = stepShape x
 
 main = mainWith $
-    position [(x, correctShape z y) | Step { originCoordinates = x, name = y, stepType = z } <- steps]
+    position [(stepOriginCoordinates x, correctShape x) | x <- steps]
     # applyAll (connections steps)
     # lw veryThin
