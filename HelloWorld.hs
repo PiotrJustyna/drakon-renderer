@@ -16,22 +16,10 @@ type Name = String
 type OriginCoordinates = Point V2 Double
 
 data Step =
-    Start Main.Name OriginCoordinates
-    | End Main.Name OriginCoordinates
-    | Command Main.Name OriginCoordinates
-    | Decision Main.Name OriginCoordinates
-
-stepName :: Step -> Main.Name
-stepName (Main.Start x _) = x
-stepName (Main.End x _) = x
-stepName (Main.Command x _) = x
-stepName (Main.Decision x _) = x
-
-stepOriginCoordinates :: Step -> OriginCoordinates
-stepOriginCoordinates (Main.Start _ x) = x
-stepOriginCoordinates (Main.End _ x) = x
-stepOriginCoordinates (Main.Command _ x) = x
-stepOriginCoordinates (Main.Decision _ x) = x
+    Start
+    | End
+    | Command
+    | Decision
 
 stepShape :: Main.Name -> Diagram B
 stepShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <> rect 0.95 0.4 # showOrigin # named x
@@ -58,31 +46,32 @@ decisionShape x = text (show x) # fontSize (local 0.1) # light # font "courier" 
 uniqueName :: Double -> Double -> Main.Name
 uniqueName x y = "x" ++ (show x) ++ "y" ++ (show y)
 
-newSteps :: Tree Step
-newSteps =
+steps :: Tree Step
+steps =
     Node1
-        (Main.Start (uniqueName 0.0 0.0) (p2 (0.0, 0.0)))
+        (Main.Start)
         (Node2
-            (Leaf (Main.Command (uniqueName 1.0 (-2.0)) (p2 (1.0, -2.0))))
-            (Main.Decision (uniqueName 0.0 (-1.0)) (p2 (0.0, -1.0)))
-            (Leaf (Main.End (uniqueName 0.0 (-2.0)) (p2 (0.0, -2.0)))))
+            (Leaf Main.Command)
+            Main.Decision
+            (Leaf Main.End))
 
-newFlattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
-newFlattenSteps (Leaf x) currentWidth currentDepth = [(p2 (currentWidth, currentDepth), (correctShape x))]
-newFlattenSteps (Node1 x y) currentWidth currentDepth = [(p2 (currentWidth, currentDepth), (correctShape x))] ++ newFlattenSteps y currentWidth (currentDepth - 1.0)
-newFlattenSteps (Node2 x y z) currentWidth currentDepth =  newFlattenSteps x currentWidth (currentDepth - 1.0) ++ [(p2 (currentWidth, currentDepth), (correctShape y))] ++ newFlattenSteps z (currentWidth + 1) (currentDepth - 1.0)
+flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
+flattenSteps (Leaf x) currentWidth currentDepth =
+    [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
+flattenSteps (Node1 x y) currentWidth currentDepth =
+    [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
+    ++ flattenSteps y currentWidth (currentDepth - 1.0)
+flattenSteps (Node2 x y z) currentWidth currentDepth =
+    flattenSteps x currentWidth (currentDepth - 1.0)
+    ++ [(p2 (currentWidth, currentDepth), (Main.render y currentWidth currentDepth))]
+    ++ flattenSteps z (currentWidth + 1) (currentDepth - 1.0)
 
-flattenSteps :: Tree Step -> [Step]
-flattenSteps (Leaf x) = [x]
-flattenSteps (Node1 x y) = [x] ++ flattenSteps y
-flattenSteps (Node2 x y z) = flattenSteps x ++ [y] ++ flattenSteps z
-
-correctShape :: Step -> Diagram B
-correctShape (Main.Start x _) = startShape x
-correctShape (Main.End x _) = endShape x
-correctShape (Main.Decision x _) = decisionShape x
-correctShape (Main.Command x _) = stepShape x
+render :: Step -> Double -> Double -> Diagram B
+render Main.Start x y = startShape $ uniqueName x y
+render Main.End x y = endShape $ uniqueName x y
+render Main.Decision x y = decisionShape $ uniqueName x y
+render Main.Command x y = stepShape $ uniqueName x y
 
 main = mainWith $
-    position (newFlattenSteps newSteps 0.0 0.0)
+    position (flattenSteps steps 0.0 0.0)
     # lw veryThin
