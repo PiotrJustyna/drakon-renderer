@@ -21,14 +21,51 @@ data Step =
     | Command
     | Decision
 
-stepShape :: Main.Name -> Diagram B
-stepShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <> rect 0.95 0.4 # showOrigin # named x
+cellWidth :: Double
+cellWidth = 1.0
+
+cellHeight :: Double
+cellHeight = 1.0
+
+stepWidthToCellWidthRatio :: Double
+stepWidthToCellWidthRatio = 0.8
+
+stepHeightToCellHeightRatio :: Double
+stepHeightToCellHeightRatio = 0.4
+
+stepWidth :: Double
+stepWidth = cellWidth * stepWidthToCellWidthRatio
+
+stepHeight :: Double
+stepHeight = cellHeight *stepHeightToCellHeightRatio
+
+shortestDistanceBetweenSteps :: Double
+shortestDistanceBetweenSteps = cellHeight * (1.0 - stepHeightToCellHeightRatio)
 
 startShape :: Main.Name -> Diagram B
-startShape x = text ((show x) ++ ": start") # fontSize (local 0.1) # light # font "courier" <> roundedRect 1.0 0.4 0.5 # showOrigin # named x
+startShape x = text ((show x) ++ ": start") # fontSize (local 0.1) # light # font "courier" <>
+    roundedRect 1.0 0.4 0.5
+    # showOrigin
+    # named x
 
 endShape :: Main.Name -> Diagram B
-endShape x = text ((show x) ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <> roundedRect 1.0 0.4 0.5 # showOrigin # named x
+endShape x = text ((show x) ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
+    roundedRect 1.0 0.4 0.5
+    # showOrigin
+    # named x
+
+commandShape :: Main.Name -> Diagram B
+commandShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <>
+    fromOffsets
+        [V2 (stepWidth * (-1.0)) 0.0,
+        V2 0.0 stepHeight,
+        V2 stepWidth 0.0,
+        V2 0.0 (stepHeight * (-1.0)),
+        V2 (stepWidth * (-0.5)) 0.0,
+        V2 0.0 (shortestDistanceBetweenSteps * (-1.0))]
+    # translate (r2 (stepWidth * 0.5, stepHeight * (-0.5)))
+    # showOrigin
+    # named x
 
 decisionShape :: Main.Name -> Diagram B
 decisionShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <>
@@ -37,8 +74,15 @@ decisionShape x = text (show x) # fontSize (local 0.1) # light # font "courier" 
         V2 0.1 0.2,
         V2 0.8 0.0,
         V2 0.1 (-0.2),
+        V2 0.5 0.0,
+        V2 0.0 (-0.8),
+        V2 0.0 0.8,
+        V2 (-0.5) 0.0,
         V2 (-0.1) (-0.2),
-        V2 (-0.8) (0.0)]
+        V2 (-0.4) 0.0,
+        V2 (0.0) (-0.6),
+        V2 (0.0) (0.6),
+        V2 (-0.4) 0.0]
         # translate (r2 ((-0.4), (-0.2)))
         # showOrigin
         # named x
@@ -51,9 +95,20 @@ steps =
     Node1
         (Main.Start)
         (Node2
-            (Leaf Main.Command)
+            (Node1
+                Main.Command
+                (Node1
+                    Main.Command
+                    (Node1
+                        Main.Command
+                        (Leaf Main.End))))
             Main.Decision
-            (Leaf Main.End))
+            (Node2
+                (Node1
+                    Main.Command
+                    (Leaf Main.End))
+                Main.Decision
+                (Leaf Main.End)))
 
 flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
 flattenSteps (Leaf x) currentWidth currentDepth =
@@ -70,7 +125,7 @@ render :: Step -> Double -> Double -> Diagram B
 render Main.Start x y = startShape $ uniqueName x y
 render Main.End x y = endShape $ uniqueName x y
 render Main.Decision x y = decisionShape $ uniqueName x y
-render Main.Command x y = stepShape $ uniqueName x y
+render Main.Command x y = commandShape $ uniqueName x y
 
 main = mainWith $
     position (flattenSteps steps 0.0 0.0)

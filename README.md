@@ -20,8 +20,6 @@
   * yes
   * no
 
-**todo:** set diagram here? Depending on how I implement the steps.
-
 ## resources
 
 * [drakon](https://drakonhub.com/read/docs)
