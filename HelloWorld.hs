@@ -22,7 +22,7 @@ data Step =
     | Decision
 
 cellWidth :: Double
-cellWidth = 1.0
+cellWidth = 2.0
 
 cellHeight :: Double
 cellHeight = 1.0
@@ -44,13 +44,13 @@ shortestDistanceBetweenSteps = cellHeight * (1.0 - stepHeightToCellHeightRatio)
 
 startShape :: Main.Name -> Diagram B
 startShape x = text ((show x) ++ ": start") # fontSize (local 0.1) # light # font "courier" <>
-    roundedRect 1.0 0.4 0.5
+    roundedRect stepWidth stepHeight 0.5
     # showOrigin
     # named x
 
 endShape :: Main.Name -> Diagram B
 endShape x = text ((show x) ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
-    roundedRect 1.0 0.4 0.5
+    roundedRect stepWidth stepHeight 0.5
     # showOrigin
     # named x
 
@@ -70,20 +70,20 @@ commandShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <
 decisionShape :: Main.Name -> Diagram B
 decisionShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <>
     fromOffsets
-        [V2 (-0.1) 0.2,
-        V2 0.1 0.2,
-        V2 0.8 0.0,
-        V2 0.1 (-0.2),
-        V2 0.5 0.0,
+        [V2 (-0.1) (stepHeight * 0.5),
+        V2 0.1 (stepHeight * 0.5),
+        V2 (stepWidth - 0.1 - 0.1) 0.0,
+        V2 0.1 (stepHeight * (-0.5)),
+        V2 (cellWidth * 0.5) 0.0,
         V2 0.0 (-0.8),
         V2 0.0 0.8,
-        V2 (-0.5) 0.0,
-        V2 (-0.1) (-0.2),
-        V2 (-0.4) 0.0,
+        V2 (cellWidth * (-0.5)) 0.0,
+        V2 (-0.1) (stepHeight * (-0.5)),
+        V2 ((stepWidth - 0.1 - 0.1) * (-0.5)) 0.0,
         V2 (0.0) (-0.6),
         V2 (0.0) (0.6),
-        V2 (-0.4) 0.0]
-        # translate (r2 ((-0.4), (-0.2)))
+        V2 ((stepWidth - 0.1 - 0.1) * (-0.5)) 0.0]
+        # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2)))
         # showOrigin
         # named x
 
@@ -115,11 +115,11 @@ flattenSteps (Leaf x) currentWidth currentDepth =
     [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
 flattenSteps (Node1 x y) currentWidth currentDepth =
     [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
-    ++ flattenSteps y currentWidth (currentDepth - 1.0)
+    ++ flattenSteps y currentWidth (currentDepth - cellHeight)
 flattenSteps (Node2 x y z) currentWidth currentDepth =
-    flattenSteps x currentWidth (currentDepth - 1.0)
+    flattenSteps x currentWidth (currentDepth - cellHeight)
     ++ [(p2 (currentWidth, currentDepth), (Main.render y currentWidth currentDepth))]
-    ++ flattenSteps z (currentWidth + 1) (currentDepth - 1.0)
+    ++ flattenSteps z (currentWidth + cellWidth) (currentDepth - cellHeight)
 
 render :: Step -> Double -> Double -> Diagram B
 render Main.Start x y = startShape $ uniqueName x y
