@@ -78,8 +78,11 @@ steps =
         (Node2
             (Node1
                 Main.Command
-                (Node1
-                    Main.Command
+                (Node2
+                    (Node1
+                        Main.Command
+                        (Leaf Main.End))
+                    Main.Decision
                     (Node1
                         Main.Command
                         (Leaf Main.End))))
@@ -90,6 +93,26 @@ steps =
                     (Leaf Main.End))
                 Main.Decision
                 (Leaf Main.End)))
+
+nextAvailableCoordinates :: Double -> Double -> [OriginCoordinates] -> OriginCoordinates
+nextAvailableCoordinates x y takenCoordinates =
+    if elem (p2 (x, y)) takenCoordinates then p2 (6.0, 6.0) else p2 (x, y)
+
+uniqueCoordinates :: Tree Step -> Double -> Double -> [OriginCoordinates] -> [OriginCoordinates]
+uniqueCoordinates (Leaf _) currentWidth currentDepth takenCoordinates =
+    [nextAvailableCoordinates currentWidth currentDepth takenCoordinates]
+uniqueCoordinates (Node1 _ x) currentWidth currentDepth takenCoordinates =
+    [newCoordinates]
+    ++ uniqueCoordinates x currentWidth (currentDepth - cellHeight) (newCoordinates : takenCoordinates)
+    where
+        newCoordinates = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+uniqueCoordinates (Node2 x _ z) currentWidth currentDepth takenCoordinates =
+    [newCoordinates]
+    ++ right
+    ++ uniqueCoordinates x currentWidth (currentDepth - cellHeight) (right ++ takenCoordinates)
+    where
+        newCoordinates = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+        right = uniqueCoordinates z (currentWidth + cellWidth) (currentDepth - cellHeight) (newCoordinates : takenCoordinates)
 
 flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
 flattenSteps (Leaf x) currentWidth currentDepth =
@@ -108,6 +131,9 @@ render Main.End x y = endShape $ uniqueName x y
 render Main.Decision x y = decisionShape $ uniqueName x y
 render Main.Command x y = commandShape $ uniqueName x y
 
-main = mainWith $
-    position (flattenSteps steps 0.0 0.0)
-    # lw veryThin
+main = do
+    putStrLn . show $ uniqueCoordinates steps 0.0 0.0 []
+
+-- main = mainWith $
+--    position (flattenSteps steps 0.0 0.0)
+--    # lw veryThin
