@@ -94,60 +94,68 @@ steps =
                 Main.Decision
                 (Leaf Main.End)))
 
-nextAvailableCoordinates :: Double -> Double -> [OriginCoordinates] -> Double
+steps1 :: Tree Step
+steps1 =
+    Node1
+        (Main.Start)
+        (Node1
+            Main.Command
+                (Node2
+                    (Node1
+                        Main.Command
+                        (Leaf Main.End))
+                    Main.Decision
+                    (Node1
+                        Main.Command
+                        (Node1
+                            Main.Command
+                            (Node2
+                                (Leaf Main.End)
+                                Main.Decision
+                                (Leaf Main.End))))))
+
+nextAvailableCoordinates :: Double -> Double -> [(OriginCoordinates, Diagram B)] -> Double
 nextAvailableCoordinates x y takenCoordinates =
-    if elem (p2 (x, y)) takenCoordinates
+    if any (\(coordinates, diagram) -> (p2 (x, y)) == coordinates) takenCoordinates
     then nextAvailableCoordinates x (y - cellHeight) takenCoordinates
     else y
 
-nextAvailableCoordinatesForBranchingStep :: Double -> Double -> [OriginCoordinates] -> Double
+nextAvailableCoordinatesForBranchingStep :: Double -> Double -> [(OriginCoordinates, Diagram B)] -> Double
 nextAvailableCoordinatesForBranchingStep x y takenCoordinates =
-    if (elem (p2 (x, y)) takenCoordinates) || (elem (p2 (x + cellWidth, y)) takenCoordinates)
+    if
+        (any (\(coordinates, diagram) -> (p2 (x, y)) == coordinates) takenCoordinates)
+        || (any (\(coordinates, diagram) -> (p2 (x + cellWidth, y)) == coordinates) takenCoordinates)
     then nextAvailableCoordinatesForBranchingStep x (y - cellHeight) takenCoordinates
     else y
 
-uniqueCoordinates :: Tree Step -> Double -> Double -> [OriginCoordinates] -> [(OriginCoordinates, Diagram B)]
+uniqueCoordinates :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)] -> [(OriginCoordinates, Diagram B)]
 uniqueCoordinates (Leaf x) currentWidth currentDepth takenCoordinates =
     [(newCoordinates, Main.render x currentWidth newDepth)]
     where
         newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
 uniqueCoordinates (Node1 x y) currentWidth currentDepth takenCoordinates =
-    [(newCoordinates, Main.render x currentWidth newDepth)]
-    ++ uniqueCoordinates y currentWidth (newDepth - cellHeight) (newCoordinates : takenCoordinates)
+    [(newCoordinates, diagram)]
+    ++ uniqueCoordinates y currentWidth (newDepth - cellHeight) ((newCoordinates, diagram) : takenCoordinates)
     where
         newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
+        diagram = Main.render x currentWidth newDepth
 uniqueCoordinates (Node2 x y z) currentWidth currentDepth takenCoordinates =
-    [(newCoordinates, Main.render y currentWidth newDepth)]
+    [(newCoordinates, diagram)]
     ++ right
-    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (allTaken ++ takenCoordinates)
+    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (right ++ takenCoordinates)
     where
         newDepth = nextAvailableCoordinatesForBranchingStep currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
-        right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) (newCoordinates : takenCoordinates)
-        --very inefficient
-        allTaken = [coordinate | (coordinate, diagram) <- right]
-
-flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
-flattenSteps (Leaf x) currentWidth currentDepth =
-    [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
-flattenSteps (Node1 x y) currentWidth currentDepth =
-    [(p2 (currentWidth, currentDepth), (Main.render x currentWidth currentDepth))]
-    ++ flattenSteps y currentWidth (currentDepth - cellHeight)
-flattenSteps (Node2 x y z) currentWidth currentDepth =
-    flattenSteps x currentWidth (currentDepth - cellHeight)
-    ++ [(p2 (currentWidth, currentDepth), (Main.render y currentWidth currentDepth))]
-    ++ flattenSteps z (currentWidth + cellWidth) (currentDepth - cellHeight)
+        right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) ((newCoordinates, diagram) : takenCoordinates)
+        diagram = Main.render y currentWidth newDepth
 
 render :: Step -> Double -> Double -> Diagram B
 render Main.Start x y = startShape $ uniqueName x y
 render Main.End x y = endShape $ uniqueName x y
 render Main.Decision x y = decisionShape $ uniqueName x y
 render Main.Command x y = commandShape $ uniqueName x y
-
--- main = do
---   putStrLn . show $ uniqueCoordinates steps 0.0 0.0 []
 
 main = mainWith $
     position (uniqueCoordinates steps 0.0 0.0 [])
