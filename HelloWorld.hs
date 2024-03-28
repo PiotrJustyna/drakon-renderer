@@ -106,26 +106,28 @@ nextAvailableCoordinatesForBranchingStep x y takenCoordinates =
     then nextAvailableCoordinatesForBranchingStep x (y - cellHeight) takenCoordinates
     else y
 
-uniqueCoordinates :: Tree Step -> Double -> Double -> [OriginCoordinates] -> [OriginCoordinates]
-uniqueCoordinates (Leaf _) currentWidth currentDepth takenCoordinates =
-    [newCoordinates]
+uniqueCoordinates :: Tree Step -> Double -> Double -> [OriginCoordinates] -> [(OriginCoordinates, Diagram B)]
+uniqueCoordinates (Leaf x) currentWidth currentDepth takenCoordinates =
+    [(newCoordinates, Main.render x currentWidth newDepth)]
     where
         newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
-uniqueCoordinates (Node1 _ x) currentWidth currentDepth takenCoordinates =
-    [newCoordinates]
-    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (newCoordinates : takenCoordinates)
+uniqueCoordinates (Node1 x y) currentWidth currentDepth takenCoordinates =
+    [(newCoordinates, Main.render x currentWidth newDepth)]
+    ++ uniqueCoordinates y currentWidth (newDepth - cellHeight) (newCoordinates : takenCoordinates)
     where
         newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
-uniqueCoordinates (Node2 x _ z) currentWidth currentDepth takenCoordinates =
-    [newCoordinates]
+uniqueCoordinates (Node2 x y z) currentWidth currentDepth takenCoordinates =
+    [(newCoordinates, Main.render y currentWidth newDepth)]
     ++ right
-    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (right ++ takenCoordinates)
+    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (allTaken ++ takenCoordinates)
     where
         newDepth = nextAvailableCoordinatesForBranchingStep currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
         right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) (newCoordinates : takenCoordinates)
+        --very inefficient
+        allTaken = [coordinate | (coordinate, diagram) <- right]
 
 flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
 flattenSteps (Leaf x) currentWidth currentDepth =
@@ -144,9 +146,9 @@ render Main.End x y = endShape $ uniqueName x y
 render Main.Decision x y = decisionShape $ uniqueName x y
 render Main.Command x y = commandShape $ uniqueName x y
 
-main = do
-    putStrLn . show $ uniqueCoordinates steps 0.0 0.0 []
+-- main = do
+--   putStrLn . show $ uniqueCoordinates steps 0.0 0.0 []
 
--- main = mainWith $
---    position (flattenSteps steps 0.0 0.0)
---    # lw veryThin
+main = mainWith $
+    position (uniqueCoordinates steps 0.0 0.0 [])
+    # lw veryThin
