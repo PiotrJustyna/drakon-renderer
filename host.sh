@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 CERTIFICATE_DIRECTORY="$HOME/.ssh/"
 
