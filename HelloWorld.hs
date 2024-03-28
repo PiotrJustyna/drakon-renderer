@@ -94,25 +94,38 @@ steps =
                 Main.Decision
                 (Leaf Main.End)))
 
-nextAvailableCoordinates :: Double -> Double -> [OriginCoordinates] -> OriginCoordinates
+nextAvailableCoordinates :: Double -> Double -> [OriginCoordinates] -> Double
 nextAvailableCoordinates x y takenCoordinates =
-    if elem (p2 (x, y)) takenCoordinates then p2 (6.0, 6.0) else p2 (x, y)
+    if elem (p2 (x, y)) takenCoordinates
+    then nextAvailableCoordinates x (y - cellHeight) takenCoordinates
+    else y
+
+nextAvailableCoordinatesForBranchingStep :: Double -> Double -> [OriginCoordinates] -> Double
+nextAvailableCoordinatesForBranchingStep x y takenCoordinates =
+    if (elem (p2 (x, y)) takenCoordinates) || (elem (p2 (x + cellWidth, y)) takenCoordinates)
+    then nextAvailableCoordinatesForBranchingStep x (y - cellHeight) takenCoordinates
+    else y
 
 uniqueCoordinates :: Tree Step -> Double -> Double -> [OriginCoordinates] -> [OriginCoordinates]
 uniqueCoordinates (Leaf _) currentWidth currentDepth takenCoordinates =
-    [nextAvailableCoordinates currentWidth currentDepth takenCoordinates]
+    [newCoordinates]
+    where
+        newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+        newCoordinates = p2 (currentWidth, newDepth)
 uniqueCoordinates (Node1 _ x) currentWidth currentDepth takenCoordinates =
     [newCoordinates]
-    ++ uniqueCoordinates x currentWidth (currentDepth - cellHeight) (newCoordinates : takenCoordinates)
+    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (newCoordinates : takenCoordinates)
     where
-        newCoordinates = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+        newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+        newCoordinates = p2 (currentWidth, newDepth)
 uniqueCoordinates (Node2 x _ z) currentWidth currentDepth takenCoordinates =
     [newCoordinates]
     ++ right
-    ++ uniqueCoordinates x currentWidth (currentDepth - cellHeight) (right ++ takenCoordinates)
+    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (right ++ takenCoordinates)
     where
-        newCoordinates = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
-        right = uniqueCoordinates z (currentWidth + cellWidth) (currentDepth - cellHeight) (newCoordinates : takenCoordinates)
+        newDepth = nextAvailableCoordinatesForBranchingStep currentWidth currentDepth takenCoordinates
+        newCoordinates = p2 (currentWidth, newDepth)
+        right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) (newCoordinates : takenCoordinates)
 
 flattenSteps :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)]
 flattenSteps (Leaf x) currentWidth currentDepth =
