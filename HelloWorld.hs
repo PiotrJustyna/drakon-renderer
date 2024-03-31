@@ -49,23 +49,26 @@ startShape name = text (name ++ ": start") # fontSize (local 0.1) # light # font
 endShape :: Main.Name -> Double -> Double -> Diagram B
 endShape name x y = text (name ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
     roundedRect stepWidth stepHeight 0.5 # showOrigin # named name <>
-    fromOffsets [V2 x y]
+    fromOffsets [V2 0 y] <>
+    fromOffsets [V2 x 0] # translate (r2 (0, y))
 
 commandShape :: Main.Name -> Double -> Double -> Diagram B
 commandShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
     rect stepWidth stepHeight # showOrigin # named name <>
-    fromOffsets [V2 x y]
+    fromOffsets [V2 0 y] <>
+    fromOffsets [V2 x 0] # translate (r2 (0, y))
 
 decisionShape :: Main.Name -> Double -> Double -> Diagram B
 decisionShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
-        fromOffsets
-        [V2 (-0.1) (stepHeight * 0.5),
-        V2 0.1 (stepHeight * 0.5),
-        V2 (stepWidth - 0.1 - 0.1) 0.0,
-        V2 0.1 (stepHeight * (-0.5)),
-        V2 (-0.1) (stepHeight * (-0.5)),
-        V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named name <>
-        fromOffsets [V2 x y]
+    fromOffsets
+    [V2 (-0.1) (stepHeight * 0.5),
+    V2 0.1 (stepHeight * 0.5),
+    V2 (stepWidth - 0.1 - 0.1) 0.0,
+    V2 0.1 (stepHeight * (-0.5)),
+    V2 (-0.1) (stepHeight * (-0.5)),
+    V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named name <>
+    fromOffsets [V2 0 y] <>
+    fromOffsets [V2 x 0] # translate (r2 (0, y))
 
 uniqueName :: Double -> Double -> Main.Name
 uniqueName x y = "x" ++ (show x) ++ "y" ++ (show y)
@@ -159,5 +162,5 @@ render Main.Decision x1 y1 x2 y2 = decisionShape (uniqueName x1 y1) x2 y2
 render Main.Command x1 y1 x2 y2 = commandShape (uniqueName x1 y1) x2 y2
 
 main = mainWith $
-    position (uniqueCoordinates steps1 0.0 0.0 0.0 0.0 [])
+    position (uniqueCoordinates steps 0.0 0.0 0.0 0.0 [])
     # lw veryThin
