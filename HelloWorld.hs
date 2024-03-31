@@ -68,7 +68,9 @@ decisionShape name x y = text name # fontSize (local 0.1) # light # font "courie
     V2 (-0.1) (stepHeight * (-0.5)),
     V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named name <>
     fromOffsets [V2 0 y] <>
-    fromOffsets [V2 x 0] # translate (r2 (0, y))
+    fromOffsets [V2 x 0] # translate (r2 (0, y)) <>
+    text "yes" # fontSize (local 0.1) # light # font "courier" # translate (r2 (stepWidth * (-0.1), stepHeight * (-0.7))) <>
+    text "no" # fontSize (local 0.1) # light # font "courier" # translate (r2 (stepWidth * 0.6, stepHeight * 0.15))
 
 uniqueName :: Double -> Double -> Main.Name
 uniqueName x y = "x" ++ (show x) ++ "y" ++ (show y)
