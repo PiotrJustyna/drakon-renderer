@@ -43,30 +43,29 @@ shortestDistanceBetweenSteps :: Double
 shortestDistanceBetweenSteps = cellHeight * (1.0 - stepHeightToCellHeightRatio)
 
 startShape :: Main.Name -> Diagram B
-startShape x = text ((show x) ++ ": start") # fontSize (local 0.1) # light # font "courier" <>
-    roundedRect stepWidth stepHeight 0.5 # showOrigin # named x <>
-    fromOffsets [V2 0.0 (shortestDistanceBetweenSteps * (-1.0))] # translate (r2 (0.0, stepHeight * (-0.5)))
+startShape name = text (name ++ ": start") # fontSize (local 0.1) # light # font "courier" <>
+    roundedRect stepWidth stepHeight 0.5 # showOrigin # named name
 
-endShape :: Main.Name -> Diagram B
-endShape x = text ((show x) ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
-    roundedRect stepWidth stepHeight 0.5 # showOrigin # named x
+endShape :: Main.Name -> Double -> Double -> Diagram B
+endShape name x y = text (name ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
+    roundedRect stepWidth stepHeight 0.5 # showOrigin # named name <>
+    fromOffsets [V2 x y]
 
-commandShape :: Main.Name -> Diagram B
-commandShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <>
-    rect stepWidth stepHeight # showOrigin # named x <>
-    fromOffsets [V2 0.0 (shortestDistanceBetweenSteps * (-1.0))] # translate (r2 (0.0, stepHeight * (-0.5)))
+commandShape :: Main.Name -> Double -> Double -> Diagram B
+commandShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
+    rect stepWidth stepHeight # showOrigin # named name <>
+    fromOffsets [V2 x y]
 
-decisionShape :: Main.Name -> Diagram B
-decisionShape x = text (show x) # fontSize (local 0.1) # light # font "courier" <>
+decisionShape :: Main.Name -> Double -> Double -> Diagram B
+decisionShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
         fromOffsets
         [V2 (-0.1) (stepHeight * 0.5),
         V2 0.1 (stepHeight * 0.5),
         V2 (stepWidth - 0.1 - 0.1) 0.0,
         V2 0.1 (stepHeight * (-0.5)),
         V2 (-0.1) (stepHeight * (-0.5)),
-        V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named x <>
-        fromOffsets [V2 0.0 (shortestDistanceBetweenSteps * (-1.0))] # translate (r2 (0.0, stepHeight * (-0.5))) <>
-        fromOffsets [V2 (cellWidth - (stepWidth * 0.5)) 0.0, V2 0.0 (shortestDistanceBetweenSteps + (stepHeight * 0.5)) * (-1.0)] # translate (r2 (stepWidth * 0.5, 0.0))
+        V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named name <>
+        fromOffsets [V2 x y]
 
 uniqueName :: Double -> Double -> Main.Name
 uniqueName x y = "x" ++ (show x) ++ "y" ++ (show y)
@@ -128,35 +127,37 @@ nextAvailableCoordinatesForBranchingStep x y takenCoordinates =
     then nextAvailableCoordinatesForBranchingStep x (y - cellHeight) takenCoordinates
     else y
 
-uniqueCoordinates :: Tree Step -> Double -> Double -> [(OriginCoordinates, Diagram B)] -> [(OriginCoordinates, Diagram B)]
-uniqueCoordinates (Leaf x) currentWidth currentDepth takenCoordinates =
-    [(newCoordinates, Main.render x currentWidth newDepth)]
-    where
-        newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
-        newCoordinates = p2 (currentWidth, newDepth)
-uniqueCoordinates (Node1 x y) currentWidth currentDepth takenCoordinates =
+uniqueCoordinates :: Tree Step -> Double -> Double -> Double -> Double -> [(OriginCoordinates, Diagram B)] -> [(OriginCoordinates, Diagram B)]
+uniqueCoordinates (Leaf x) currentWidth currentDepth previousStepOriginCoordinateX previousStepOriginCoordinateY takenCoordinates =
     [(newCoordinates, diagram)]
-    ++ uniqueCoordinates y currentWidth (newDepth - cellHeight) ((newCoordinates, diagram) : takenCoordinates)
     where
         newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
-        diagram = Main.render x currentWidth newDepth
-uniqueCoordinates (Node2 x y z) currentWidth currentDepth takenCoordinates =
+        diagram = Main.render x currentWidth newDepth (previousStepOriginCoordinateX - currentWidth) (previousStepOriginCoordinateY - newDepth)
+uniqueCoordinates (Node1 x y) currentWidth currentDepth previousStepOriginCoordinateX previousStepOriginCoordinateY takenCoordinates =
+    [(newCoordinates, diagram)]
+    ++ subTreeCoordinates
+    where
+        newDepth = nextAvailableCoordinates currentWidth currentDepth takenCoordinates
+        newCoordinates = p2 (currentWidth, newDepth)
+        diagram = Main.render x currentWidth newDepth (previousStepOriginCoordinateX - currentWidth) (previousStepOriginCoordinateY - newDepth)
+        subTreeCoordinates = uniqueCoordinates y currentWidth (newDepth - cellHeight) currentWidth newDepth ((newCoordinates, diagram) : takenCoordinates)
+uniqueCoordinates (Node2 x y z) currentWidth currentDepth previousStepOriginCoordinateX previousStepOriginCoordinateY takenCoordinates =
     [(newCoordinates, diagram)]
     ++ right
-    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) (right ++ takenCoordinates)
+    ++ uniqueCoordinates x currentWidth (newDepth - cellHeight) currentWidth newDepth (right ++ takenCoordinates)
     where
         newDepth = nextAvailableCoordinatesForBranchingStep currentWidth currentDepth takenCoordinates
         newCoordinates = p2 (currentWidth, newDepth)
-        right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) ((newCoordinates, diagram) : takenCoordinates)
-        diagram = Main.render y currentWidth newDepth
+        right = uniqueCoordinates z (currentWidth + cellWidth) (newDepth - cellHeight) currentWidth newDepth ((newCoordinates, diagram) : takenCoordinates)
+        diagram = Main.render y currentWidth newDepth (previousStepOriginCoordinateX - currentWidth) (previousStepOriginCoordinateY - newDepth)
 
-render :: Step -> Double -> Double -> Diagram B
-render Main.Start x y = startShape $ uniqueName x y
-render Main.End x y = endShape $ uniqueName x y
-render Main.Decision x y = decisionShape $ uniqueName x y
-render Main.Command x y = commandShape $ uniqueName x y
+render :: Step -> Double -> Double -> Double -> Double -> Diagram B
+render Main.Start x1 y1 x2 y2 = startShape $ uniqueName x1 y1
+render Main.End x1 y1 x2 y2 = endShape (uniqueName x1 y1) x2 y2
+render Main.Decision x1 y1 x2 y2 = decisionShape (uniqueName x1 y1) x2 y2
+render Main.Command x1 y1 x2 y2 = commandShape (uniqueName x1 y1) x2 y2
 
 main = mainWith $
-    position (uniqueCoordinates steps 0.0 0.0 [])
+    position (uniqueCoordinates steps1 0.0 0.0 0.0 0.0 [])
     # lw veryThin
