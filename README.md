@@ -25,3 +25,4 @@
 * [drakon](https://drakonhub.com/read/docs)
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
 * [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
+* [99 haskell problems](https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems)
