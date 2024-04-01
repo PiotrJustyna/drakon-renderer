@@ -49,32 +49,31 @@ connectionToPreviousStep x y =
 
 startShape :: Main.Name -> Diagram B
 startShape name = text (name ++ ": start") # fontSize (local 0.1) # light # font "courier" <>
-    roundedRect stepWidth stepHeight 0.5 # showOrigin # named name
+    roundedRect stepWidth stepHeight 0.5 # showOrigin
 
 endShape :: Main.Name -> Double -> Double -> Diagram B
 endShape name x y = text (name ++ ": end") # fontSize (local 0.1) # thinWeight # font "courier" <>
-    roundedRect stepWidth stepHeight 0.5 # showOrigin # named name <>
+    roundedRect stepWidth stepHeight 0.5 # showOrigin <>
     connectionToPreviousStep x y
 
 commandShape :: Main.Name -> Double -> Double -> Diagram B
 commandShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
-    rect stepWidth stepHeight # showOrigin # named name <>
-    fromOffsets [V2 0 (y - (if (abs x) > 0 then stepHeight * 0.5 else stepHeight))] # translate (r2 (0, stepHeight * 0.5)) <>
-    fromOffsets [V2 (if (abs x > 0) then (x + (stepWidth * 0.5)) else 0) 0] # translate (r2 (0, y))
+    rect stepWidth stepHeight # showOrigin <>
+    connectionToPreviousStep x y
 
 decisionShape :: Main.Name -> Double -> Double -> Diagram B
-decisionShape name x y = text name # fontSize (local 0.1) # light # font "courier" <>
-    fromOffsets
-    [V2 (-0.1) (stepHeight * 0.5),
-    V2 0.1 (stepHeight * 0.5),
-    V2 (stepWidth - 0.1 - 0.1) 0.0,
-    V2 0.1 (stepHeight * (-0.5)),
-    V2 (-0.1) (stepHeight * (-0.5)),
-    V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin # named name <>
-    fromOffsets [V2 0 (y - (if (abs x) > 0 then stepHeight * 0.5 else stepHeight))] # translate (r2 (0, stepHeight * 0.5)) <>
-    fromOffsets [V2 (if (abs x > 0) then (x + (stepWidth * 0.5)) else 0) 0] # translate (r2 (0, y)) <>
+decisionShape name x y =
+    text name # fontSize (local 0.1) # light # font "courier" <>
     text "yes" # fontSize (local 0.1) # light # font "courier" # translate (r2 (stepWidth * (-0.1), stepHeight * (-0.7))) <>
-    text "no" # fontSize (local 0.1) # light # font "courier" # translate (r2 (stepWidth * 0.6, stepHeight * 0.15))
+    text "no" # fontSize (local 0.1) # light # font "courier" # translate (r2 (stepWidth * 0.6, stepHeight * 0.15)) <>
+    fromOffsets
+        [V2 (-0.1) (stepHeight * 0.5),
+        V2 0.1 (stepHeight * 0.5),
+        V2 (stepWidth - 0.1 - 0.1) 0.0,
+        V2 0.1 (stepHeight * (-0.5)),
+        V2 (-0.1) (stepHeight * (-0.5)),
+        V2 ((stepWidth - 0.1 - 0.1) * (-1.0)) 0.0] # translate (r2 (((stepWidth - 0.1 - 0.1) * (-0.5)), (-0.2))) # showOrigin <>
+    connectionToPreviousStep x y
 
 uniqueName :: Double -> Double -> Main.Name
 uniqueName x y = "x" ++ (show x) ++ "y" ++ (show y)
