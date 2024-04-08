@@ -2,12 +2,12 @@
 
 ## development environment
 
-* start - `./host.sh`
-* exit - `exit`
-
-## hello world
-
-* `ghc HelloWorld.hs && ./HelloWorld`
+| command | description |
+| --- | --- |
+| `./host.sh` | starts development environment |
+| `cabal build` | builds code |
+| `cabal run` | builds (if required) and runs code |
+| `exit` | terminates development environment |
 
 ## resources
 
