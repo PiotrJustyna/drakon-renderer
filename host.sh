@@ -11,4 +11,4 @@ docker run \
   -it \
   -v "$(pwd):/root/code/drakon-renderer" \
   -v "$CERTIFICATE_DIRECTORY:/root/.ssh:ro" \
-  "drakon-renderer:latest"
+  --rm "drakon-renderer:latest"

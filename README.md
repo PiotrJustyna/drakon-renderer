@@ -7,18 +7,7 @@
 
 ## hello world
 
-* `ghc HelloWorld.hs && ./HelloWorld -o hello-world.svg -w 200`
-
-![hello-world](./hello-world.svg)
-
-## terminology:
-
-* start - first step of a diagram
-* end - last step of a diagram
-* command - "do X" non-branching action, basic building block of a diagram
-* decision - branching step with two possible outcomes:
-  * yes
-  * no
+* `ghc HelloWorld.hs && ./HelloWorld`
 
 ## resources
 
@@ -26,4 +15,6 @@
 * [drakon](https://drakonhub.com/read/docs)
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
 * [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
-* [99 haskell problems](https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems)
+* useful haskell modules:
+  * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
+  * [GHC.Utils.Outputable](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Utils-Outputable.html)

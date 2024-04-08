@@ -12,18 +12,13 @@ RUN \
     zlib-dev \
     g++ \
     ghc \
-    cabal && \
-  git config --global --add safe.directory "/root/code/drakon-renderer"
+    cabal \
+    zsh \
+  && \
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
+  && \
+  git config --global --add safe.directory "/root/code/drakon-renderer" \
+  && \
+  cabal update
 
-RUN \
-  cabal update \
-  && \
-  cabal install --lib diagrams \
-  && \
-  cabal install --lib diagrams-lib \
-  && \
-  cabal install --lib diagrams-svg \
-  && \
-  cabal install --lib base
-
-CMD [ "/bin/sh" ]
+CMD [ "/bin/zsh" ]
