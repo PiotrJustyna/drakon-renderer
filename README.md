@@ -7,6 +7,7 @@
 | `./host.sh` | starts development environment |
 | `cabal build` | builds code |
 | `cabal run` | builds (if required) and runs code |
+| `hlint .` | scans the whole current directory with hlint |
 | `exit` | terminates development environment |
 
 ## resources

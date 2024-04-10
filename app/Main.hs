@@ -29,9 +29,8 @@ node7 = DigraphNode { node_payload = "end", node_key = 7, node_dependencies = [6
 graph :: Graph (Node Int String)
 graph = graphFromEdgedVerticesUniq [node1, node2, node3, node4, node5, node6, node7]
 
+payload :: Node Int String -> String
+payload DigraphNode { node_payload = x, node_key = _, node_dependencies = _ } = x
+
 main :: IO ()
-main = printSDocLn
-  defaultSDocContext
-  LeftMode
-  stderr
-  (ppr graph)
+main = printSDocLn defaultSDocContext LeftMode stderr $ ppr graph

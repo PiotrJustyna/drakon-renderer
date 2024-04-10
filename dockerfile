@@ -20,6 +20,10 @@ RUN \
   && \
   git config --global --add safe.directory "/root/code/drakon-renderer" \
   && \
-  cabal update
+  cabal update \
+  && \
+  cabal install hlint \
+  && \
+  export PATH=$PATH:/root/.local/bin
 
 CMD [ "/bin/zsh" ]
