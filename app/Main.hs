@@ -1,8 +1,12 @@
 module Main where
 
+import Diagrams.Prelude
+import Diagrams.Backend.SVG
+
 import GHC.Data.Graph.Directed
 import GHC.Utils.Outputable
 import GHC.Utils.Ppr
+
 import System.IO
 
 node1 :: Node Int String
@@ -31,6 +35,29 @@ graph = graphFromEdgedVerticesUniq [node1, node2, node3, node4, node5, node6, no
 
 payload :: Node Int String -> String
 payload DigraphNode { node_payload = x, node_key = _, node_dependencies = _ } = x
+
+lengthUnit :: Double
+lengthUnit = 1.0
+
+cellWidth :: Double
+cellWidth = lengthUnit
+
+cellHeight :: Double
+cellHeight = lengthUnit
+
+iconWidth :: Double
+iconWidth = 2.0 * cellWidth
+
+iconHeight :: Double
+iconHeight = cellHeight
+
+startShape :: Bool -> Diagram B
+startShape troubleshootingMode = do
+  let shape = roundedRect iconWidth iconHeight 0.5
+
+  if troubleshootingMode
+    then showOrigin shape
+    else shape
 
 main :: IO ()
 main = printSDocLn defaultSDocContext LeftMode stderr $ ppr graph
