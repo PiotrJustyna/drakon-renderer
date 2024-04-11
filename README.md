@@ -6,7 +6,7 @@
 | --- | --- |
 | `./host.sh` | starts development environment |
 | `cabal build` | builds code |
-| `cabal run` | builds (if required) and runs code |
+| `cabal run drakon-renderer -- -o hello-world.svg -w 200` | builds (if required) and runs code |
 | `hlint .` | scans the whole current directory with hlint |
 | `exit` | terminates development environment |
 
