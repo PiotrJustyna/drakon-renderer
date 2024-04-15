@@ -1,7 +1,9 @@
 module Main where
 
-import Diagrams.Backend.SVG.CmdLine
-import Diagrams.Prelude
+import qualified Data.Map
+
+import qualified Diagrams.Backend.SVG.CmdLine
+import qualified Diagrams.Prelude
 
 import GHC.Data.Graph.Directed
 import qualified GHC.Utils.Outputable
@@ -12,7 +14,7 @@ import System.IO
 -- constructing the graph ->
 
 node1 :: Node Int String
-node1 = DigraphNode { node_payload = "title", node_key = 1, node_dependencies = [2, 3] }
+node1 = DigraphNode { node_payload = "title", node_key = titleIconKey, node_dependencies = [2, 3] }
 
 node2 :: Node Int String
 node2 = DigraphNode { node_payload = "Do you have money?", node_key = 2, node_dependencies = [3] }
@@ -35,8 +37,11 @@ node7 = DigraphNode { node_payload = "end", node_key = 7, node_dependencies = []
 graph :: Graph (Node Int String)
 graph = graphFromEdgedVerticesUniq [node1, node2, node3, node4, node5, node6, node7]
 
-icons :: [Node Int String]
-icons = verticesG graph
+icons :: Data.Map.Map Int (Node Int String)
+icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ verticesG graph
+
+iconsWithKeys :: [Int] -> [Node Int String]
+iconsWithKeys ks = Data.Map.foldlWithKey (\acc k a -> if k `elem` ks then a:acc else acc) [] icons
 
 -- <- constructing the graph
 
@@ -45,40 +50,24 @@ icons = verticesG graph
 payload :: Node Int String -> String
 payload DigraphNode { node_payload = x, node_key = _, node_dependencies = _ } = x
 
+key :: Node Int String -> Int
+key DigraphNode { node_payload = _, node_key = x, node_dependencies = _ } = x
+
 dependencies :: Node Int String -> [Int]
 dependencies DigraphNode { node_payload = _, node_key = _, node_dependencies = x } = x
 
-isTitleIcon :: Node Int String -> Bool
-isTitleIcon x = "title" == payload x
-
--- TODO 1: add unit tests
--- TODO 2: add documentation
-titleIcon :: Maybe (Node Int String)
-titleIcon = do
-  let titleIcons = filter isTitleIcon icons
-  
-  case titleIcons of
-    [y] -> Just y   -- expected result - only one title icon found
-    _:_ -> Nothing  -- there can only be one title icon
-    []  -> Nothing  -- no title icons
-
-visualGraph :: [(Point V2 Double, Diagram B)]
+visualGraph :: [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
 visualGraph = do
-  case titleIcon of
-    Nothing -> []
-    Just x -> (p2 (0.0, 0.0), startShape $ payload x) : (xyz (take 3 icons) 0.0)
+  let titleIcon                 = icons Data.Map.! titleIconKey
+  let titleIconPayload          = payload titleIcon
+  let titleIconDependenciesKeys = dependencies titleIcon
+  let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
+  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies 0.0
 
-xyz :: [Node Int String] -> Double -> [(Point V2 Double, Diagram B)]
-xyz [] _ = []
-xyz [x] width = [(p2 (width, -1.0), startShape "dupa")]
-xyz (x:xs) width = (p2 (width, -1.0), startShape "dupa") : (xyz xs (width + iconWidth))
-
---xyz :: Node Int String -> [(Point V2 Double, Diagram B)]
---xyz x = do
---  let xDependencies = dependencies x
-  -- let xPayload      = payload x
-
---  foldl (\acc _ -> (p2 (0.0, -1.0), startShape "dupa") : acc) [] xDependencies
+visualSubgraph :: [Node Int String] -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
+visualSubgraph [] _          = []
+visualSubgraph [x] width     = [(Diagrams.Prelude.p2 (width, -1.0), startShape $ payload x)]
+visualSubgraph (x:xs) width  = (Diagrams.Prelude.p2 (width, -1.0), startShape $ payload x) : visualSubgraph xs (width + cellWidth)
 
 -- <- graph manipulation
 
@@ -88,31 +77,34 @@ lengthUnit :: Double
 lengthUnit = 1.0
 
 cellWidth :: Double
-cellWidth = lengthUnit
+cellWidth = 2.0 * lengthUnit
 
 cellHeight :: Double
 cellHeight = lengthUnit
 
 iconWidth :: Double
-iconWidth = 2.0 * cellWidth
+iconWidth = 0.8 * cellWidth
 
 iconHeight :: Double
-iconHeight = cellHeight
+iconHeight = 0.4 * cellHeight
 
 -- <- visual constants
+
+titleIconKey :: Int
+titleIconKey = 1
 
 troubleshootingMode :: Bool
 troubleshootingMode = True
 
-startShape :: String -> Diagram B
+startShape :: String -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 startShape x = do
-  let shape = text x # fontSize (local 0.1) # light # font "courier" <> roundedRect iconWidth iconHeight 0.5
+  let shape = Diagrams.Prelude.text x Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.075) Diagrams.Prelude.# Diagrams.Prelude.light Diagrams.Prelude.# Diagrams.Prelude.font "courier" <> Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
 
   if troubleshootingMode
-    then showOrigin shape
+    then Diagrams.Prelude.showOrigin shape
     else shape
 
 main :: IO ()
 main = do
   GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode stderr $ GHC.Utils.Outputable.ppr graph
-  mainWith $ position visualGraph
+  Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph

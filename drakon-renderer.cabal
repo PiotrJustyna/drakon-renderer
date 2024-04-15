@@ -64,7 +64,8 @@ executable drakon-renderer
                         ghc,
                         diagrams,
                         diagrams-lib,
-                        diagrams-svg
+                        diagrams-svg,
+                        containers
 
     hs-source-dirs:     app
 
