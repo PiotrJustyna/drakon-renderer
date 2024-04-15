@@ -62,12 +62,12 @@ visualGraph = do
   let titleIconPayload          = payload titleIcon
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies 0.0
+  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies 0.0 (-1.0)
 
-visualSubgraph :: [Node Int String] -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
-visualSubgraph [] _          = []
-visualSubgraph [x] width     = [(Diagrams.Prelude.p2 (width, -1.0), startShape $ payload x)]
-visualSubgraph (x:xs) width  = (Diagrams.Prelude.p2 (width, -1.0), startShape $ payload x) : visualSubgraph xs (width + cellWidth)
+visualSubgraph :: [Node Int String] -> Double -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
+visualSubgraph [] _ _             = []
+visualSubgraph [x] width depth    = (Diagrams.Prelude.p2 (width, depth), startShape $ payload x) : visualSubgraph (iconsWithKeys (dependencies x)) width (depth - cellHeight)
+visualSubgraph (x:xs) width depth = (Diagrams.Prelude.p2 (width, depth), startShape $ payload x) : visualSubgraph (iconsWithKeys (dependencies x)) width (depth - cellHeight) ++ visualSubgraph xs (width + cellWidth) depth
 
 -- <- graph manipulation
 
