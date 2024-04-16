@@ -1,5 +1,21 @@
 # drakon-renderer
 
+Haskell drakon renderer.
+
+## terminology
+
+
+* title - first step of a diagram
+* end - last step of a diagram
+* action - "do X" non-branching action, basic building block of a diagram
+* question - branching step with two possible outcomes:
+  * yes
+  * no
+
+[source 1](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
+
+[source 2](https://en.m.wikipedia.org/wiki/DRAKON)
+
 ## development environment
 
 | command | description |

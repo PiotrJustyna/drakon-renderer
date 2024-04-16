@@ -14,34 +14,61 @@ import System.IO
 -- constructing the graph ->
 
 node1 :: Node Int String
-node1 = DigraphNode { node_payload = "title", node_key = titleIconKey, node_dependencies = [2, 3] }
+node1 = DigraphNode { node_payload = "start", node_key = titleIconKey, node_dependencies = [2] }
 
 node2 :: Node Int String
-node2 = DigraphNode { node_payload = "Do you have money?", node_key = 2, node_dependencies = [3] }
+node2 = DigraphNode { node_payload = "decision 1", node_key = 2, node_dependencies = [3, 9] }
 
 node3 :: Node Int String
-node3 = DigraphNode { node_payload = "Are puppies on sale today?", node_key = 3, node_dependencies = [4] }
+node3 = DigraphNode { node_payload = "action 1", node_key = 3, node_dependencies = [4] }
 
 node4 :: Node Int String
-node4 = DigraphNode { node_payload = "Find a puppy", node_key = 4, node_dependencies = [5] }
+node4 = DigraphNode { node_payload = "decision 2", node_key = 4, node_dependencies = [5, 7] }
 
 node5 :: Node Int String
-node5 = DigraphNode { node_payload = "Do you like the puppy?", node_key = 5, node_dependencies = [6] }
+node5 = DigraphNode { node_payload = "action 2", node_key = 5, node_dependencies = [6] }
 
 node6 :: Node Int String
-node6 = DigraphNode { node_payload = "Buy this cute puppy!", node_key = 6, node_dependencies = [7] }
+node6 = DigraphNode { node_payload = "end 1", node_key = 6, node_dependencies = [] }
 
 node7 :: Node Int String
-node7 = DigraphNode { node_payload = "end", node_key = 7, node_dependencies = [] }
+node7 = DigraphNode { node_payload = "action 3", node_key = 7, node_dependencies = [8] }
+
+node8 :: Node Int String
+node8 = DigraphNode { node_payload = "end 2", node_key = 8, node_dependencies = [] }
+
+node9 :: Node Int String
+node9 = DigraphNode { node_payload = "decision 3", node_key = 9, node_dependencies = [10, 12] }
+
+node10 :: Node Int String
+node10 = DigraphNode { node_payload = "action 4", node_key = 10, node_dependencies = [11] }
+
+node11 :: Node Int String
+node11 = DigraphNode { node_payload = "end 3", node_key = 11, node_dependencies = [] }
+
+node12 :: Node Int String
+node12 = DigraphNode { node_payload = "end 4", node_key = 12, node_dependencies = [] }
 
 graph :: Graph (Node Int String)
-graph = graphFromEdgedVerticesUniq [node1, node2, node3, node4, node5, node6, node7]
+graph = graphFromEdgedVerticesUniq
+  [node1,
+  node2,
+  node3,
+  node4,
+  node5,
+  node6,
+  node7,
+  node8,
+  node9,
+  node10,
+  node11,
+  node12]
 
 icons :: Data.Map.Map Int (Node Int String)
 icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ verticesG graph
 
 iconsWithKeys :: [Int] -> [Node Int String]
-iconsWithKeys ks = Data.Map.foldlWithKey (\acc k a -> if k `elem` ks then a:acc else acc) [] icons
+iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] icons
 
 -- <- constructing the graph
 
@@ -59,15 +86,17 @@ dependencies DigraphNode { node_payload = _, node_key = _, node_dependencies = x
 visualGraph :: [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
 visualGraph = do
   let titleIcon                 = icons Data.Map.! titleIconKey
-  let titleIconPayload          = payload titleIcon
+  let titleIconPayload          = payload titleIcon ++ if troubleshootingMode then (" | rendering order: " ++ show titleIconKey) else []
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies 0.0 (-1.0)
+  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 (-1.0)
 
-visualSubgraph :: [Node Int String] -> Double -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
-visualSubgraph [] _ _             = []
-visualSubgraph [x] width depth    = (Diagrams.Prelude.p2 (width, depth), startShape $ payload x) : visualSubgraph (iconsWithKeys (dependencies x)) width (depth - cellHeight)
-visualSubgraph (x:xs) width depth = (Diagrams.Prelude.p2 (width, depth), startShape $ payload x) : visualSubgraph (iconsWithKeys (dependencies x)) width (depth - cellHeight) ++ visualSubgraph xs (width + cellWidth) depth
+visualSubgraph :: [Node Int String] -> Int -> Double -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
+visualSubgraph [] _ _ _             = []
+visualSubgraph [x] renderingOrder width depth    =
+  (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) : visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+visualSubgraph (x:xs) renderingOrder width depth =
+  (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) : visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) ++ visualSubgraph xs (renderingOrder + 1) (width + cellWidth) depth
 
 -- <- graph manipulation
 
