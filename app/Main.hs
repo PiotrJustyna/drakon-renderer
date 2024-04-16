@@ -17,7 +17,7 @@ node1 :: Node Int String
 node1 = DigraphNode { node_payload = "start", node_key = titleIconKey, node_dependencies = [2] }
 
 node2 :: Node Int String
-node2 = DigraphNode { node_payload = "decision 1", node_key = 2, node_dependencies = [3, 9] }
+node2 = DigraphNode { node_payload = "decision 1", node_key = 2, node_dependencies = [3, 9] } -- 9
 
 node3 :: Node Int String
 node3 = DigraphNode { node_payload = "action 1", node_key = 3, node_dependencies = [4] }
@@ -89,14 +89,26 @@ visualGraph = do
   let titleIconPayload          = payload titleIcon ++ if troubleshootingMode then (" | rendering order: " ++ show titleIconKey) else []
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 (-1.0)
+  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : snd (visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 (-1.0))
 
-visualSubgraph :: [Node Int String] -> Int -> Double -> Double -> [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
-visualSubgraph [] _ _ _             = []
+visualSubgraph ::
+  [Node Int String] ->
+  Int ->
+  Double ->
+  Double ->
+  (Int, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
+visualSubgraph [] renderingOrder _ _             = (renderingOrder, [])
 visualSubgraph [x] renderingOrder width depth    =
-  (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) : visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+  (fst qwe, (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) :
+  (snd qwe))
+  where
+    qwe = visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
 visualSubgraph (x:xs) renderingOrder width depth =
-  (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) : visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) ++ visualSubgraph xs (renderingOrder + 1) (width + cellWidth) depth
+  (fst asd, (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) :
+  (snd qwe) ++ (snd asd))
+  where
+    qwe = visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+    asd = visualSubgraph xs (fst qwe) (width + cellWidth) depth
 
 -- <- graph manipulation
 
