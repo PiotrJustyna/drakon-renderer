@@ -93,9 +93,9 @@ iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc 
 conditionalSuffix :: String -> String -> Bool -> String
 conditionalSuffix input suffix condition = if condition then input ++ suffix else input
 
-conditionalRenderingOrderSuffix :: String -> Int -> Bool -> String
-conditionalRenderingOrderSuffix input renderingOrder =
-  conditionalSuffix input (" | rendering order: " ++ show renderingOrder)
+conditionalRenderingSuffix :: String -> Int -> Double -> Bool -> String
+conditionalRenderingSuffix input renderingOrder maxWidth =
+  conditionalSuffix input (" | rendering order: " ++ show renderingOrder ++ " | max width: " ++ show maxWidth)
 
 payload :: GHC.Data.Graph.Directed.Node Int String -> String
 payload GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = x, GHC.Data.Graph.Directed.node_key = _, GHC.Data.Graph.Directed.node_dependencies = _ } = x
@@ -112,10 +112,12 @@ visualGraph ::
 visualGraph = do
   let renderingOrder            = titleIconKey
   let titleIcon                 = icons Data.Map.! titleIconKey
-  let titleIconPayload          = conditionalRenderingOrderSuffix (payload titleIcon) renderingOrder troubleshootingMode
+  let startingWidth             = 0.0
+  let startingDepth             = (-1.0) * cellHeight
+  let titleIconPayload          = conditionalRenderingSuffix (payload titleIcon) renderingOrder startingWidth troubleshootingMode
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  let (_, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) 0.0 ((-1.0) * cellHeight)
+  let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth startingDepth
 
   (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : childSubgraphVisualData
 
@@ -124,36 +126,48 @@ visualSubgraph ::
   Int ->
   Double ->
   Double ->
-  (Int, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
+  (Int, Double, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
-visualSubgraph [] renderingOrder _ _ =
-  (renderingOrder, [])
+visualSubgraph [] renderingOrder width _ =
+  (renderingOrder,
+    width,
+    [])
 
 visualSubgraph [x] renderingOrder width depth = do
-  let (childSubgraphMaxUsedRenderingOrder, childSubgraphVisualData) =
-        visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+  let (childSubgraphMaxUsedRenderingOrder,
+        childSubgraphMaxUsedWidth,
+        childSubgraphVisualData) =
+          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
 
   (childSubgraphMaxUsedRenderingOrder,
-    visualSubgraphNode width depth (payload x) renderingOrder : childSubgraphVisualData)
+    childSubgraphMaxUsedWidth,
+    visualSubgraphNode width depth (payload x) renderingOrder width : childSubgraphVisualData)
 
 visualSubgraph (x:xs) renderingOrder width depth = do
-  let (leftChildSubgraphMaxUsedRenderingOrder, leftChildSubgraphVisualData) =
-        visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
-  let (rightChildSubgraphMaxUsedRenderingOrder, rightChildSubgraphVisualData) =
-        visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder (width + cellWidth) depth
+  let (leftChildSubgraphMaxUsedRenderingOrder,
+        leftChildSubgraphMaxUsedWidth,
+        leftChildSubgraphVisualData) =
+          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+  let newRightChildSubgraphWidth = leftChildSubgraphMaxUsedWidth + cellWidth
+  let (rightChildSubgraphMaxUsedRenderingOrder,
+        rightChildSubgraphMaxUsedWidth,
+        rightChildSubgraphVisualData) =
+          visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder newRightChildSubgraphWidth depth
 
   (rightChildSubgraphMaxUsedRenderingOrder,
-    visualSubgraphNode width depth (payload x) renderingOrder : leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
+    rightChildSubgraphMaxUsedWidth,
+    visualSubgraphNode width depth (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
 visualSubgraphNode ::
   Double ->
   Double ->
   String ->
   Int ->
+  Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
-visualSubgraphNode width depth text renderingOrder =
-  (Diagrams.Prelude.p2 (width, depth), startShape $ conditionalRenderingOrderSuffix text renderingOrder troubleshootingMode)
+visualSubgraphNode width depth text renderingOrder maxWidth =
+  (Diagrams.Prelude.p2 (width, depth), startShape $ conditionalRenderingSuffix text renderingOrder maxWidth troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -193,7 +207,7 @@ startShape ::
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 startShape x = do
-  let shape = Diagrams.Prelude.text x Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.075) Diagrams.Prelude.# Diagrams.Prelude.light Diagrams.Prelude.# Diagrams.Prelude.font "courier" <> Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+  let shape = Diagrams.Prelude.text x Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05) Diagrams.Prelude.# Diagrams.Prelude.light Diagrams.Prelude.# Diagrams.Prelude.font "courier" <> Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
 
   if troubleshootingMode
     then Diagrams.Prelude.showOrigin shape
