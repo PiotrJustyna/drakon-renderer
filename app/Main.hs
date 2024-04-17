@@ -5,65 +5,65 @@ import qualified Data.Map
 import qualified Diagrams.Backend.SVG.CmdLine
 import qualified Diagrams.Prelude
 
-import GHC.Data.Graph.Directed
+import qualified GHC.Data.Graph.Directed
 import qualified GHC.Utils.Outputable
 import qualified GHC.Utils.Ppr
 
-import System.IO
+import qualified System.IO
 
 -- constructing the graph ->
 
 node1 ::
-  Node Int String
-node1 = DigraphNode { node_payload = "start", node_key = titleIconKey, node_dependencies = [2] }
+  GHC.Data.Graph.Directed.Node Int String
+node1 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "start", GHC.Data.Graph.Directed.node_key = titleIconKey, GHC.Data.Graph.Directed.node_dependencies = [2] }
 
 node2 ::
-  Node Int String
-node2 = DigraphNode { node_payload = "decision 1", node_key = 2, node_dependencies = [3, 9] } -- 9
+  GHC.Data.Graph.Directed.Node Int String
+node2 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "decision 1", GHC.Data.Graph.Directed.node_key = 2, GHC.Data.Graph.Directed.node_dependencies = [3, 9] }
 
 node3 ::
-  Node Int String
-node3 = DigraphNode { node_payload = "action 1", node_key = 3, node_dependencies = [4] }
+  GHC.Data.Graph.Directed.Node Int String
+node3 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "action 1", GHC.Data.Graph.Directed.node_key = 3, GHC.Data.Graph.Directed.node_dependencies = [4] }
 
 node4 ::
-  Node Int String
-node4 = DigraphNode { node_payload = "decision 2", node_key = 4, node_dependencies = [5, 7] }
+  GHC.Data.Graph.Directed.Node Int String
+node4 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "decision 2", GHC.Data.Graph.Directed.node_key = 4, GHC.Data.Graph.Directed.node_dependencies = [5, 7] }
 
 node5 ::
-  Node Int String
-node5 = DigraphNode { node_payload = "action 2", node_key = 5, node_dependencies = [6] }
+  GHC.Data.Graph.Directed.Node Int String
+node5 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "action 2", GHC.Data.Graph.Directed.node_key = 5, GHC.Data.Graph.Directed.node_dependencies = [6] }
 
 node6 ::
-  Node Int String
-node6 = DigraphNode { node_payload = "end 1", node_key = 6, node_dependencies = [] }
+  GHC.Data.Graph.Directed.Node Int String
+node6 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "end 1", GHC.Data.Graph.Directed.node_key = 6, GHC.Data.Graph.Directed.node_dependencies = [] }
 
 node7 ::
-  Node Int String
-node7 = DigraphNode { node_payload = "action 3", node_key = 7, node_dependencies = [8] }
+  GHC.Data.Graph.Directed.Node Int String
+node7 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "action 3", GHC.Data.Graph.Directed.node_key = 7, GHC.Data.Graph.Directed.node_dependencies = [8] }
 
 node8 ::
-  Node Int String
-node8 = DigraphNode { node_payload = "end 2", node_key = 8, node_dependencies = [] }
+  GHC.Data.Graph.Directed.Node Int String
+node8 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "end 2", GHC.Data.Graph.Directed.node_key = 8, GHC.Data.Graph.Directed.node_dependencies = [] }
 
 node9 ::
-  Node Int String
-node9 = DigraphNode { node_payload = "decision 3", node_key = 9, node_dependencies = [10, 12] }
+  GHC.Data.Graph.Directed.Node Int String
+node9 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "decision 3", GHC.Data.Graph.Directed.node_key = 9, GHC.Data.Graph.Directed.node_dependencies = [10, 12] }
 
 node10 ::
-  Node Int String
-node10 = DigraphNode { node_payload = "action 4", node_key = 10, node_dependencies = [11] }
+  GHC.Data.Graph.Directed.Node Int String
+node10 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "action 4", GHC.Data.Graph.Directed.node_key = 10, GHC.Data.Graph.Directed.node_dependencies = [11] }
 
 node11 ::
-  Node Int String
-node11 = DigraphNode { node_payload = "end 3", node_key = 11, node_dependencies = [] }
+  GHC.Data.Graph.Directed.Node Int String
+node11 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "end 3", GHC.Data.Graph.Directed.node_key = 11, GHC.Data.Graph.Directed.node_dependencies = [] }
 
 node12 ::
-  Node Int String
-node12 = DigraphNode { node_payload = "end 4", node_key = 12, node_dependencies = [] }
+  GHC.Data.Graph.Directed.Node Int String
+node12 = GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = "end 4", GHC.Data.Graph.Directed.node_key = 12, GHC.Data.Graph.Directed.node_dependencies = [] }
 
 graph ::
-  Graph (Node Int String)
-graph = graphFromEdgedVerticesUniq
+  GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node Int String)
+graph = GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq
   [node1,
   node2,
   node3,
@@ -78,47 +78,49 @@ graph = graphFromEdgedVerticesUniq
   node12]
 
 icons ::
-  Data.Map.Map Int (Node Int String)
-icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ verticesG graph
+  Data.Map.Map Int (GHC.Data.Graph.Directed.Node Int String)
+icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ GHC.Data.Graph.Directed.verticesG graph
 
 iconsWithKeys ::
   [Int] ->
-  [Node Int String]
+  [GHC.Data.Graph.Directed.Node Int String]
 iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] icons
 
 -- <- constructing the graph
 
 -- graph manipulation ->
 
-payload :: Node Int String -> String
-payload DigraphNode { node_payload = x, node_key = _, node_dependencies = _ } = x
+conditionalSuffix :: String -> String -> Bool -> String
+conditionalSuffix input suffix condition = if condition then input ++ suffix else input
 
-key :: Node Int String -> Int
-key DigraphNode { node_payload = _, node_key = x, node_dependencies = _ } = x
+conditionalRenderingOrderSuffix :: String -> Int -> Bool -> String
+conditionalRenderingOrderSuffix input renderingOrder =
+  conditionalSuffix input (" | rendering order: " ++ show renderingOrder)
 
-dependencies :: Node Int String -> [Int]
-dependencies DigraphNode { node_payload = _, node_key = _, node_dependencies = x } = x
+payload :: GHC.Data.Graph.Directed.Node Int String -> String
+payload GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = x, GHC.Data.Graph.Directed.node_key = _, GHC.Data.Graph.Directed.node_dependencies = _ } = x
+
+key :: GHC.Data.Graph.Directed.Node Int String -> Int
+key GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = _, GHC.Data.Graph.Directed.node_key = x, GHC.Data.Graph.Directed.node_dependencies = _ } = x
+
+dependencies :: GHC.Data.Graph.Directed.Node Int String -> [Int]
+dependencies GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = _, GHC.Data.Graph.Directed.node_key = _, GHC.Data.Graph.Directed.node_dependencies = x } = x
 
 visualGraph ::
-  [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
+  [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
+    Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
 visualGraph = do
+  let renderingOrder            = titleIconKey
   let titleIcon                 = icons Data.Map.! titleIconKey
-  let titleIconPayload          = payload titleIcon ++ if troubleshootingMode then " | rendering order: " ++ show titleIconKey else []
+  let titleIconPayload          = conditionalRenderingOrderSuffix (payload titleIcon) renderingOrder troubleshootingMode
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  let (_, childSubgraphVisualData) = visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 ((-1.0) * cellHeight)
+  let (_, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) 0.0 ((-1.0) * cellHeight)
 
   (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : childSubgraphVisualData
 
--- this ideally needs to return a pair of:
--- new type consisting of:
--- * rendering order
--- * max width
--- list of pairs:
--- * origin coordinates
--- * diagram
 visualSubgraph ::
-  [Node Int String] ->
+  [GHC.Data.Graph.Directed.Node Int String] ->
   Int ->
   Double ->
   Double ->
@@ -151,7 +153,7 @@ visualSubgraphNode ::
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode width depth text renderingOrder =
-  (Diagrams.Prelude.p2 (width, depth), startShape $ text ++ if troubleshootingMode then " | rendering order: " ++ show renderingOrder else [])
+  (Diagrams.Prelude.p2 (width, depth), startShape $ conditionalRenderingOrderSuffix text renderingOrder troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -200,5 +202,5 @@ startShape x = do
 main ::
   IO ()
 main = do
-  GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode stderr $ GHC.Utils.Outputable.ppr graph
+  GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
   Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph
