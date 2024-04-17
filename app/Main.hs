@@ -13,43 +13,56 @@ import System.IO
 
 -- constructing the graph ->
 
-node1 :: Node Int String
+node1 ::
+  Node Int String
 node1 = DigraphNode { node_payload = "start", node_key = titleIconKey, node_dependencies = [2] }
 
-node2 :: Node Int String
+node2 ::
+  Node Int String
 node2 = DigraphNode { node_payload = "decision 1", node_key = 2, node_dependencies = [3, 9] } -- 9
 
-node3 :: Node Int String
+node3 ::
+  Node Int String
 node3 = DigraphNode { node_payload = "action 1", node_key = 3, node_dependencies = [4] }
 
-node4 :: Node Int String
+node4 ::
+  Node Int String
 node4 = DigraphNode { node_payload = "decision 2", node_key = 4, node_dependencies = [5, 7] }
 
-node5 :: Node Int String
+node5 ::
+  Node Int String
 node5 = DigraphNode { node_payload = "action 2", node_key = 5, node_dependencies = [6] }
 
-node6 :: Node Int String
+node6 ::
+  Node Int String
 node6 = DigraphNode { node_payload = "end 1", node_key = 6, node_dependencies = [] }
 
-node7 :: Node Int String
+node7 ::
+  Node Int String
 node7 = DigraphNode { node_payload = "action 3", node_key = 7, node_dependencies = [8] }
 
-node8 :: Node Int String
+node8 ::
+  Node Int String
 node8 = DigraphNode { node_payload = "end 2", node_key = 8, node_dependencies = [] }
 
-node9 :: Node Int String
+node9 ::
+  Node Int String
 node9 = DigraphNode { node_payload = "decision 3", node_key = 9, node_dependencies = [10, 12] }
 
-node10 :: Node Int String
+node10 ::
+  Node Int String
 node10 = DigraphNode { node_payload = "action 4", node_key = 10, node_dependencies = [11] }
 
-node11 :: Node Int String
+node11 ::
+  Node Int String
 node11 = DigraphNode { node_payload = "end 3", node_key = 11, node_dependencies = [] }
 
-node12 :: Node Int String
+node12 ::
+  Node Int String
 node12 = DigraphNode { node_payload = "end 4", node_key = 12, node_dependencies = [] }
 
-graph :: Graph (Node Int String)
+graph ::
+  Graph (Node Int String)
 graph = graphFromEdgedVerticesUniq
   [node1,
   node2,
@@ -64,10 +77,13 @@ graph = graphFromEdgedVerticesUniq
   node11,
   node12]
 
-icons :: Data.Map.Map Int (Node Int String)
+icons ::
+  Data.Map.Map Int (Node Int String)
 icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ verticesG graph
 
-iconsWithKeys :: [Int] -> [Node Int String]
+iconsWithKeys ::
+  [Int] ->
+  [Node Int String]
 iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] icons
 
 -- <- constructing the graph
@@ -83,61 +99,97 @@ key DigraphNode { node_payload = _, node_key = x, node_dependencies = _ } = x
 dependencies :: Node Int String -> [Int]
 dependencies DigraphNode { node_payload = _, node_key = _, node_dependencies = x } = x
 
-visualGraph :: [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
+visualGraph ::
+  [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
 visualGraph = do
   let titleIcon                 = icons Data.Map.! titleIconKey
-  let titleIconPayload          = payload titleIcon ++ if troubleshootingMode then (" | rendering order: " ++ show titleIconKey) else []
+  let titleIconPayload          = payload titleIcon ++ if troubleshootingMode then " | rendering order: " ++ show titleIconKey else []
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies     = iconsWithKeys titleIconDependenciesKeys
-  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : snd (visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 (-1.0))
+  let (_, childSubgraphVisualData) = visualSubgraph titleIconDependencies (titleIconKey + 1) 0.0 ((-1.0) * cellHeight)
 
+  (Diagrams.Prelude.p2 (0.0, 0.0), startShape titleIconPayload) : childSubgraphVisualData
+
+-- this ideally needs to return a pair of:
+-- new type consisting of:
+-- * rendering order
+-- * max width
+-- list of pairs:
+-- * origin coordinates
+-- * diagram
 visualSubgraph ::
   [Node Int String] ->
   Int ->
   Double ->
   Double ->
-  (Int, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
-visualSubgraph [] renderingOrder _ _             = (renderingOrder, [])
-visualSubgraph [x] renderingOrder width depth    =
-  (fst qwe, (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) :
-  (snd qwe))
-  where
-    qwe = visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
-visualSubgraph (x:xs) renderingOrder width depth =
-  (fst asd, (Diagrams.Prelude.p2 (width, depth), startShape $ (payload x) ++ if troubleshootingMode then (" | rendering order: " ++ show renderingOrder) else []) :
-  (snd qwe) ++ (snd asd))
-  where
-    qwe = visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
-    asd = visualSubgraph xs (fst qwe) (width + cellWidth) depth
+  (Int, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
+    Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
+visualSubgraph [] renderingOrder _ _ =
+  (renderingOrder, [])
+
+visualSubgraph [x] renderingOrder width depth = do
+  let (childSubgraphMaxUsedRenderingOrder, childSubgraphVisualData) =
+        visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+
+  (childSubgraphMaxUsedRenderingOrder,
+    visualSubgraphNode width depth (payload x) renderingOrder : childSubgraphVisualData)
+
+visualSubgraph (x:xs) renderingOrder width depth = do
+  let (leftChildSubgraphMaxUsedRenderingOrder, leftChildSubgraphVisualData) =
+        visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+  let (rightChildSubgraphMaxUsedRenderingOrder, rightChildSubgraphVisualData) =
+        visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder (width + cellWidth) depth
+
+  (rightChildSubgraphMaxUsedRenderingOrder,
+    visualSubgraphNode width depth (payload x) renderingOrder : leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
+
+visualSubgraphNode ::
+  Double ->
+  Double ->
+  String ->
+  Int ->
+  (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
+    Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
+visualSubgraphNode width depth text renderingOrder =
+  (Diagrams.Prelude.p2 (width, depth), startShape $ text ++ if troubleshootingMode then " | rendering order: " ++ show renderingOrder else [])
 
 -- <- graph manipulation
 
 -- visual constants ->
 
-lengthUnit :: Double
+lengthUnit ::
+  Double
 lengthUnit = 1.0
 
-cellWidth :: Double
+cellWidth ::
+  Double
 cellWidth = 2.0 * lengthUnit
 
-cellHeight :: Double
+cellHeight ::
+  Double
 cellHeight = lengthUnit
 
-iconWidth :: Double
+iconWidth ::
+  Double
 iconWidth = 0.8 * cellWidth
 
-iconHeight :: Double
+iconHeight ::
+  Double
 iconHeight = 0.4 * cellHeight
 
 -- <- visual constants
 
-titleIconKey :: Int
+titleIconKey ::
+  Int
 titleIconKey = 1
 
-troubleshootingMode :: Bool
+troubleshootingMode ::
+  Bool
 troubleshootingMode = True
 
-startShape :: String -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+startShape ::
+  String ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 startShape x = do
   let shape = Diagrams.Prelude.text x Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.075) Diagrams.Prelude.# Diagrams.Prelude.light Diagrams.Prelude.# Diagrams.Prelude.font "courier" <> Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
 
@@ -145,7 +197,8 @@ startShape x = do
     then Diagrams.Prelude.showOrigin shape
     else shape
 
-main :: IO ()
+main ::
+  IO ()
 main = do
   GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode stderr $ GHC.Utils.Outputable.ppr graph
   Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph
