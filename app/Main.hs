@@ -167,7 +167,7 @@ visualSubgraphNode ::
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode width depth text renderingOrder maxWidth =
-  (Diagrams.Prelude.p2 (width, depth), startShape $ conditionalRenderingSuffix text renderingOrder maxWidth troubleshootingMode)
+  (Diagrams.Prelude.p2 (width, depth), actionShape $ conditionalRenderingSuffix text renderingOrder maxWidth troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -207,7 +207,35 @@ startShape ::
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 startShape x = do
-  let shape = Diagrams.Prelude.text x Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05) Diagrams.Prelude.# Diagrams.Prelude.light Diagrams.Prelude.# Diagrams.Prelude.font "courier" <> Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+  let shape =
+        Diagrams.Prelude.text x
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        <>
+        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+
+  if troubleshootingMode
+    then Diagrams.Prelude.showOrigin shape
+    else shape
+
+actionShape ::
+  String ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+actionShape x = do
+  let shape =
+        Diagrams.Prelude.text x
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        <>
+        Diagrams.Prelude.rect iconWidth iconHeight
 
   if troubleshootingMode
     then Diagrams.Prelude.showOrigin shape
