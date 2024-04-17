@@ -203,4 +203,4 @@ main ::
   IO ()
 main = do
   GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
-  Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph
+  Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
