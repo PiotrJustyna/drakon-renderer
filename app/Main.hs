@@ -232,7 +232,7 @@ visualGraph = do
   let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
   let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth startingDepth
 
-  (Diagrams.Prelude.p2 (0.0, 0.0), startShape text) : childSubgraphVisualData
+  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape text) : childSubgraphVisualData
 
 visualSubgraph ::
   [GHC.Data.Graph.Directed.Node Int Icon] ->
@@ -251,11 +251,10 @@ visualSubgraph [x] renderingOrder width depth = do
         childSubgraphMaxUsedWidth,
         childSubgraphVisualData) =
           visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
-  let Icon { iconText = text, iconType = _ } = payload x
 
   (childSubgraphMaxUsedRenderingOrder,
     childSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth text renderingOrder width : childSubgraphVisualData)
+    visualSubgraphNode width depth (payload x) renderingOrder width : childSubgraphVisualData)
 
 visualSubgraph (x:xs) renderingOrder width depth = do
   let (leftChildSubgraphMaxUsedRenderingOrder,
@@ -267,23 +266,23 @@ visualSubgraph (x:xs) renderingOrder width depth = do
         rightChildSubgraphMaxUsedWidth,
         rightChildSubgraphVisualData) =
           visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder newRightChildSubgraphWidth depth
-  let Icon { iconText = text, iconType = _ } = payload x
 
   (rightChildSubgraphMaxUsedRenderingOrder,
     rightChildSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth text renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
+    visualSubgraphNode width depth (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
 -- TODO: decide which shape to render
 visualSubgraphNode ::
   Double ->
   Double ->
-  String ->
+  Icon ->
   Int ->
   Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
-visualSubgraphNode width depth text renderingOrder maxWidth =
-  (Diagrams.Prelude.p2 (width, depth), actionShape $ conditionalRenderingSuffix text renderingOrder maxWidth troubleshootingMode)
+visualSubgraphNode width depth icon renderingOrder maxWidth = do
+  let Icon { iconText = iconText, iconType = iconType } = icon
+  (Diagrams.Prelude.p2 (width, depth), correctShape iconType $ conditionalRenderingSuffix iconText renderingOrder maxWidth troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -319,10 +318,19 @@ troubleshootingMode ::
   Bool
 troubleshootingMode = True
 
-startShape ::
+correctShape ::
+  IconType ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-startShape x = do
+correctShape Title = titleShape
+correctShape End = titleShape
+correctShape Question = questionShape
+correctShape Action = actionShape
+
+titleShape ::
+  String ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+titleShape x = do
   let shape =
         Diagrams.Prelude.text x
         Diagrams.Prelude.#
@@ -356,6 +364,33 @@ actionShape x = do
   if troubleshootingMode
     then Diagrams.Prelude.showOrigin shape
     else shape
+
+questionShape ::
+  String ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+questionShape x = do
+  let shape =
+        Diagrams.Prelude.text x
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        <>
+        Diagrams.Prelude.fromOffsets
+          [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
+          Diagrams.Prelude.V2 0.1 (iconHeight * 0.5),
+          Diagrams.Prelude.V2 (iconWidth - 0.1 - 0.1) 0.0,
+          Diagrams.Prelude.V2 0.1 (iconHeight * (-0.5)),
+          Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5)),
+          Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
+          Diagrams.Prelude.#
+          Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
+
+  if troubleshootingMode
+  then Diagrams.Prelude.showOrigin shape
+  else shape
 
 main ::
   IO ()
