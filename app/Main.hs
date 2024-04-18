@@ -271,7 +271,6 @@ visualSubgraph (x:xs) renderingOrder width depth = do
     rightChildSubgraphMaxUsedWidth,
     visualSubgraphNode width depth (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
--- TODO: decide which shape to render
 visualSubgraphNode ::
   Double ->
   Double ->
@@ -323,7 +322,7 @@ correctShape ::
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 correctShape Title = titleShape
-correctShape End = titleShape
+correctShape End = endShape
 correctShape Question = questionShape
 correctShape Action = actionShape
 
@@ -391,6 +390,26 @@ questionShape x = do
   if troubleshootingMode
   then Diagrams.Prelude.showOrigin shape
   else shape
+
+endShape ::
+  String ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+endShape x = do
+  let shape =
+        Diagrams.Prelude.text x
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        <>
+        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+
+  if troubleshootingMode
+    then Diagrams.Prelude.showOrigin shape
+    else shape
+
 
 main ::
   IO ()
