@@ -13,7 +13,16 @@ import qualified System.IO
 
 data IconType = Title | End | Action | Question
 
+instance Show IconType where
+    show Title = "Title"
+    show End = "End"
+    show Action = "Action"
+    show Question = "Question"
+
 data Icon = Icon { iconText :: String, iconType :: IconType }
+
+instance GHC.Utils.Outputable.Outputable Icon where
+    ppr Icon { iconText = x, iconType = y } = GHC.Utils.Outputable.text $ (show y) ++ ": " ++ x
 
 -- constructing the graph ->
 
@@ -280,8 +289,8 @@ visualSubgraphNode ::
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode width depth icon renderingOrder maxWidth = do
-  let Icon { iconText = iconText, iconType = iconType } = icon
-  (Diagrams.Prelude.p2 (width, depth), correctShape iconType $ conditionalRenderingSuffix iconText renderingOrder maxWidth troubleshootingMode)
+  let Icon { iconText = x, iconType = y } = icon
+  (Diagrams.Prelude.p2 (width, depth), correctShape y $ conditionalRenderingSuffix x renderingOrder maxWidth troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -414,6 +423,5 @@ endShape x = do
 main ::
   IO ()
 main = do
-  -- TODO: looks like Icon needs to be outputable
-  -- GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
+  GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
   Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
