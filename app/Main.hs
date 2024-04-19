@@ -22,7 +22,7 @@ instance Show IconType where
 data Icon = Icon { iconText :: String, iconType :: IconType }
 
 instance GHC.Utils.Outputable.Outputable Icon where
-    ppr Icon { iconText = x, iconType = y } = GHC.Utils.Outputable.text $ (show y) ++ ": " ++ x
+    ppr Icon { iconText = x, iconType = y } = GHC.Utils.Outputable.text $ show y ++ ": " ++ x
 
 -- constructing the graph ->
 
@@ -234,12 +234,13 @@ visualGraph = do
   let renderingOrder = titleIconKey
   let titleIcon = icons Data.Map.! titleIconKey
   let startingWidth = 0.0
-  let startingDepth = (-1.0) * cellHeight
+  let startingDepth = 0.0
+  let firstChildIconDepth = startingDepth + (-1.0) * cellHeight
   let Icon { iconText = titleIconText, iconType = _ } = payload titleIcon
   let text = conditionalRenderingSuffix titleIconText renderingOrder startingWidth troubleshootingMode
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
-  let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth startingDepth
+  let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth firstChildIconDepth startingWidth startingDepth
 
   (Diagrams.Prelude.p2 (0.0, 0.0), titleShape text) : childSubgraphVisualData
 
@@ -248,39 +249,43 @@ visualSubgraph ::
   Int ->
   Double ->
   Double ->
+  Double ->
+  Double ->
   (Int, Double, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
-visualSubgraph [] renderingOrder width _ =
+visualSubgraph [] renderingOrder width _ _ _ =
   (renderingOrder,
     width,
     [])
 
-visualSubgraph [x] renderingOrder width depth = do
+visualSubgraph [x] renderingOrder width depth previousIconOriginCoordinateX previousIconOriginCoordinateY = do
   let (childSubgraphMaxUsedRenderingOrder,
         childSubgraphMaxUsedWidth,
         childSubgraphVisualData) =
-          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) width depth
 
   (childSubgraphMaxUsedRenderingOrder,
     childSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth (payload x) renderingOrder width : childSubgraphVisualData)
+    visualSubgraphNode width depth (previousIconOriginCoordinateX - width) (previousIconOriginCoordinateY - depth) (payload x) renderingOrder width : childSubgraphVisualData)
 
-visualSubgraph (x:xs) renderingOrder width depth = do
+visualSubgraph (x:xs) renderingOrder width depth previousIconOriginCoordinateX previousIconOriginCoordinateY = do
   let (leftChildSubgraphMaxUsedRenderingOrder,
         leftChildSubgraphMaxUsedWidth,
         leftChildSubgraphVisualData) =
-          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight)
+          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) width depth
   let newRightChildSubgraphWidth = leftChildSubgraphMaxUsedWidth + cellWidth
   let (rightChildSubgraphMaxUsedRenderingOrder,
         rightChildSubgraphMaxUsedWidth,
         rightChildSubgraphVisualData) =
-          visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder newRightChildSubgraphWidth depth
+          visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder newRightChildSubgraphWidth depth width (depth + cellHeight)
 
   (rightChildSubgraphMaxUsedRenderingOrder,
     rightChildSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
+    visualSubgraphNode width depth (previousIconOriginCoordinateX - width) (previousIconOriginCoordinateY - depth) (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
 visualSubgraphNode ::
+  Double ->
+  Double ->
   Double ->
   Double ->
   Icon ->
@@ -288,9 +293,9 @@ visualSubgraphNode ::
   Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
-visualSubgraphNode width depth icon renderingOrder maxWidth = do
+visualSubgraphNode width depth previousIconOriginCoordinateX previousIconOriginCoordinateY icon renderingOrder maxWidth = do
   let Icon { iconText = x, iconType = y } = icon
-  (Diagrams.Prelude.p2 (width, depth), correctShape y $ conditionalRenderingSuffix x renderingOrder maxWidth troubleshootingMode)
+  (Diagrams.Prelude.p2 (width, depth), correctShape y previousIconOriginCoordinateX previousIconOriginCoordinateY $ conditionalRenderingSuffix x renderingOrder maxWidth troubleshootingMode)
 
 -- <- graph manipulation
 
@@ -326,14 +331,33 @@ troubleshootingMode ::
   Bool
 troubleshootingMode = True
 
+connectionToParentIcon ::
+  Double ->
+  Double ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+connectionToParentIcon x y =
+  Diagrams.Prelude.fromOffsets
+    [Diagrams.Prelude.V2 0 (y - (if abs x > 0 then iconHeight * 0.5 else iconHeight))]
+    Diagrams.Prelude.#
+    Diagrams.Prelude.translate
+    (Diagrams.Prelude.r2 (0, iconHeight * 0.5))
+  <>
+  Diagrams.Prelude.fromOffsets
+    [Diagrams.Prelude.V2 (if abs x > 0 then x + (iconWidth * 0.5) else 0) 0]
+    Diagrams.Prelude.#
+    Diagrams.Prelude.translate
+    (Diagrams.Prelude.r2 (0, y))
+
 correctShape ::
   IconType ->
+  Double ->
+  Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-correctShape Title = titleShape
-correctShape End = endShape
-correctShape Question = questionShape
-correctShape Action = actionShape
+correctShape Title parentIconVectorX parentIconVectorY x = titleShape x
+correctShape End parentIconVectorX parentIconVectorY x = endShape parentIconVectorX parentIconVectorY x
+correctShape Question parentIconVectorX parentIconVectorY x = questionShape parentIconVectorX parentIconVectorY x
+correctShape Action parentIconVectorX parentIconVectorY x = actionShape parentIconVectorX parentIconVectorY x
 
 titleShape ::
   String ->
@@ -355,9 +379,11 @@ titleShape x = do
     else shape
 
 actionShape ::
+  Double ->
+  Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-actionShape x = do
+actionShape parentIconVectorX parentIconVectorY x = do
   let shape =
         Diagrams.Prelude.text x
         Diagrams.Prelude.#
@@ -368,15 +394,19 @@ actionShape x = do
         Diagrams.Prelude.font "courier"
         <>
         Diagrams.Prelude.rect iconWidth iconHeight
+        <>
+        connectionToParentIcon parentIconVectorX parentIconVectorY
 
   if troubleshootingMode
     then Diagrams.Prelude.showOrigin shape
     else shape
 
 questionShape ::
+  Double ->
+  Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-questionShape x = do
+questionShape parentIconVectorX parentIconVectorY x = do
   let shape =
         Diagrams.Prelude.text x
         Diagrams.Prelude.#
@@ -385,6 +415,26 @@ questionShape x = do
         Diagrams.Prelude.light
         Diagrams.Prelude.#
         Diagrams.Prelude.font "courier"
+        <>
+        Diagrams.Prelude.text "yes"
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        Diagrams.Prelude.#
+        Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * (-0.1), iconHeight * (-0.7)))
+        <>
+        Diagrams.Prelude.text "no"
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.light
+        Diagrams.Prelude.#
+        Diagrams.Prelude.font "courier"
+        Diagrams.Prelude.#
+        Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * 0.55, iconHeight * 0.15))
         <>
         Diagrams.Prelude.fromOffsets
           [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
@@ -395,15 +445,19 @@ questionShape x = do
           Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
           Diagrams.Prelude.#
           Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
+        <>
+        connectionToParentIcon parentIconVectorX parentIconVectorY
 
   if troubleshootingMode
   then Diagrams.Prelude.showOrigin shape
   else shape
 
 endShape ::
+  Double ->
+  Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-endShape x = do
+endShape parentIconVectorX parentIconVectorY x = do
   let shape =
         Diagrams.Prelude.text x
         Diagrams.Prelude.#
@@ -414,6 +468,8 @@ endShape x = do
         Diagrams.Prelude.font "courier"
         <>
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        <>
+        connectionToParentIcon parentIconVectorX parentIconVectorY
 
   if troubleshootingMode
     then Diagrams.Prelude.showOrigin shape
