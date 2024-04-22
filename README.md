@@ -2,8 +2,9 @@
 
 Haskell drakon renderer.
 
-## terminology
+![diagram](./hello-world.svg)
 
+## terminology
 
 * title - first step of a diagram
 * end - last step of a diagram
