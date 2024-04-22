@@ -33,6 +33,8 @@ Haskell drakon renderer.
 * [drakon](https://drakonhub.com/read/docs)
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
 * [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
+* [colours](https://www.colourlovers.com)
+  * [you will be free](https://www.colourlovers.com/palette/452030/you_will_be_free)
 * useful haskell modules:
   * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
   * [GHC.Utils.Outputable](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Utils-Outputable.html)

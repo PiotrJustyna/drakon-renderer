@@ -1,5 +1,7 @@
 module Main where
 
+import qualified Data.Colour.SRGB
+
 import qualified Data.Map
 
 import qualified Diagrams.Backend.SVG.CmdLine
@@ -382,12 +384,22 @@ titleShape ::
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 titleShape x = do
-  let shape = if troubleshootingMode
-        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
-        else Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+  let baseShape =
+        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (236.0/255.0) (249.0/255.0) (254.0/255.0))
 
-  shape
-  <> text x 0.0 0.0
+--  (text x 0.0 0.0
+--    Diagrams.Prelude.===
+--    (text x 0.0 0.0 <> Diagrams.Prelude.strutY (0.05 * 2.0)))
+--    <> shape
+
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin baseShape
+        else baseShape
+
+  (text x 0.0 0.0)
+    <> shape
 
 actionShape ::
   Double ->
@@ -398,13 +410,18 @@ actionShape
   parentIconVectorX
   parentIconVectorY
   x = do
-  let shape = if troubleshootingMode
-        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.rect iconWidth iconHeight
-        else Diagrams.Prelude.rect iconWidth iconHeight
+  let baseShape =
+        Diagrams.Prelude.rect iconWidth iconHeight
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (220.0/255.0) (232.0/255.0) (235.0/255.0))
 
-  shape
-  <> connectionToParentIcon parentIconVectorX parentIconVectorY
-  <> text x 0.0 0.0
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin $ baseShape
+        else baseShape
+
+  (text x 0.0 0.0)
+    <> shape
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
 
 questionShape ::
   Double ->
@@ -424,21 +441,23 @@ questionShape
         Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5)),
         Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
         Diagrams.Prelude.#
+        Diagrams.Prelude.closeLine
+        Diagrams.Prelude.#
+        Diagrams.Prelude.strokeLoop
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (203.0/255.0) (219.0/255.0) (224.0/255.0))
+        Diagrams.Prelude.#
         Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
 
   let shape = if troubleshootingMode
         then Diagrams.Prelude.showOrigin baseShape
         else baseShape
 
-  shape
-  <>
-  connectionToParentIcon parentIconVectorX parentIconVectorY
-  <>
-  text x 0.0 0.0
-  <>
-  text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
-  <>
-  text "no" (iconWidth * 0.55) (iconHeight * 0.15)
+  (text x 0.0 0.0)
+    <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
+    <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
+    <> shape
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
 
 endShape ::
   Double ->
@@ -449,16 +468,26 @@ endShape
   parentIconVectorX
   parentIconVectorY
   x = do
-  let shape = if troubleshootingMode
-        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
-        else Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+  let baseShape =
+        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        Diagrams.Prelude.#
+        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (190.0/255.0) (210.0/255.0) (217.0/255.0))
 
-  shape
-  <> connectionToParentIcon parentIconVectorX parentIconVectorY
-  <> text x 0.0 0.0
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin $ baseShape
+        else baseShape
+
+  (text x 0.0 0.0)
+    <> shape
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
 
 main ::
   IO ()
 main = do
   GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
-  Diagrams.Backend.SVG.CmdLine.mainWith $ Diagrams.Prelude.position visualGraph Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+  Diagrams.Backend.SVG.CmdLine.mainWith $
+    Diagrams.Prelude.position visualGraph
+    Diagrams.Prelude.#
+    Diagrams.Prelude.bg (Data.Colour.SRGB.sRGB (247.0/255.0) (249.0/255.0) (254.0/255.0))
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
