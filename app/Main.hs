@@ -239,12 +239,12 @@ visualGraph = do
   let startingDepth = 0.0
   let firstChildIconDepth = startingDepth + (-1.0) * cellHeight
   let Icon { iconText = titleIconText, iconType = _ } = payload titleIcon
-  let text = conditionalRenderingSuffix titleIconText renderingOrder startingWidth troubleshootingMode
+  let conditionalText = conditionalRenderingSuffix titleIconText renderingOrder startingWidth troubleshootingMode
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
   let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth firstChildIconDepth startingWidth startingDepth
 
-  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape text) : childSubgraphVisualData
+  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape conditionalText) : childSubgraphVisualData
 
 visualSubgraph ::
   [GHC.Data.Graph.Directed.Node Int Icon] ->
@@ -356,7 +356,7 @@ correctShape ::
   Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-correctShape Title parentIconVectorX parentIconVectorY x = titleShape x
+correctShape Title _ _ x = titleShape x
 correctShape End parentIconVectorX parentIconVectorY x = endShape parentIconVectorX parentIconVectorY x
 correctShape Question parentIconVectorX parentIconVectorY x = questionShape parentIconVectorX parentIconVectorY x
 correctShape Action parentIconVectorX parentIconVectorY x = actionShape parentIconVectorX parentIconVectorY x
@@ -388,6 +388,8 @@ titleShape x = do
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
         Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (236.0/255.0) (249.0/255.0) (254.0/255.0))
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.none
 
 --  (text x 0.0 0.0
 --    Diagrams.Prelude.===
@@ -414,6 +416,8 @@ actionShape
         Diagrams.Prelude.rect iconWidth iconHeight
         Diagrams.Prelude.#
         Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (220.0/255.0) (232.0/255.0) (235.0/255.0))
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.none
 
   let shape = if troubleshootingMode
         then Diagrams.Prelude.showOrigin $ baseShape
@@ -421,7 +425,7 @@ actionShape
 
   (text x 0.0 0.0)
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
 
 questionShape ::
   Double ->
@@ -447,6 +451,8 @@ questionShape
         Diagrams.Prelude.#
         Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (203.0/255.0) (219.0/255.0) (224.0/255.0))
         Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.none
+        Diagrams.Prelude.#
         Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
 
   let shape = if troubleshootingMode
@@ -457,7 +463,7 @@ questionShape
     <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
     <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
 
 endShape ::
   Double ->
@@ -472,6 +478,8 @@ endShape
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
         Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (190.0/255.0) (210.0/255.0) (217.0/255.0))
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.none
 
   let shape = if troubleshootingMode
         then Diagrams.Prelude.showOrigin $ baseShape
@@ -479,7 +487,7 @@ endShape
 
   (text x 0.0 0.0)
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
 
 main ::
   IO ()
@@ -490,4 +498,4 @@ main = do
     Diagrams.Prelude.#
     Diagrams.Prelude.bg (Data.Colour.SRGB.sRGB (247.0/255.0) (249.0/255.0) (254.0/255.0))
     Diagrams.Prelude.#
-    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+    Diagrams.Prelude.lw Diagrams.Prelude.none
