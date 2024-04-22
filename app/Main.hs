@@ -359,122 +359,103 @@ correctShape End parentIconVectorX parentIconVectorY x = endShape parentIconVect
 correctShape Question parentIconVectorX parentIconVectorY x = questionShape parentIconVectorX parentIconVectorY x
 correctShape Action parentIconVectorX parentIconVectorY x = actionShape parentIconVectorX parentIconVectorY x
 
+text ::
+  String ->
+  Double ->
+  Double ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+text
+  content
+  translateX
+  translateY =
+    Diagrams.Prelude.text content
+    Diagrams.Prelude.#
+    Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+    Diagrams.Prelude.#
+    Diagrams.Prelude.light
+    Diagrams.Prelude.#
+    Diagrams.Prelude.font "courier"
+    Diagrams.Prelude.#
+    Diagrams.Prelude.translate (Diagrams.Prelude.r2 (translateX,  translateY))
+
 titleShape ::
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 titleShape x = do
-  let shape =
-        Diagrams.Prelude.text x
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        <>
-        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        else Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
 
-  if troubleshootingMode
-    then Diagrams.Prelude.showOrigin shape
-    else shape
+  shape
+  <> text x 0.0 0.0
 
 actionShape ::
   Double ->
   Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-actionShape parentIconVectorX parentIconVectorY x = do
-  let shape =
-        Diagrams.Prelude.text x
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        <>
-        Diagrams.Prelude.rect iconWidth iconHeight
-        <>
-        connectionToParentIcon parentIconVectorX parentIconVectorY
+actionShape
+  parentIconVectorX
+  parentIconVectorY
+  x = do
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.rect iconWidth iconHeight
+        else Diagrams.Prelude.rect iconWidth iconHeight
 
-  if troubleshootingMode
-    then Diagrams.Prelude.showOrigin shape
-    else shape
+  shape
+  <> connectionToParentIcon parentIconVectorX parentIconVectorY
+  <> text x 0.0 0.0
 
 questionShape ::
   Double ->
   Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-questionShape parentIconVectorX parentIconVectorY x = do
-  let shape =
-        Diagrams.Prelude.text x
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        <>
-        Diagrams.Prelude.text "yes"
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        Diagrams.Prelude.#
-        Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * (-0.1), iconHeight * (-0.7)))
-        <>
-        Diagrams.Prelude.text "no"
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        Diagrams.Prelude.#
-        Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * 0.55, iconHeight * 0.15))
-        <>
+questionShape
+  parentIconVectorX
+  parentIconVectorY
+  x = do
+  let baseShape =
         Diagrams.Prelude.fromOffsets
-          [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
-          Diagrams.Prelude.V2 0.1 (iconHeight * 0.5),
-          Diagrams.Prelude.V2 (iconWidth - 0.1 - 0.1) 0.0,
-          Diagrams.Prelude.V2 0.1 (iconHeight * (-0.5)),
-          Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5)),
-          Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
-          Diagrams.Prelude.#
-          Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
-        <>
-        connectionToParentIcon parentIconVectorX parentIconVectorY
+        [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
+        Diagrams.Prelude.V2 0.1 (iconHeight * 0.5),
+        Diagrams.Prelude.V2 (iconWidth - 0.1 - 0.1) 0.0,
+        Diagrams.Prelude.V2 0.1 (iconHeight * (-0.5)),
+        Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5)),
+        Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
+        Diagrams.Prelude.#
+        Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
 
-  if troubleshootingMode
-  then Diagrams.Prelude.showOrigin shape
-  else shape
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin baseShape
+        else baseShape
+
+  shape
+  <>
+  connectionToParentIcon parentIconVectorX parentIconVectorY
+  <>
+  text x 0.0 0.0
+  <>
+  text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
+  <>
+  text "no" (iconWidth * 0.55) (iconHeight * 0.15)
 
 endShape ::
   Double ->
   Double ->
   String ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-endShape parentIconVectorX parentIconVectorY x = do
-  let shape =
-        Diagrams.Prelude.text x
-        Diagrams.Prelude.#
-        Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
-        Diagrams.Prelude.#
-        Diagrams.Prelude.light
-        Diagrams.Prelude.#
-        Diagrams.Prelude.font "courier"
-        <>
-        Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
-        <>
-        connectionToParentIcon parentIconVectorX parentIconVectorY
+endShape
+  parentIconVectorX
+  parentIconVectorY
+  x = do
+  let shape = if troubleshootingMode
+        then Diagrams.Prelude.showOrigin $ Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        else Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
 
-  if troubleshootingMode
-    then Diagrams.Prelude.showOrigin shape
-    else shape
-
+  shape
+  <> connectionToParentIcon parentIconVectorX parentIconVectorY
+  <> text x 0.0 0.0
 
 main ::
   IO ()
