@@ -2,7 +2,13 @@
 
 Haskell drakon renderer.
 
-![diagram](./hello-world.svg)
+## troubleshooting mode off
+
+![diagram](./diagram-troubleshooting-off.svg)
+
+## troubleshooting mode on
+
+![diagram](./diagram-troubleshooting-on.svg)
 
 ## terminology
 
@@ -34,7 +40,8 @@ Haskell drakon renderer.
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
 * [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
 * [colours](https://www.colourlovers.com)
-  * [you will be free](https://www.colourlovers.com/palette/452030/you_will_be_free)
+* [colorkit](https://colorkit.co/)
+  * [default palette](https://colorkit.co/palette/642915-963e20-c7522a-e5c185-fbf2c4-74a892-008585-006464-004343/)
 * useful haskell modules:
   * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
   * [GHC.Utils.Outputable](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Utils-Outputable.html)

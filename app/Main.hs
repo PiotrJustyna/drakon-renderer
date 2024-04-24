@@ -213,13 +213,6 @@ iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc 
 
 -- graph manipulation ->
 
-conditionalSuffix :: String -> String -> Bool -> String
-conditionalSuffix input suffix condition = if condition then input ++ suffix else input
-
-conditionalRenderingSuffix :: String -> Int -> Double -> Bool -> String
-conditionalRenderingSuffix input renderingOrder maxWidth =
-  conditionalSuffix input (" | rendering order: " ++ show renderingOrder ++ " | max width: " ++ show maxWidth)
-
 payload :: GHC.Data.Graph.Directed.Node Int Icon -> Icon
 payload GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = x, GHC.Data.Graph.Directed.node_key = _, GHC.Data.Graph.Directed.node_dependencies = _ } = x
 
@@ -239,12 +232,11 @@ visualGraph = do
   let startingDepth = 0.0
   let firstChildIconDepth = startingDepth + (-1.0) * cellHeight
   let Icon { iconText = titleIconText, iconType = _ } = payload titleIcon
-  let conditionalText = conditionalRenderingSuffix titleIconText renderingOrder startingWidth troubleshootingMode
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
   let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth firstChildIconDepth startingWidth startingDepth
 
-  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape conditionalText) : childSubgraphVisualData
+  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape titleIconText renderingOrder startingWidth) : childSubgraphVisualData
 
 visualSubgraph ::
   [GHC.Data.Graph.Directed.Node Int Icon] ->
@@ -297,7 +289,7 @@ visualSubgraphNode ::
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode width depth previousIconOriginCoordinateX previousIconOriginCoordinateY icon renderingOrder maxWidth = do
   let Icon { iconText = x, iconType = y } = icon
-  (Diagrams.Prelude.p2 (width, depth), correctShape y previousIconOriginCoordinateX previousIconOriginCoordinateY $ conditionalRenderingSuffix x renderingOrder maxWidth troubleshootingMode)
+  (Diagrams.Prelude.p2 (width, depth), correctShape y previousIconOriginCoordinateX previousIconOriginCoordinateY x renderingOrder maxWidth)
 
 -- <- graph manipulation
 
@@ -322,6 +314,38 @@ iconWidth = 0.8 * cellWidth
 iconHeight ::
   Double
 iconHeight = 0.4 * cellHeight
+
+fontSize ::
+  Double
+fontSize = 0.1
+
+backgroundColour ::
+  Diagrams.Prelude.Colour Double
+backgroundColour = Data.Colour.SRGB.sRGB (230.0/255.0) (232.0/255.0) (216.0/255.0)
+
+fontColour ::
+  Diagrams.Prelude.Colour Double
+fontColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
+
+lineColour ::
+  Diagrams.Prelude.Colour Double
+lineColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
+
+titleIconColour ::
+  Diagrams.Prelude.Colour Double
+titleIconColour = Data.Colour.SRGB.sRGB (69.0/255.0) (173.0/255.0) (127.0/255.0)
+
+actionIconColour ::
+  Diagrams.Prelude.Colour Double
+actionIconColour = titleIconColour
+
+questionIconColour ::
+  Diagrams.Prelude.Colour Double
+questionIconColour = titleIconColour
+
+endIconColour ::
+  Diagrams.Prelude.Colour Double
+endIconColour = titleIconColour
 
 -- <- visual constants
 
@@ -355,11 +379,17 @@ correctShape ::
   Double ->
   Double ->
   String ->
+  Int ->
+  Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-correctShape Title _ _ x = titleShape x
-correctShape End parentIconVectorX parentIconVectorY x = endShape parentIconVectorX parentIconVectorY x
-correctShape Question parentIconVectorX parentIconVectorY x = questionShape parentIconVectorX parentIconVectorY x
-correctShape Action parentIconVectorX parentIconVectorY x = actionShape parentIconVectorX parentIconVectorY x
+correctShape Title _ _ titleIconText renderingOrder maxWidth =
+  titleShape titleIconText renderingOrder maxWidth
+correctShape End parentIconVectorX parentIconVectorY endIconText renderingOrder maxWidth =
+  endShape parentIconVectorX parentIconVectorY endIconText renderingOrder maxWidth
+correctShape Question parentIconVectorX parentIconVectorY questionIconText renderingOrder maxWidth =
+  questionShape parentIconVectorX parentIconVectorY questionIconText renderingOrder maxWidth
+correctShape Action parentIconVectorX parentIconVectorY actionIconText renderingOrder maxWidth =
+  actionShape parentIconVectorX parentIconVectorY actionIconText renderingOrder maxWidth
 
 text ::
   String ->
@@ -372,70 +402,113 @@ text
   translateY =
     Diagrams.Prelude.text content
     Diagrams.Prelude.#
-    Diagrams.Prelude.fontSize (Diagrams.Prelude.local 0.05)
+    Diagrams.Prelude.fontSize (Diagrams.Prelude.local fontSize)
     Diagrams.Prelude.#
     Diagrams.Prelude.light
     Diagrams.Prelude.#
-    Diagrams.Prelude.font "courier"
+    Diagrams.Prelude.font "helvetica"
+    Diagrams.Prelude.#
+    Diagrams.Prelude.fc fontColour
     Diagrams.Prelude.#
     Diagrams.Prelude.translate (Diagrams.Prelude.r2 (translateX,  translateY))
 
 titleShape ::
   String ->
+  Int ->
+  Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-titleShape x = do
+titleShape
+  titleIconText
+  renderingOrder
+  maxWidth = do
   let baseShape =
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
-        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (236.0/255.0) (249.0/255.0) (254.0/255.0))
+        Diagrams.Prelude.fc titleIconColour
         Diagrams.Prelude.#
-        Diagrams.Prelude.lw Diagrams.Prelude.none
-
---  (text x 0.0 0.0
---    Diagrams.Prelude.===
---    (text x 0.0 0.0 <> Diagrams.Prelude.strutY (0.05 * 2.0)))
---    <> shape
+        Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
   let shape = if troubleshootingMode
         then Diagrams.Prelude.showOrigin baseShape
         else baseShape
 
-  (text x 0.0 0.0)
+  if troubleshootingMode then
+    (text titleIconText 0.0 0.0
+      Diagrams.Prelude.===
+      (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
+      Diagrams.Prelude.===
+      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
+      <> shape
+  else
+    text titleIconText 0.0 0.0
     <> shape
 
 actionShape ::
   Double ->
   Double ->
   String ->
+  Int ->
+  Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 actionShape
   parentIconVectorX
   parentIconVectorY
-  x = do
+  actionIconText
+  renderingOrder
+  maxWidth = do
   let baseShape =
         Diagrams.Prelude.rect iconWidth iconHeight
         Diagrams.Prelude.#
-        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (220.0/255.0) (232.0/255.0) (235.0/255.0))
+        Diagrams.Prelude.fc actionIconColour
         Diagrams.Prelude.#
-        Diagrams.Prelude.lw Diagrams.Prelude.none
+        Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
   let shape = if troubleshootingMode
-        then Diagrams.Prelude.showOrigin $ baseShape
+        then Diagrams.Prelude.showOrigin baseShape
         else baseShape
 
-  (text x 0.0 0.0)
+  if troubleshootingMode then
+    (text actionIconText 0.0 0.0
+      Diagrams.Prelude.===
+      (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
+      Diagrams.Prelude.===
+      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
+      <> shape
+      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+  else
+    text actionIconText 0.0 0.0
     <> shape
-    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
 questionShape ::
   Double ->
   Double ->
   String ->
+  Int ->
+  Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 questionShape
   parentIconVectorX
   parentIconVectorY
-  x = do
+  questionIconText
+  renderingOrder
+  maxWidth = do
   let baseShape =
         Diagrams.Prelude.fromOffsets
         [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
@@ -449,9 +522,11 @@ questionShape
         Diagrams.Prelude.#
         Diagrams.Prelude.strokeLoop
         Diagrams.Prelude.#
-        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (203.0/255.0) (219.0/255.0) (224.0/255.0))
+        Diagrams.Prelude.fc questionIconColour
         Diagrams.Prelude.#
-        Diagrams.Prelude.lw Diagrams.Prelude.none
+        Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
         Diagrams.Prelude.#
         Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
 
@@ -459,35 +534,81 @@ questionShape
         then Diagrams.Prelude.showOrigin baseShape
         else baseShape
 
-  (text x 0.0 0.0)
+  if troubleshootingMode then
+    (text questionIconText 0.0 0.0
+      Diagrams.Prelude.===
+      (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
+      Diagrams.Prelude.===
+      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
+      <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
+      <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
+      <> shape
+      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+  else
+    text questionIconText 0.0 0.0
     <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
     <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
     <> shape
-    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
 endShape ::
   Double ->
   Double ->
   String ->
+  Int ->
+  Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 endShape
   parentIconVectorX
   parentIconVectorY
-  x = do
+  endIconText
+  renderingOrder
+  maxWidth = do
   let baseShape =
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
-        Diagrams.Prelude.fc (Data.Colour.SRGB.sRGB (190.0/255.0) (210.0/255.0) (217.0/255.0))
+        Diagrams.Prelude.fc endIconColour
         Diagrams.Prelude.#
-        Diagrams.Prelude.lw Diagrams.Prelude.none
+        Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
   let shape = if troubleshootingMode
-        then Diagrams.Prelude.showOrigin $ baseShape
+        then Diagrams.Prelude.showOrigin baseShape
         else baseShape
 
-  (text x 0.0 0.0)
+  if troubleshootingMode then
+    (text endIconText 0.0 0.0
+      Diagrams.Prelude.===
+      (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
+      Diagrams.Prelude.===
+      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
+      <> shape
+      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+  else
+    text endIconText 0.0 0.0
     <> shape
-    <> (connectionToParentIcon parentIconVectorX parentIconVectorY Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.ultraThin)
+    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
 main ::
   IO ()
@@ -496,6 +617,6 @@ main = do
   Diagrams.Backend.SVG.CmdLine.mainWith $
     Diagrams.Prelude.position visualGraph
     Diagrams.Prelude.#
-    Diagrams.Prelude.bg (Data.Colour.SRGB.sRGB (247.0/255.0) (249.0/255.0) (254.0/255.0))
+    Diagrams.Prelude.bg backgroundColour
     Diagrams.Prelude.#
     Diagrams.Prelude.lw Diagrams.Prelude.none
