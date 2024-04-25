@@ -381,14 +381,13 @@ connectionToParentIcon x y =
 connectionToParentIcons ::
   [(Double, Double)] ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-connectionToParentIcons parentIconOriginVectors =
+connectionToParentIcons =
   foldl
     (\acc (vectorX, vectorY) ->
       acc
       <>
-      connectionToParentIcon vectorX vectorY) -- translate to 0,0 before next connection starts
+      connectionToParentIcon vectorX vectorY)
     mempty
-    parentIconOriginVectors
 
 correctShape ::
   IconType ->
@@ -401,11 +400,11 @@ correctShape ::
 correctShape Title _ _ titleIconText renderingOrder maxWidth =
   titleShape titleIconText renderingOrder maxWidth
 correctShape End parentIconVectorX parentIconVectorY endIconText renderingOrder maxWidth =
-  endShape parentIconVectorX parentIconVectorY endIconText renderingOrder maxWidth
+  endShape [(parentIconVectorX, parentIconVectorY)] endIconText renderingOrder maxWidth
 correctShape Question parentIconVectorX parentIconVectorY questionIconText renderingOrder maxWidth =
-  questionShape parentIconVectorX parentIconVectorY questionIconText renderingOrder maxWidth
+  questionShape [(parentIconVectorX, parentIconVectorY)] questionIconText renderingOrder maxWidth
 correctShape Action parentIconVectorX parentIconVectorY actionIconText renderingOrder maxWidth =
-  actionShape parentIconVectorX parentIconVectorY actionIconText renderingOrder maxWidth
+  actionShape [(parentIconVectorX, parentIconVectorY)] actionIconText renderingOrder maxWidth
 
 text ::
   String ->
@@ -464,15 +463,13 @@ titleShape
     <> shape
 
 actionShape ::
-  Double ->
-  Double ->
+  [(Double, Double)] ->
   String ->
   Int ->
   Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 actionShape
-  parentIconVectorX
-  parentIconVectorY
+  vectorsToParentCoordinates
   actionIconText
   renderingOrder
   maxWidth = do
@@ -498,7 +495,7 @@ actionShape
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
-      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      <> connectionToParentIcons vectorsToParentCoordinates
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
@@ -506,22 +503,20 @@ actionShape
   else
     text actionIconText 0.0 0.0
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> connectionToParentIcons vectorsToParentCoordinates
     Diagrams.Prelude.#
     Diagrams.Prelude.lc lineColour
     Diagrams.Prelude.#
     Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
 questionShape ::
-  Double ->
-  Double ->
+  [(Double, Double)] ->
   String ->
   Int ->
   Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 questionShape
-  parentIconVectorX
-  parentIconVectorY
+  vectorsToParentCoordinates
   questionIconText
   renderingOrder
   maxWidth = do
@@ -561,7 +556,7 @@ questionShape
       <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
       <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
       <> shape
-      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      <> connectionToParentIcons vectorsToParentCoordinates
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
@@ -571,22 +566,20 @@ questionShape
     <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
     <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> connectionToParentIcons vectorsToParentCoordinates
     Diagrams.Prelude.#
     Diagrams.Prelude.lc lineColour
     Diagrams.Prelude.#
     Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
 
 endShape ::
-  Double ->
-  Double ->
+  [(Double, Double)] ->
   String ->
   Int ->
   Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 endShape
-  parentIconVectorX
-  parentIconVectorY
+  vectorsToParentCoordinates
   endIconText
   renderingOrder
   maxWidth = do
@@ -612,7 +605,7 @@ endShape
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
-      <> connectionToParentIcons [(parentIconVectorX, parentIconVectorY)]
+      <> connectionToParentIcons vectorsToParentCoordinates
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
@@ -620,7 +613,7 @@ endShape
   else
     text endIconText 0.0 0.0
     <> shape
-    <> connectionToParentIcon parentIconVectorX parentIconVectorY
+    <> connectionToParentIcons vectorsToParentCoordinates
     Diagrams.Prelude.#
     Diagrams.Prelude.lc lineColour
     Diagrams.Prelude.#
