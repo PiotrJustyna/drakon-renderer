@@ -238,6 +238,10 @@ visualGraph = do
 
   (Diagrams.Prelude.p2 (0.0, 0.0), titleShape titleIconText renderingOrder startingWidth) : childSubgraphVisualData
 
+-- we should have a bit of new logic here:
+-- if, while iterating through the list of icons, you come across and end icon (later any icon)
+-- that is already in the returned collection of triples (rendering order, max width, (coordinates, diagram))
+-- take that found end icon from the returned collection and mappend a connection to the new parent node to it
 visualSubgraph ::
   [GHC.Data.Graph.Directed.Node Int Icon] ->
   Int ->
@@ -373,6 +377,18 @@ connectionToParentIcon x y =
     Diagrams.Prelude.#
     Diagrams.Prelude.translate
     (Diagrams.Prelude.r2 (0, y))
+
+connectionToParentIcons ::
+  [(Double, Double)] ->
+  Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
+connectionToParentIcons parentIconOriginVectors =
+  foldl
+    (\acc (vectorX, vectorY) ->
+      acc
+      <>
+      connectionToParentIcon vectorX vectorY) -- translate to 0,0 before next connection starts
+    mempty
+    parentIconOriginVectors
 
 correctShape ::
   IconType ->
@@ -596,7 +612,7 @@ endShape
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
-      <> connectionToParentIcon parentIconVectorX parentIconVectorY
+      <> connectionToParentIcons [(parentIconVectorX, parentIconVectorY)]
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
