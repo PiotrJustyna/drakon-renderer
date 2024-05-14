@@ -249,58 +249,111 @@ visualSubgraph ::
   Double ->
   Double ->
   Double ->
-  (Int, Double, [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
-    Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
-visualSubgraph [] renderingOrder width _ _ _ =
-  (renderingOrder,
-    width,
-    [])
+  (Int,
+    Double,
+    [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
+      Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
+visualSubgraph
+  []
+  renderingOrder
+  currentGraphWidth _ _ _ = (renderingOrder, currentGraphWidth, [])
 
-visualSubgraph [x] renderingOrder width depth previousIconOriginCoordinateX previousIconOriginCoordinateY = do
-  let (childSubgraphMaxUsedRenderingOrder,
-        childSubgraphMaxUsedWidth,
-        childSubgraphVisualData) =
-          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) width depth
+visualSubgraph
+  [x]
+  renderingOrder
+  currentGraphWidth
+  currentGraphDepth
+  previousIconOriginCoordinateX
+  previousIconOriginCoordinateY = do
+    let (childSubgraphMaxUsedRenderingOrder,
+          childSubgraphMaxUsedWidth,
+          childSubgraphVisualData) =
+            visualSubgraph
+              (iconsWithKeys (dependencies x))
+              (renderingOrder + 1)
+              currentGraphWidth
+              (currentGraphDepth - cellHeight)
+              currentGraphWidth
+              currentGraphDepth
 
-  (childSubgraphMaxUsedRenderingOrder,
-    childSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth (previousIconOriginCoordinateX - width) (previousIconOriginCoordinateY - depth) (payload x) renderingOrder width : childSubgraphVisualData)
+    (childSubgraphMaxUsedRenderingOrder,
+      childSubgraphMaxUsedWidth,
+      visualSubgraphNode
+        currentGraphWidth
+        currentGraphDepth
+        [(previousIconOriginCoordinateX - currentGraphWidth,
+          previousIconOriginCoordinateY - currentGraphDepth)]
+        (payload x)
+        renderingOrder
+        currentGraphWidth
+      : childSubgraphVisualData)
 
-visualSubgraph (x:xs) renderingOrder width depth previousIconOriginCoordinateX previousIconOriginCoordinateY = do
-  let (leftChildSubgraphMaxUsedRenderingOrder,
-        leftChildSubgraphMaxUsedWidth,
-        leftChildSubgraphVisualData) =
-          visualSubgraph (iconsWithKeys (dependencies x)) (renderingOrder + 1) width (depth - cellHeight) width depth
-  let newRightChildSubgraphWidth = leftChildSubgraphMaxUsedWidth + cellWidth
-  let (rightChildSubgraphMaxUsedRenderingOrder,
-        rightChildSubgraphMaxUsedWidth,
-        rightChildSubgraphVisualData) =
-          visualSubgraph xs leftChildSubgraphMaxUsedRenderingOrder newRightChildSubgraphWidth depth width (depth + cellHeight)
+visualSubgraph
+  (x:xs)
+  renderingOrder
+  currentGraphWidth
+  currentGraphDepth
+  previousIconOriginCoordinateX
+  previousIconOriginCoordinateY = do
+    let (leftChildSubgraphMaxUsedRenderingOrder,
+          leftChildSubgraphMaxUsedWidth,
+          leftChildSubgraphVisualData) =
+            visualSubgraph
+              (iconsWithKeys (dependencies x))
+              (renderingOrder + 1)
+              currentGraphWidth
+              (currentGraphDepth - cellHeight)
+              currentGraphWidth
+              currentGraphDepth
 
-  (rightChildSubgraphMaxUsedRenderingOrder,
-    rightChildSubgraphMaxUsedWidth,
-    visualSubgraphNode width depth (previousIconOriginCoordinateX - width) (previousIconOriginCoordinateY - depth) (payload x) renderingOrder width: leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
+    let newRightChildSubgraphWidth = leftChildSubgraphMaxUsedWidth + cellWidth
+
+    let (rightChildSubgraphMaxUsedRenderingOrder,
+          rightChildSubgraphMaxUsedWidth,
+          rightChildSubgraphVisualData) =
+            visualSubgraph
+              xs
+              leftChildSubgraphMaxUsedRenderingOrder
+              newRightChildSubgraphWidth
+              currentGraphDepth
+              currentGraphWidth
+              (currentGraphDepth + cellHeight)
+
+    (rightChildSubgraphMaxUsedRenderingOrder,
+      rightChildSubgraphMaxUsedWidth,
+      visualSubgraphNode
+        currentGraphWidth
+        currentGraphDepth
+        [(previousIconOriginCoordinateX - currentGraphWidth,
+          previousIconOriginCoordinateY - currentGraphDepth)]
+        (payload x)
+        renderingOrder
+        currentGraphWidth
+      : leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
 visualSubgraphNode ::
   Double ->
   Double ->
-  Double ->
-  Double ->
+  [(Double, Double)] ->
   Icon ->
   Int ->
   Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode
-  width
-  depth
-  previousIconOriginCoordinateX
-  previousIconOriginCoordinateY
+  currentGraphWidth
+  currentGraphDepth
+  distancesToOriginCoordinatesOfPreviousIcons
   Icon { iconText = x, iconType = y }
   renderingOrder
   maxWidth =
-  (Diagrams.Prelude.p2 (width, depth),
-    correctShape y [(previousIconOriginCoordinateX, previousIconOriginCoordinateY)] x renderingOrder maxWidth)
+  (Diagrams.Prelude.p2 (currentGraphWidth, currentGraphDepth),
+    correctShape
+      y
+      distancesToOriginCoordinatesOfPreviousIcons
+      x
+      renderingOrder
+      maxWidth)
 
 -- <- graph manipulation
 
@@ -405,12 +458,12 @@ correctShape ::
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 correctShape Title _ titleIconText renderingOrder maxWidth =
   titleShape titleIconText renderingOrder maxWidth
-correctShape End originCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth =
-  endShape originCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth
-correctShape Question originCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth =
-  questionShape originCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth
-correctShape Action originCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth =
-  actionShape originCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth
+correctShape End distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth =
+  endShape distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth
+correctShape Question distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth =
+  questionShape distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth
+correctShape Action distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth =
+  actionShape distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth
 
 text ::
   String ->
