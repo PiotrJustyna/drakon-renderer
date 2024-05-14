@@ -291,9 +291,16 @@ visualSubgraphNode ::
   Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
-visualSubgraphNode width depth previousIconOriginCoordinateX previousIconOriginCoordinateY icon renderingOrder maxWidth = do
-  let Icon { iconText = x, iconType = y } = icon
-  (Diagrams.Prelude.p2 (width, depth), correctShape y previousIconOriginCoordinateX previousIconOriginCoordinateY x renderingOrder maxWidth)
+visualSubgraphNode
+  width
+  depth
+  previousIconOriginCoordinateX
+  previousIconOriginCoordinateY
+  Icon { iconText = x, iconType = y }
+  renderingOrder
+  maxWidth =
+  (Diagrams.Prelude.p2 (width, depth),
+    correctShape y [(previousIconOriginCoordinateX, previousIconOriginCoordinateY)] x renderingOrder maxWidth)
 
 -- <- graph manipulation
 
@@ -391,20 +398,19 @@ connectionToParentIcons =
 
 correctShape ::
   IconType ->
-  Double ->
-  Double ->
+  [(Double, Double)] ->
   String ->
   Int ->
   Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-correctShape Title _ _ titleIconText renderingOrder maxWidth =
+correctShape Title _ titleIconText renderingOrder maxWidth =
   titleShape titleIconText renderingOrder maxWidth
-correctShape End parentIconVectorX parentIconVectorY endIconText renderingOrder maxWidth =
-  endShape [(parentIconVectorX, parentIconVectorY)] endIconText renderingOrder maxWidth
-correctShape Question parentIconVectorX parentIconVectorY questionIconText renderingOrder maxWidth =
-  questionShape [(parentIconVectorX, parentIconVectorY)] questionIconText renderingOrder maxWidth
-correctShape Action parentIconVectorX parentIconVectorY actionIconText renderingOrder maxWidth =
-  actionShape [(parentIconVectorX, parentIconVectorY)] actionIconText renderingOrder maxWidth
+correctShape End originCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth =
+  endShape originCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth
+correctShape Question originCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth =
+  questionShape originCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth
+correctShape Action originCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth =
+  actionShape originCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth
 
 text ::
   String ->
