@@ -142,7 +142,7 @@ node9 = GHC.Data.Graph.Directed.DigraphNode
       iconType = Question
     },
     GHC.Data.Graph.Directed.node_key = 9,
-    GHC.Data.Graph.Directed.node_dependencies = [10, 12]
+    GHC.Data.Graph.Directed.node_dependencies = [7, 10]
   }
 
 node10 ::
@@ -234,12 +234,23 @@ visualGraph = do
   let Icon { iconText = titleIconText, iconType = _ } = payload titleIcon
   let titleIconDependenciesKeys = dependencies titleIcon
   let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
-  let (_, _, childSubgraphVisualData) = visualSubgraph titleIconDependencies (renderingOrder + 1) startingWidth firstChildIconDepth startingWidth startingDepth
+  let (_, _, childSubgraphVisualData) =
+        visualSubgraph
+          titleIconDependencies
+          (renderingOrder + 1)
+          startingWidth
+          firstChildIconDepth
+          startingWidth
+          startingDepth
 
-  (Diagrams.Prelude.p2 (0.0, 0.0), titleShape titleIconText renderingOrder startingWidth) : childSubgraphVisualData
+  (Diagrams.Prelude.p2 (0.0, 0.0),
+    titleShape
+      titleIconText
+      renderingOrder
+      (Diagrams.Prelude.p2 (startingWidth, startingDepth))) : childSubgraphVisualData
 
 -- we should have a bit of new logic here:
--- if, while iterating through the list of icons, you come across and end icon (later any icon)
+-- if, while iterating through the list of icons, you come across an icon
 -- that is already in the returned collection of triples (rendering order, max width, (coordinates, diagram))
 -- take that found end icon from the returned collection and mappend a connection to the new parent node to it
 visualSubgraph ::
@@ -285,7 +296,6 @@ visualSubgraph
           previousIconOriginCoordinateY - currentGraphDepth)]
         (payload x)
         renderingOrder
-        currentGraphWidth
       : childSubgraphVisualData)
 
 visualSubgraph
@@ -328,16 +338,26 @@ visualSubgraph
           previousIconOriginCoordinateY - currentGraphDepth)]
         (payload x)
         renderingOrder
-        currentGraphWidth
       : leftChildSubgraphVisualData ++ rightChildSubgraphVisualData)
 
+-- this function generates a pair of:
+-- * origin coordinates of a diagram (where the diagram should be positioned)
+-- * that diagram
+-- based on:
+-- * the origin coordinates which are determined by the calling function
+-- * a list of distances to parent diagrams
+--   * some diagrams have multiple children
+--   * some have multiple parents
+-- * drakon icon to be translated into a diagram
+-- * some troubleshooting information:
+--   * rendering order of the current icon
+--   * max graph width reached by any icon/diagram rendered before this one
 visualSubgraphNode ::
   Double ->
   Double ->
   [(Double, Double)] ->
   Icon ->
   Int ->
-  Double ->
   (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)
 visualSubgraphNode
@@ -345,15 +365,16 @@ visualSubgraphNode
   currentGraphDepth
   distancesToOriginCoordinatesOfPreviousIcons
   Icon { iconText = x, iconType = y }
-  renderingOrder
-  maxWidth =
-  (Diagrams.Prelude.p2 (currentGraphWidth, currentGraphDepth),
-    correctShape
-      y
-      distancesToOriginCoordinatesOfPreviousIcons
-      x
-      renderingOrder
-      maxWidth)
+  renderingOrder = do
+    let originCoordinates = Diagrams.Prelude.p2 (currentGraphWidth, currentGraphDepth)
+
+    (originCoordinates,
+      correctShape
+        y
+        distancesToOriginCoordinatesOfPreviousIcons
+        x
+        renderingOrder
+        originCoordinates)
 
 -- <- graph manipulation
 
@@ -381,7 +402,7 @@ iconHeight = 0.4 * cellHeight
 
 fontSize ::
   Double
-fontSize = 0.1
+fontSize = 0.075
 
 backgroundColour ::
   Diagrams.Prelude.Colour Double
@@ -454,16 +475,16 @@ correctShape ::
   [(Double, Double)] ->
   String ->
   Int ->
-  Double ->
+  Diagrams.Prelude.Point Diagrams.Prelude.V2 Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
-correctShape Title _ titleIconText renderingOrder maxWidth =
-  titleShape titleIconText renderingOrder maxWidth
-correctShape End distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth =
-  endShape distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder maxWidth
-correctShape Question distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth =
-  questionShape distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder maxWidth
-correctShape Action distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth =
-  actionShape distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder maxWidth
+correctShape Title _ titleIconText renderingOrder originCoordinates =
+  titleShape titleIconText renderingOrder originCoordinates
+correctShape End distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder originCoordinates =
+  endShape distancesToOriginCoordinatesOfPreviousIcons endIconText renderingOrder originCoordinates
+correctShape Question distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder originCoordinates =
+  questionShape distancesToOriginCoordinatesOfPreviousIcons questionIconText renderingOrder originCoordinates
+correctShape Action distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder originCoordinates =
+  actionShape distancesToOriginCoordinatesOfPreviousIcons actionIconText renderingOrder originCoordinates
 
 text ::
   String ->
@@ -489,12 +510,12 @@ text
 titleShape ::
   String ->
   Int ->
-  Double ->
+  Diagrams.Prelude.Point Diagrams.Prelude.V2 Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 titleShape
   titleIconText
   renderingOrder
-  maxWidth = do
+  originCoordinates = do
   let baseShape =
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
@@ -513,7 +534,7 @@ titleShape
       Diagrams.Prelude.===
       (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
       Diagrams.Prelude.===
-      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      text ("origin coordinates: " ++ show originCoordinates) 0.0 0.0)
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
@@ -525,13 +546,13 @@ actionShape ::
   [(Double, Double)] ->
   String ->
   Int ->
-  Double ->
+  Diagrams.Prelude.Point Diagrams.Prelude.V2 Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 actionShape
   vectorsToParentCoordinates
   actionIconText
   renderingOrder
-  maxWidth = do
+  originCoordinates = do
   let baseShape =
         Diagrams.Prelude.rect iconWidth iconHeight
         Diagrams.Prelude.#
@@ -550,7 +571,7 @@ actionShape
       Diagrams.Prelude.===
       (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
       Diagrams.Prelude.===
-      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      text ("origin coordinates: " ++ show originCoordinates) 0.0 0.0)
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
@@ -572,13 +593,13 @@ questionShape ::
   [(Double, Double)] ->
   String ->
   Int ->
-  Double ->
+  Diagrams.Prelude.Point Diagrams.Prelude.V2 Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 questionShape
   vectorsToParentCoordinates
   questionIconText
   renderingOrder
-  maxWidth = do
+  originCoordinates = do
   let baseShape =
         Diagrams.Prelude.fromOffsets
         [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
@@ -609,7 +630,7 @@ questionShape
       Diagrams.Prelude.===
       (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
       Diagrams.Prelude.===
-      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      text ("origin coordinates: " ++ show originCoordinates) 0.0 0.0)
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
@@ -635,13 +656,13 @@ endShape ::
   [(Double, Double)] ->
   String ->
   Int ->
-  Double ->
+  Diagrams.Prelude.Point Diagrams.Prelude.V2 Double ->
   Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B
 endShape
   vectorsToParentCoordinates
   endIconText
   renderingOrder
-  maxWidth = do
+  originCoordinates = do
   let baseShape =
         Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
         Diagrams.Prelude.#
@@ -660,7 +681,7 @@ endShape
       Diagrams.Prelude.===
       (text ("rendering order: " ++ show renderingOrder) 0.0 0.0 <> Diagrams.Prelude.strutY (fontSize * 2.0))
       Diagrams.Prelude.===
-      text ("max width: " ++ show maxWidth) 0.0 0.0)
+      text ("origin coordinates: " ++ show originCoordinates) 0.0 0.0)
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0, fontSize))
       <> shape
