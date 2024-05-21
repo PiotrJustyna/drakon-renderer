@@ -10,6 +10,38 @@ Haskell drakon renderer.
 
 ![diagram](./diagram-troubleshooting-on.svg)
 
+## syntax
+
+Proposed input syntax to be converted to diagram images:
+
+```
+icon "start" as start
+icon "action 1" as action1
+icon "end" as end
+
+start > action1
+action1 > end
+```
+
+This would render something like:
+
+```mermaid
+stateDiagram-v2
+state "start" as start
+state "action 1" as action1
+state "end" as end
+
+start --> action1
+action1 --> end
+```
+
+So two sections:
+
+* icon definitions
+* icon connections
+
+But this is subject to change.
+
 ## terminology
 
 * title - first step of a diagram
