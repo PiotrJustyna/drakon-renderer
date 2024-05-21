@@ -96,6 +96,13 @@ naturalNumbers = do _ <- symbol "["
                     _ <- symbol "]"
                     return (x:xs)
 
+token :: Parser a -> Parser a
+token p = do
+  space
+  v <- p
+  space
+  return v
+
 symbol :: String -> Parser String
 symbol xs = token (string xs)
 
@@ -112,9 +119,15 @@ space = do
   _ <- Control.Applicative.many (sat Data.Char.isSpace)
   return ()
 
-token :: Parser a -> Parser a
-token p = do
-  space
-  v <- p
-  space
-  return v
+iconDefinition' :: Parser String
+iconDefinition' = do
+  _ <- symbol "icon"
+  _ <- symbol "\""
+  name <- token identifier
+  _ <- symbol "\""
+  _ <- symbol "as"
+  _ <- symbol "start"
+  return name
+
+iconDefinition :: Parser String
+iconDefinition = token iconDefinition'
