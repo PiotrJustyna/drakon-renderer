@@ -3,6 +3,9 @@ module Parser where
 import qualified Control.Applicative
 import qualified Data.Char
 
+-- TODO: to qualified
+import Icon
+
 newtype Parser a = P (String -> [(a, String)])
 
 instance Functor Parser where
@@ -52,14 +55,11 @@ sat f = do
   -- but the below also works:
   -- if f x then P (\input -> [(x, input)]) else Control.Applicative.empty
 
-digit :: Parser Char
-digit = sat Data.Char.isDigit
-
-lower :: Parser Char
-lower = sat Data.Char.isLower
-
-alphanum :: Parser Char
-alphanum = sat Data.Char.isAlphaNum
+isAllowedDescriptionCharacter :: Char -> Bool
+isAllowedDescriptionCharacter x =
+  Data.Char.isAlphaNum x
+  || Data.Char.isSpace x
+  || x == '-'
 
 char :: Char -> Parser Char
 char x = sat (== x)
@@ -71,30 +71,28 @@ string (x:xs) = do
   _ <- string xs
   return (x:xs)
 
-identifier' :: Parser String
-identifier' = do
-  x <- lower
-  xs <- Control.Applicative.many alphanum
-  return (x:xs)
+-- 2024-05-23 PJ:
+-- TODO: many but no more than N
+iconIdentifier :: Parser String
+iconIdentifier = do Control.Applicative.many $ sat Data.Char.isAlphaNum
 
-identifier :: Parser String
-identifier = token identifier'
+iconDescription :: Parser String
+iconDescription = do
+  _ <- symbol "\""
+  name <- Control.Applicative.many $ sat isAllowedDescriptionCharacter
+  _ <- symbol "\""
+  return name
 
-naturalNumber' :: Parser Int
-naturalNumber' = do
-  xs <- Control.Applicative.some digit
-  return (read xs)
-
-naturalNumber :: Parser Int
-naturalNumber = token naturalNumber'
-
-naturalNumbers :: Parser [Int]
-naturalNumbers = do _ <- symbol "["
-                    x <- naturalNumber
-                    xs <- Control.Applicative.many (do symbol ","
-                                                       naturalNumber)
-                    _ <- symbol "]"
-                    return (x:xs)
+-- 2024-05-23 PJ:
+-- I thought about "many but no more than N"
+-- but in the end convinced myself it won't be needed.
+-- We can always limit the number of spaces using an
+-- input size constant.
+-- Any input larger than that constant will be ignored.
+space :: Parser ()
+space = do
+  _ <- Control.Applicative.many (sat Data.Char.isSpace)
+  return ()
 
 token :: Parser a -> Parser a
 token p = do
@@ -106,28 +104,31 @@ token p = do
 symbol :: String -> Parser String
 symbol xs = token (string xs)
 
-integer :: Parser Int
-integer = do
-  _ <- char '-'
-  n <- naturalNumber
-  return (-n)
+iconDefinition'' :: Parser Icon
+iconDefinition'' =
+    do
+      _ <- symbol "title"
+      identifier <- token iconIdentifier
+      description <- token iconDescription
+      return Icon { iconText = description, iconType = Title}
   Control.Applicative.<|>
-  naturalNumber
+    do
+      _ <- symbol "action"
+      identifier <- token iconIdentifier
+      description <- token iconDescription
+      return Icon { iconText = description, iconType = Action}
+  Control.Applicative.<|>
+    do
+      _ <- symbol "question"
+      identifier <- token iconIdentifier
+      description <- token iconDescription
+      return Icon { iconText = description, iconType = Question}
+  Control.Applicative.<|>
+    do
+      _ <- symbol "end"
+      identifier <- token iconIdentifier
+      description <- token iconDescription
+      return Icon { iconText = description, iconType = End}
 
-space :: Parser ()
-space = do
-  _ <- Control.Applicative.many (sat Data.Char.isSpace)
-  return ()
-
-iconDefinition' :: Parser String
-iconDefinition' = do
-  _ <- symbol "icon"
-  _ <- symbol "\""
-  name <- token identifier
-  _ <- symbol "\""
-  _ <- symbol "as"
-  _ <- symbol "start"
-  return name
-
-iconDefinition :: Parser String
-iconDefinition = token iconDefinition'
+iconDefinition :: Parser Icon
+iconDefinition = token iconDefinition''

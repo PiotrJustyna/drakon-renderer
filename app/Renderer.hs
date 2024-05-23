@@ -8,23 +8,9 @@ import qualified Diagrams.Backend.SVG.CmdLine
 import qualified Diagrams.Prelude
 
 import qualified GHC.Data.Graph.Directed
-import qualified GHC.Utils.Outputable
-import qualified GHC.Utils.Ppr
 
-import qualified System.IO
-
-data IconType = Title | End | Action | Question
-
-instance Show IconType where
-    show Title = "Title"
-    show End = "End"
-    show Action = "Action"
-    show Question = "Question"
-
-data Icon = Icon { iconText :: String, iconType :: IconType }
-
-instance GHC.Utils.Outputable.Outputable Icon where
-    ppr Icon { iconText = x, iconType = y } = GHC.Utils.Outputable.text $ show y ++ ": " ++ x
+-- TODO: to qualified
+import Icon
 
 -- constructing the graph ->
 

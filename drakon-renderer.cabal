@@ -37,8 +37,8 @@ category:           Development
 build-type:         Simple
 
 -- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
-extra-doc-files:    CHANGELOG.md,
-                    README.md
+extra-doc-files:    changelog.md,
+                    readme.md
 
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
@@ -51,7 +51,8 @@ executable drakon-renderer
 
     main-is:            Main.hs
 
-    other-modules:      Parser,
+    other-modules:      Icon,
+                        Parser,
                         Renderer
 
     default-extensions: LambdaCase

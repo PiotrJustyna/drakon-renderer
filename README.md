@@ -15,23 +15,23 @@ Haskell drakon renderer.
 Proposed input syntax to be converted to diagram images:
 
 ```
-icon "start" as start
-icon "action 1" as action1
-icon "end" as end
+start t "title - description"
+action a1 "action - description"
+end e "end - description"
 
-start > action1
-action1 > end
+t > a1
+a1 > e
 ```
 
-This would render something like:
+This would render something like the following mermaid:
 
 ```mermaid
 stateDiagram-v2
-state "start" as start
-state "action 1" as action1
-state "end" as end
+state "title - description" as title
+state "action - description" as action1
+state "end - description" as end
 
-start --> action1
+title --> action1
 action1 --> end
 ```
 
