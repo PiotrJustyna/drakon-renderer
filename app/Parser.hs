@@ -3,8 +3,7 @@ module Parser where
 import qualified Control.Applicative
 import qualified Data.Char
 
--- TODO: to qualified
-import Icon
+import qualified Icon
 
 newtype Parser a = P (String -> [(a, String)])
 
@@ -52,8 +51,6 @@ sat :: (Char -> Bool) -> Parser Char
 sat f = do
   x <- item
   if f x then return x else Control.Applicative.empty
-  -- but the below also works:
-  -- if f x then P (\input -> [(x, input)]) else Control.Applicative.empty
 
 isAllowedDescriptionCharacter :: Char -> Bool
 isAllowedDescriptionCharacter x =
@@ -72,6 +69,7 @@ string (x:xs) = do
   return (x:xs)
 
 -- 2024-05-23 PJ:
+-- ==============
 -- TODO: many but no more than N
 iconIdentifier :: Parser String
 iconIdentifier = do Control.Applicative.many $ sat Data.Char.isAlphaNum
@@ -84,6 +82,7 @@ iconDescription = do
   return name
 
 -- 2024-05-23 PJ:
+-- ==============
 -- I thought about "many but no more than N"
 -- but in the end convinced myself it won't be needed.
 -- We can always limit the number of spaces using an
@@ -104,31 +103,31 @@ token p = do
 symbol :: String -> Parser String
 symbol xs = token (string xs)
 
-iconDefinition'' :: Parser Icon
-iconDefinition'' =
+iconDefinition' :: Parser Icon.Icon
+iconDefinition' =
     do
-      _ <- symbol "title"
+      _ <- symbol "Title"
       identifier <- token iconIdentifier
       description <- token iconDescription
-      return Icon { iconText = description, iconType = Title}
+      return Icon.Icon { Icon.iconText = description, Icon.iconType = Icon.Title}
   Control.Applicative.<|>
     do
-      _ <- symbol "action"
+      _ <- symbol "Action"
       identifier <- token iconIdentifier
       description <- token iconDescription
-      return Icon { iconText = description, iconType = Action}
+      return Icon.Icon { Icon.iconText = description, Icon.iconType = Icon.Action}
   Control.Applicative.<|>
     do
-      _ <- symbol "question"
+      _ <- symbol "Question"
       identifier <- token iconIdentifier
       description <- token iconDescription
-      return Icon { iconText = description, iconType = Question}
+      return Icon.Icon { Icon.iconText = description, Icon.iconType = Icon.Question}
   Control.Applicative.<|>
     do
-      _ <- symbol "end"
+      _ <- symbol "End"
       identifier <- token iconIdentifier
       description <- token iconDescription
-      return Icon { iconText = description, iconType = End}
+      return Icon.Icon { Icon.iconText = description, Icon.iconType = Icon.End}
 
-iconDefinition :: Parser Icon
-iconDefinition = token iconDefinition''
+iconDefinition :: Parser Icon.Icon
+iconDefinition = token iconDefinition'

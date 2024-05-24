@@ -15,9 +15,9 @@ Haskell drakon renderer.
 Proposed input syntax to be converted to diagram images:
 
 ```
-start t "title - description"
-action a1 "action - description"
-end e "end - description"
+Title t "title - description"
+Action a1 "action - description"
+End e "end - description"
 
 t > a1
 a1 > e
