@@ -131,3 +131,13 @@ iconDefinition' =
 
 iconDefinition :: Parser Icon.Icon
 iconDefinition = token iconDefinition'
+
+iconDefinitions :: Parser [Icon.Icon]
+iconDefinitions =
+  do
+    iconX <- iconDefinition
+    iconsX <- Control.Applicative.many
+      (do
+        symbol ","
+        iconDefinition)
+    return (iconX: iconsX)

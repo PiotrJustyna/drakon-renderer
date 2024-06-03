@@ -53,11 +53,12 @@ executable drakon-renderer
 
     other-modules:      Icon,
                         Parser,
+                        ParserV2,
                         Renderer
 
     default-extensions: LambdaCase
 
-    build-depends:      base ^>=4.17.2.0,
+    build-depends:      base ^>= 4.19.1.0,
                         ghc,
                         diagrams,
                         diagrams-lib,

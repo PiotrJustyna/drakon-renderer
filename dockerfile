@@ -1,4 +1,4 @@
-FROM alpine:3.19.1
+FROM alpine:3.20.0
 
 WORKDIR "/root/code/drakon-renderer"
 
@@ -22,8 +22,11 @@ RUN \
   && \
   cabal update \
   && \
-  cabal install hlint \
-  && \
-  export PATH=$PATH:/root/.local/bin
+  cabal install hlint
+
+# 2024-06-03 PJ:
+# --------------
+# this is where hlint is installed
+ENV PATH="${PATH}:/root/.local/bin"
 
 CMD [ "/bin/zsh" ]
