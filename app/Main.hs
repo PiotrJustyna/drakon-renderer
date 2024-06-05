@@ -1,13 +1,14 @@
 module Main where
 
-import qualified GHC.Utils.Outputable
-import qualified GHC.Utils.Ppr
-
-import qualified Parser
-
-import qualified System.IO
-import qualified System.Environment
+import qualified ParserV2
 
 main ::
   IO ()
-main = putStrLn "hello, world!"
+main = do
+  -- Just ('a',"bc")
+  print $ ParserV2.parse ParserV2.singleCharacterParser "abc"
+
+  -- Just ('a',"bc")
+  print $ ParserV2.parse
+    (fmap (const 'A') ParserV2.singleCharacterParser)
+    "abc"
