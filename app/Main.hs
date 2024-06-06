@@ -2,13 +2,7 @@ module Main where
 
 import qualified ParserV2
 
-main ::
-  IO ()
+main :: IO ()
 main = do
-  -- Just ('a',"bc")
-  print $ ParserV2.parse ParserV2.singleCharacterParser "abc"
-
-  -- Just ('a',"bc")
-  print $ ParserV2.parse
-    (fmap (const 'A') ParserV2.singleCharacterParser)
-    "abc"
+  print . show $ ParserV2.parse (ParserV2.matchingCharacter 'h') "hello world"
+  print . show $ ParserV2.parse (ParserV2.matchingString "hello") "helloworld"
