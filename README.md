@@ -1,6 +1,6 @@
 # drakon-renderer
 
-Haskell drakon renderer.
+Drakon renderer.
 
 ## troubleshooting mode off
 
@@ -57,23 +57,11 @@ But this is subject to change.
 
 ## development environment
 
-| command | description |
-| --- | --- |
-| `./host.sh` | starts development environment |
-| `./build.sh` | builds and lints code |
-| `./run.sh` | runs code |
-| `hlint .` | scans the whole current directory with hlint |
-| `exit` | terminates development environment |
+vscode + devcontainers
 
 ## resources
 
 * [drakon wiki](https://en.m.wikipedia.org/wiki/DRAKON)
 * [drakon](https://drakonhub.com/read/docs)
-* [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
-* [diagrams - user manual](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html)
-* [colours](https://www.colourlovers.com)
 * [colorkit](https://colorkit.co/)
   * [default palette](https://colorkit.co/palette/642915-963e20-c7522a-e5c185-fbf2c4-74a892-008585-006464-004343/)
-* useful haskell modules:
-  * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
-  * [GHC.Utils.Outputable](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Utils-Outputable.html)
