@@ -65,7 +65,8 @@ executable drakon-renderer
                         diagrams-svg,
                         colour,
                         containers,
-                        aeson
+                        aeson,
+                        text
 
     hs-source-dirs:     app
 
