@@ -2,53 +2,44 @@
 
 module Main where
 
-import qualified Control.Applicative
 import qualified Data.Aeson
-import qualified Data.Text
+import qualified Icon
+import qualified Renderer
 
-data IconType = Title | End | Action | Question
+import qualified Data.Colour.SRGB
+import qualified GHC.Utils.Outputable
+import qualified GHC.Utils.Ppr
+import qualified Diagrams.Backend.SVG.CmdLine
+import qualified Diagrams.Prelude
+import qualified System.IO
 
-instance Show IconType where
-  show Title = "Title"
-  show End = "End"
-  show Action = "Action"
-  show Question = "Question"
+backgroundColour ::
+  Diagrams.Prelude.Colour Double
+backgroundColour = Data.Colour.SRGB.sRGB (230.0/255.0) (232.0/255.0) (216.0/255.0)
 
-instance Data.Aeson.ToJSON IconType where
-  toJSON Title    = Data.Aeson.String "Title"
-  toJSON End      = Data.Aeson.String "End"
-  toJSON Action   = Data.Aeson.String "Action"
-  toJSON Question = Data.Aeson.String "Question"
-
-instance Data.Aeson.FromJSON IconType where
-  parseJSON = Data.Aeson.withText "iconType" $ \t -> case Data.Text.unpack t of
-    "Title"     -> pure Title
-    "End"       -> pure End
-    "Action"    -> pure Action
-    "Question"  -> pure Question
-    unknown -> fail $ "unknown iconType: " <> unknown
-
-data Icon = Icon { iconText :: String, iconType :: IconType }
-  deriving (Show)
-
-instance Data.Aeson.ToJSON Icon where
-  toJSON (Icon iconText' iconType') = Data.Aeson.object [ "iconText" Data.Aeson..= iconText', "iconType" Data.Aeson..= iconType' ]
-
-instance Data.Aeson.FromJSON Icon where
-  parseJSON (Data.Aeson.Object v) = Icon <$> v Data.Aeson..: "iconText" <*> v Data.Aeson..: "iconType"
-  parseJSON _                     = Control.Applicative.empty
-
-main :: IO ()
+-- main :: IO ()
 main = do
-  let titleIcon = Icon { iconText = "hello world process", iconType = Title }
+  let titleIcon = Icon.Icon { Icon.iconText = "hello world process", Icon.iconType = Icon.Title }
 
-  let actionIcon = Icon { iconText = "Hello, world!", iconType = Action }
+  let actionIcon = Icon.Icon { Icon.iconText = "Hello, world!", Icon.iconType = Icon.Action }
 
-  let endIcon = Icon { iconText = "end", iconType = End }
+  let endIcon = Icon.Icon { Icon.iconText = "end", Icon.iconType = Icon.End }
 
   let serializedIcons = Data.Aeson.encode [ titleIcon, actionIcon, endIcon ]
 
   print serializedIcons
 
-  let icons = Data.Aeson.decode "[{\"iconText\":\"hello world process\",\"iconType\":\"Title\"},{\"iconText\":\"Hello, world!\",\"iconType\":\"Action\"},{\"iconText\":\"end\",\"iconType\":\"End\"}]" :: Maybe [Icon]
-  print icons
+  let possiblyIcons = Data.Aeson.decode "[{\"iconText\":\"hello world process\",\"iconType\":\"Title\"},{\"iconText\":\"Hello, world!\",\"iconType\":\"Action\"},{\"iconText\":\"end\",\"iconType\":\"End\"}]" :: Maybe [Icon.Icon]
+  print possiblyIcons
+
+  case possiblyIcons of
+    Just icons -> do
+      let graph = Renderer.graph' icons
+      GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout $ GHC.Utils.Outputable.ppr graph
+      Diagrams.Backend.SVG.CmdLine.mainWith $
+        Diagrams.Prelude.position (Renderer.visualGraph graph)
+        Diagrams.Prelude.#
+        Diagrams.Prelude.bg backgroundColour
+        Diagrams.Prelude.#
+        Diagrams.Prelude.lw Diagrams.Prelude.none
+    Nothing -> return ()

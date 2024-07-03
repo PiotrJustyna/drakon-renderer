@@ -170,30 +170,22 @@ node12 = GHC.Data.Graph.Directed.DigraphNode
     GHC.Data.Graph.Directed.node_dependencies = []
   }
 
-graph ::
+graph' ::
+  [Icon] ->
   GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node Int Icon)
-graph = GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq
-  [node1,
-  node2,
-  node3,
-  node4,
-  node5,
-  node6,
-  node7,
-  node8,
-  node9,
-  node10,
-  node11,
-  node12]
-
-icons ::
-  Data.Map.Map Int (GHC.Data.Graph.Directed.Node Int Icon)
-icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ GHC.Data.Graph.Directed.verticesG graph
+graph' inputIcons =
+  GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
+  where
+    nodes = [GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = Icon { iconText = "end 4", iconType = End}, GHC.Data.Graph.Directed.node_key = titleIconKey, GHC.Data.Graph.Directed.node_dependencies = [] } | singleIcon <- inputIcons]
 
 iconsWithKeys ::
   [Int] ->
+  Data.Map.Map Int (GHC.Data.Graph.Directed.Node Int Icon) ->
   [GHC.Data.Graph.Directed.Node Int Icon]
-iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] icons
+iconsWithKeys
+  ks
+  inputIcons =
+    Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] inputIcons
 
 -- <- constructing the graph
 
@@ -209,9 +201,11 @@ dependencies :: GHC.Data.Graph.Directed.Node Int Icon -> [Int]
 dependencies GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = _, GHC.Data.Graph.Directed.node_key = _, GHC.Data.Graph.Directed.node_dependencies = x } = x
 
 visualGraph ::
+  GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node Int Icon) ->
   [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
     Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)]
-visualGraph = do
+visualGraph inputGraph = do
+  let icons = Data.Map.fromList . map (\icon -> (key icon, icon)) $ GHC.Data.Graph.Directed.verticesG inputGraph
   let renderingOrder = titleIconKey
   let titleIcon = icons Data.Map.! titleIconKey
   let startingWidth = 0.0
@@ -219,9 +213,10 @@ visualGraph = do
   let firstChildIconDepth = startingDepth + (-1.0) * cellHeight
   let Icon { iconText = titleIconText, iconType = _ } = payload titleIcon
   let titleIconDependenciesKeys = dependencies titleIcon
-  let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys
+  let titleIconDependencies = iconsWithKeys titleIconDependenciesKeys icons
   let (_, _, childSubgraphVisualData) =
         visualSubgraph
+          icons
           titleIconDependencies
           (renderingOrder + 1)
           startingWidth
@@ -240,6 +235,7 @@ visualGraph = do
 -- that is already in the returned collection of triples (rendering order, max width, (coordinates, diagram))
 -- take that found end icon from the returned collection and mappend a connection to the new parent node to it
 visualSubgraph ::
+  Data.Map.Map Int (GHC.Data.Graph.Directed.Node Int Icon) ->
   [GHC.Data.Graph.Directed.Node Int Icon] ->
   Int ->
   Double ->
@@ -251,11 +247,13 @@ visualSubgraph ::
     [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
       Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
 visualSubgraph
+  inputIcons
   []
   renderingOrder
   currentGraphWidth _ _ _ = (renderingOrder, currentGraphWidth, [])
 
 visualSubgraph
+  inputIcons
   [x]
   renderingOrder
   currentGraphWidth
@@ -266,7 +264,8 @@ visualSubgraph
           childSubgraphMaxUsedWidth,
           childSubgraphVisualData) =
             visualSubgraph
-              (iconsWithKeys (dependencies x))
+              inputIcons
+              (iconsWithKeys (dependencies x) inputIcons)
               (renderingOrder + 1)
               currentGraphWidth
               (currentGraphDepth - cellHeight)
@@ -285,6 +284,7 @@ visualSubgraph
       : childSubgraphVisualData)
 
 visualSubgraph
+  inputIcons
   (x:xs)
   renderingOrder
   currentGraphWidth
@@ -295,7 +295,8 @@ visualSubgraph
           leftChildSubgraphMaxUsedWidth,
           leftChildSubgraphVisualData) =
             visualSubgraph
-              (iconsWithKeys (dependencies x))
+              inputIcons
+              (iconsWithKeys (dependencies x) inputIcons)
               (renderingOrder + 1)
               currentGraphWidth
               (currentGraphDepth - cellHeight)
@@ -308,6 +309,7 @@ visualSubgraph
           rightChildSubgraphMaxUsedWidth,
           rightChildSubgraphVisualData) =
             visualSubgraph
+              inputIcons
               xs
               leftChildSubgraphMaxUsedRenderingOrder
               newRightChildSubgraphWidth
