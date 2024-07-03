@@ -52,8 +52,6 @@ executable drakon-renderer
     main-is:            Main.hs
 
     other-modules:      Icon,
-                        Parser,
-                        ParserV2,
                         Renderer
 
     default-extensions: LambdaCase

@@ -4,11 +4,11 @@ Haskell drakon renderer.
 
 ## troubleshooting mode off
 
-![diagram](./diagram-troubleshooting-off.svg)
+![diagram](./img/diagram-troubleshooting-off.svg)
 
 ## troubleshooting mode on
 
-![diagram](./diagram-troubleshooting-on.svg)
+![diagram](./img/diagram-troubleshooting-on.svg)
 
 ## syntax
 

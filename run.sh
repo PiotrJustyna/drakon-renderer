@@ -1,2 +1,3 @@
-#!/bin/zsh
-cabal run drakon-renderer "Title t \"title - description\",Action e \"end - description\""
+#!/bin/sh
+
+cabal run drakon-renderer

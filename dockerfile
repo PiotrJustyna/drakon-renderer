@@ -1,4 +1,4 @@
-FROM alpine:3.20.0
+FROM alpine:3.20.1
 
 WORKDIR "/root/code/drakon-renderer"
 
@@ -6,6 +6,7 @@ RUN \
   apk update \
   && \
   apk add \
+    zsh \
     git \
     openssh \
     curl \
@@ -13,16 +14,15 @@ RUN \
     g++ \
     ghc \
     cabal \
-    zsh \
     ncurses-dev \
-  && \
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
   && \
   git config --global --add safe.directory "/root/code/drakon-renderer" \
   && \
   cabal update \
   && \
-  cabal install hlint
+  cabal install hlint \
+  && \
+  echo "PROMPT='%F{green}%*UTC%f %F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
 
 # 2024-06-03 PJ:
 # --------------

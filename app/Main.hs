@@ -40,14 +40,15 @@ instance Data.Aeson.FromJSON Icon where
 
 main :: IO ()
 main = do
-  let icon = Icon { iconText = "text", iconType = Title }
-  print icon
+  let titleIcon = Icon { iconText = "hello world process", iconType = Title }
 
-  let serializedIcon = Data.Aeson.encode icon
-  print serializedIcon
+  let actionIcon = Icon { iconText = "Hello, world!", iconType = Action }
 
-  let icon' = Data.Aeson.decode serializedIcon :: Maybe Icon
-  print icon'
+  let endIcon = Icon { iconText = "end", iconType = End }
 
-  let problematicIcon = Data.Aeson.decode "{\"iconText\":\"text\",\"iconType\":\"Title\"}" :: Maybe Icon
-  print problematicIcon
+  let serializedIcons = Data.Aeson.encode [ titleIcon, actionIcon, endIcon ]
+
+  print serializedIcons
+
+  let icons = Data.Aeson.decode "[{\"iconText\":\"hello world process\",\"iconType\":\"Title\"},{\"iconText\":\"Hello, world!\",\"iconType\":\"Action\"},{\"iconText\":\"end\",\"iconType\":\"End\"}]" :: Maybe [Icon]
+  print icons
