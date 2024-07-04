@@ -44,7 +44,7 @@ extra-doc-files:    changelog.md,
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall
+    ghc-options:        -Wall
 
 executable drakon-renderer
     import:             warnings

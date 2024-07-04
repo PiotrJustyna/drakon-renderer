@@ -37,15 +37,15 @@ instance Data.Aeson.FromJSON IconType where
 -- --------------
 -- Icon
 
-data Icon = Icon { iconText :: String, iconType :: IconType }
+data Icon = Icon { iconKey :: Int, iconText :: String, iconType :: IconType }
   deriving (Show)
 
 instance GHC.Utils.Outputable.Outputable Icon where
-    ppr Icon { iconText = x, iconType = y } = GHC.Utils.Outputable.text $ show y ++ ": " ++ x
+    ppr Icon { iconKey = x, iconText = y, iconType = z } = GHC.Utils.Outputable.text $ show z ++ ": " ++ y ++ " - " ++ show x
 
 instance Data.Aeson.ToJSON Icon where
-  toJSON (Icon iconText' iconType') = Data.Aeson.object [ "iconText" Data.Aeson..= iconText', "iconType" Data.Aeson..= iconType' ]
+  toJSON (Icon iconKey' iconText' iconType') = Data.Aeson.object [ "iconKey" Data.Aeson..= iconKey', "iconText" Data.Aeson..= iconText', "iconType" Data.Aeson..= iconType' ]
 
 instance Data.Aeson.FromJSON Icon where
-  parseJSON (Data.Aeson.Object v) = Icon <$> v Data.Aeson..: "iconText" <*> v Data.Aeson..: "iconType"
+  parseJSON (Data.Aeson.Object v) = Icon <$> v Data.Aeson..: "iconKey" <*> v Data.Aeson..: "iconText" <*> v Data.Aeson..: "iconType"
   parseJSON _                     = Control.Applicative.empty
