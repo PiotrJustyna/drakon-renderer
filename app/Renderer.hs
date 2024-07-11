@@ -1,16 +1,14 @@
 module Renderer where
 
 import qualified Data.Colour.SRGB
-
 import qualified Data.Map
-
 import qualified Diagrams.Backend.SVG.CmdLine
 import qualified Diagrams.Prelude
-
 import qualified GHC.Data.Graph.Directed
 
 -- TODO: to qualified
-import Icon
+import DataTypes
+import Records
 
 -- constructing the graph ->
 
@@ -176,16 +174,16 @@ graph' ::
 graph' inputIcons =
   GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
   where
-    nodes = [GHC.Data.Graph.Directed.DigraphNode { GHC.Data.Graph.Directed.node_payload = Icon { iconText = "end 4", iconType = End}, GHC.Data.Graph.Directed.node_key = titleIconKey, GHC.Data.Graph.Directed.node_dependencies = [] } | singleIcon <- inputIcons]
+    nodes = [GHC.Data.Graph.Directed.DigraphNode {
+        GHC.Data.Graph.Directed.node_payload = Records.Icon { iconKey = iconKeyValue, iconText = iconTextValue, iconType = iconTypeValue },
+        GHC.Data.Graph.Directed.node_key = iconKeyValue,
+        GHC.Data.Graph.Directed.node_dependencies = [] } | Records.Icon { iconKey = iconKeyValue, iconText = iconTextValue, iconType = iconTypeValue } <- inputIcons]
 
 iconsWithKeys ::
   [Int] ->
   Data.Map.Map Int (GHC.Data.Graph.Directed.Node Int Icon) ->
   [GHC.Data.Graph.Directed.Node Int Icon]
-iconsWithKeys
-  ks
-  inputIcons =
-    Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) [] inputIcons
+iconsWithKeys ks = Data.Map.foldrWithKey (\k a acc -> if k `elem` ks then a:acc else acc) []
 
 -- <- constructing the graph
 
@@ -247,7 +245,7 @@ visualSubgraph ::
     [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double,
       Diagrams.Prelude.Diagram Diagrams.Backend.SVG.CmdLine.B)])
 visualSubgraph
-  inputIcons
+  _
   []
   renderingOrder
   currentGraphWidth _ _ _ = (renderingOrder, currentGraphWidth, [])

@@ -51,7 +51,8 @@ executable drakon-renderer
 
     main-is:            Main.hs
 
-    other-modules:      Icon,
+    other-modules:      DataTypes,
+                        Records,
                         Renderer
 
     default-extensions: LambdaCase
