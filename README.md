@@ -1,46 +1,6 @@
 # drakon-renderer
 
-Haskell drakon renderer.
-
-## troubleshooting mode off
-
-![diagram](./img/diagram-troubleshooting-off.svg)
-
-## troubleshooting mode on
-
-![diagram](./img/diagram-troubleshooting-on.svg)
-
-## syntax
-
-Proposed input syntax to be converted to diagram images:
-
-```
-Title t "title - description"
-Action a1 "action - description"
-End e "end - description"
-
-t > a1
-a1 > e
-```
-
-This would render something like the following mermaid:
-
-```mermaid
-stateDiagram-v2
-state "title - description" as title
-state "action - description" as action1
-state "end - description" as end
-
-title --> action1
-action1 --> end
-```
-
-So two sections:
-
-* icon definitions
-* icon connections
-
-But this is subject to change.
+Reasonably portable drakon diagrams renderer. Development, compilation and execution are intended to take place in containers.
 
 ## terminology
 
@@ -59,11 +19,14 @@ But this is subject to change.
 
 | command | description |
 | --- | --- |
-| `./host.sh` | starts development environment |
-| `./build.sh` | builds and lints code |
-| `./run.sh` | runs code |
-| `hlint .` | scans the whole current directory with hlint |
+| `./start-development-environment.sh` | starts a fully dockerized development environment |
+| `./build.sh` | builds and lints code - preferrably while development environment docker container is running, otherwise local installation of cabal and hlint is required) |
+| `./run.sh` | runs code - just like the build script, the preferred way to use it is while the development environment is running |
 | `exit` | terminates development environment |
+
+## project status
+
+You can see into the bigger ideas I have for the project (past, present, future) here: [dev-log.md](./dev-log.md).
 
 ## resources
 
