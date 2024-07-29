@@ -1,4 +1,4 @@
-cabal-version:      3.4
+cabal-version:      3.8
 -- The cabal-version field refers to the version of the .cabal specification,
 -- and can be different from the cabal-install (the tool) version and the
 -- Cabal (the library) version you are using. As such, the Cabal (the library)
@@ -17,10 +17,9 @@ name:               drakon-renderer
 --                  | | | +--- code changes with no API change
 version:            0.1.0.0
 
-synopsis:           attempt to render drakon diagrams
+synopsis:           string -> svg drakon diagram
 
--- A longer description of the package.
--- description:
+description:        Drakon diagrams renderer.
 
 homepage:           https://github.com/PiotrJustyna/drakon-renderer
 
@@ -36,9 +35,7 @@ category:           Development
 
 build-type:         Simple
 
--- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
-extra-doc-files:    changelog.md,
-                    readme.md
+extra-doc-files:    readme.md
 
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
@@ -52,19 +49,16 @@ executable drakon-renderer
     main-is:            Main.hs
 
     other-modules:      DataTypes,
-                        Records,
-                        Renderer
+                        Records
 
     default-extensions: LambdaCase
 
     build-depends:      base ^>= 4.19.1.0,
-                        ghc,
-                        diagrams,
-                        diagrams-lib,
-                        diagrams-svg,
+                        aeson,
                         colour,
                         containers,
-                        aeson,
+                        ghc,
+                        pandoc,
                         text
 
     hs-source-dirs:     app

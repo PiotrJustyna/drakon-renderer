@@ -5,33 +5,25 @@ module Records where
 import qualified Control.Applicative
 import qualified Data.Aeson
 import qualified DataTypes
-import qualified GHC.Utils.Outputable
 
 data Icon = Icon {
-  iconKey :: Int,
-  iconText :: String,
-  iconType :: DataTypes.IconType }
+  iconName        :: String,
+  iconDescription :: String,
+  iconKind        :: DataTypes.IconKind }
     deriving (Show)
 
-instance GHC.Utils.Outputable.Outputable Icon where
-    ppr Icon {
-      iconKey = iconKeyValue,
-      iconText = iconTextValue,
-      iconType = iconTypeValue } =
-        GHC.Utils.Outputable.text $ show iconTypeValue ++ ": " ++ iconTextValue ++ " - " ++ show iconKeyValue
-
 instance Data.Aeson.ToJSON Icon where
-  toJSON (Icon iconKeyValue iconTextValue iconTypeValue) =
+  toJSON (Icon name description kind) =
     Data.Aeson.object [
-      "iconKey" Data.Aeson..= iconKeyValue,
-      "iconText" Data.Aeson..= iconTextValue,
-      "iconType" Data.Aeson..= iconTypeValue ]
+      "iconName" Data.Aeson..= name,
+      "iconDescription" Data.Aeson..= description,
+      "iconKind" Data.Aeson..= kind]
 
 instance Data.Aeson.FromJSON Icon where
   parseJSON (Data.Aeson.Object v) =
     Icon <$>
-      v Data.Aeson..: "iconKey" <*>
-      v Data.Aeson..: "iconText" <*>
-      v Data.Aeson..: "iconType"
+      v Data.Aeson..: "iconName" <*>
+      v Data.Aeson..: "iconDescription" <*>
+      v Data.Aeson..: "iconKind"
   parseJSON _                     =
     Control.Applicative.empty
