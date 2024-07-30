@@ -5,12 +5,16 @@ module Records where
 import qualified Control.Applicative
 import qualified Data.Aeson
 import qualified DataTypes
+import qualified GHC.Utils.Outputable
 
 data Icon = Icon {
   iconName        :: String,
   iconDescription :: String,
   iconKind        :: DataTypes.IconKind }
     deriving (Show)
+
+instance GHC.Utils.Outputable.Outputable Icon where
+    ppr icon = GHC.Utils.Outputable.text $ show icon
 
 instance Data.Aeson.ToJSON Icon where
   toJSON (Icon name description kind) =
