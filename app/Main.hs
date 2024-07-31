@@ -17,26 +17,32 @@ directedGraph icons =
   GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
   where
     nodes = [GHC.Data.Graph.Directed.DigraphNode {
-        GHC.Data.Graph.Directed.node_payload = Records.Icon { Records.iconName = x, Records.iconDescription = y, Records.iconKind = z },
-        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit x,
+        GHC.Data.Graph.Directed.node_payload = icon,
+        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit $ Records.getIconName icon,
         GHC.Data.Graph.Directed.node_dependencies = [] }
-        | Records.Icon { Records.iconName = x, Records.iconDescription = y, Records.iconKind = z } <- icons]
+        | icon <- icons]
 
 main :: IO ()
 main = do
   let titleIcon = Records.Icon {
     Records.iconName = "1",
     Records.iconDescription = "hello world process",
+    Records.iconNamesOfDependentIcons = ["4"],
     Records.iconKind = DataTypes.Title }
 
   let actionIcon = Records.Icon {
     Records.iconName = "2",
     Records.iconDescription = "Hello, world!",
+    Records.iconNamesOfDependentIcons = ["4"],
     Records.iconKind = DataTypes.Action }
 
   let endIcon = Records.Icon {
     Records.iconName = "3",
     Records.iconDescription = "end",
+    Records.iconNamesOfDependentIcons = ["4"],
     Records.iconKind = DataTypes.End }
 
-  GHC.Utils.Outputable.printSDocLn GHC.Utils.Outputable.defaultSDocContext GHC.Utils.Ppr.LeftMode System.IO.stdout . GHC.Utils.Outputable.ppr $ directedGraph [titleIcon, actionIcon, endIcon]
+  GHC.Utils.Outputable.printSDocLn
+    GHC.Utils.Outputable.defaultSDocContext
+    GHC.Utils.Ppr.LeftMode
+    System.IO.stdout . GHC.Utils.Outputable.ppr $ directedGraph [titleIcon, actionIcon, endIcon]
