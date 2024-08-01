@@ -21,6 +21,13 @@ getIconName Icon {
   iconNamesOfDependentIcons = _,
   iconKind = _ } = x
 
+getIconNamesOfDependentIcons :: Icon -> [String]
+getIconNamesOfDependentIcons Icon {
+  iconName = _,
+  iconDescription = _,
+  iconNamesOfDependentIcons = x,
+  iconKind = _ } = x
+
 instance GHC.Utils.Outputable.Outputable Icon where
     ppr icon = GHC.Utils.Outputable.text $ show icon
 
