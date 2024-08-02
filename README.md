@@ -4,10 +4,10 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 ## terminology
 
-* title - first step of a diagram
-* end - last step of a diagram
-* action - "do X" non-branching action, basic building block of a diagram
-* question - branching step with two possible outcomes:
+* `Title` - first step of a diagram
+* `End` - last step of a diagram
+* `Action` - "do X" non-branching action, basic building block of a diagram
+* `Question` - branching step with two possible outcomes:
   * yes
   * no
 
