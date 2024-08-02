@@ -53,8 +53,10 @@ executable drakon-renderer
 
     default-extensions: LambdaCase
 
-    build-depends:      base ^>= 4.19.1.0,
-                        aeson,
+    build-depends:      aeson,
+                        aeson-pretty,
+                        base ^>= 4.19.1.0,
+                        bytestring,
                         colour,
                         containers,
                         ghc,

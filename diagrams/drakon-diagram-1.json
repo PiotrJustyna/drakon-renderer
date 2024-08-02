@@ -1,0 +1,24 @@
+[
+    {
+        "iconDescription": "hello world process",
+        "iconKind": "Title",
+        "iconName": "1",
+        "iconNamesOfDependentIcons": [
+            "2"
+        ]
+    },
+    {
+        "iconDescription": "Hello, world!",
+        "iconKind": "Action",
+        "iconName": "2",
+        "iconNamesOfDependentIcons": [
+            "3"
+        ]
+    },
+    {
+        "iconDescription": "end",
+        "iconKind": "End",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": []
+    }
+]

@@ -2,6 +2,8 @@
 
 module Main where
 
+import qualified Data.Aeson.Encode.Pretty
+import qualified Data.ByteString.Lazy
 import qualified DataTypes
 import qualified Records
 import qualified GHC.Data.FastString
@@ -44,6 +46,16 @@ main = do
     Records.iconDescription = "end",
     Records.iconNamesOfDependentIcons = [],
     Records.iconKind = DataTypes.End }
+
+  let serializedIcons = Data.Aeson.Encode.Pretty.encodePretty [ titleIcon, actionIcon, endIcon ]
+
+  let filePath = "./diagrams/drakon-diagram-1.json"
+
+  handle <- System.IO.openFile filePath System.IO.WriteMode
+
+  Data.ByteString.Lazy.hPutStr handle serializedIcons
+
+  System.IO.hClose handle
 
   GHC.Utils.Outputable.printSDocLn
     GHC.Utils.Outputable.defaultSDocContext
