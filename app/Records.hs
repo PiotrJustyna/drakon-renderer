@@ -32,19 +32,19 @@ instance GHC.Utils.Outputable.Outputable Icon where
     ppr icon = GHC.Utils.Outputable.text $ show icon
 
 instance Data.Aeson.ToJSON Icon where
-  toJSON (Icon name description kind namesOfDependentIcons) =
+  toJSON (Icon name description namesOfDependentIcons kind) =
     Data.Aeson.object [
       "iconName" Data.Aeson..= name,
       "iconDescription" Data.Aeson..= description,
-      "iconKind" Data.Aeson..= kind,
-      "iconNamesOfDependentIcons" Data.Aeson..= namesOfDependentIcons]
+      "iconNamesOfDependentIcons" Data.Aeson..= namesOfDependentIcons,
+      "iconKind" Data.Aeson..= kind]
 
 instance Data.Aeson.FromJSON Icon where
   parseJSON (Data.Aeson.Object v) =
     Icon <$>
       v Data.Aeson..: "iconName" <*>
       v Data.Aeson..: "iconDescription" <*>
-      v Data.Aeson..: "iconKind" <*>
-      v Data.Aeson..: "iconNamesOfDependentIcons"
+      v Data.Aeson..: "iconNamesOfDependentIcons" <*>
+      v Data.Aeson..: "iconKind"
   parseJSON _                     =
     Control.Applicative.empty
