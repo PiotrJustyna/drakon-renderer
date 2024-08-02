@@ -2,14 +2,13 @@
 
 module Main where
 
-import qualified Data.Aeson.Encode.Pretty
+import qualified Data.Aeson
 import qualified Data.ByteString.Lazy
-import qualified DataTypes
-import qualified Records
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
 import qualified GHC.Utils.Outputable
 import qualified GHC.Utils.Ppr
+import qualified Records
 import qualified System.IO
 
 directedGraph ::
@@ -29,35 +28,14 @@ directedGraph icons =
 
 main :: IO ()
 main = do
-  let titleIcon = Records.Icon {
-    Records.iconName = "1",
-    Records.iconDescription = "hello world process",
-    Records.iconNamesOfDependentIcons = ["2"],
-    Records.iconKind = DataTypes.Title }
-
-  let actionIcon = Records.Icon {
-    Records.iconName = "2",
-    Records.iconDescription = "Hello, world!",
-    Records.iconNamesOfDependentIcons = ["3"],
-    Records.iconKind = DataTypes.Action }
-
-  let endIcon = Records.Icon {
-    Records.iconName = "3",
-    Records.iconDescription = "end",
-    Records.iconNamesOfDependentIcons = [],
-    Records.iconKind = DataTypes.End }
-
-  let serializedIcons = Data.Aeson.Encode.Pretty.encodePretty [ titleIcon, actionIcon, endIcon ]
-
   let filePath = "./diagrams/drakon-diagram-1.json"
 
-  handle <- System.IO.openFile filePath System.IO.WriteMode
+  content <- Data.ByteString.Lazy.readFile filePath
 
-  Data.ByteString.Lazy.hPutStr handle serializedIcons
-
-  System.IO.hClose handle
-
-  GHC.Utils.Outputable.printSDocLn
-    GHC.Utils.Outputable.defaultSDocContext
-    GHC.Utils.Ppr.LeftMode
-    System.IO.stdout . GHC.Utils.Outputable.ppr $ directedGraph [titleIcon, actionIcon, endIcon]
+  case Data.Aeson.decode content :: Maybe [Records.Icon] of
+    Just icons -> do
+      GHC.Utils.Outputable.printSDocLn
+        GHC.Utils.Outputable.defaultSDocContext
+        GHC.Utils.Ppr.LeftMode
+        System.IO.stdout . GHC.Utils.Outputable.ppr $ directedGraph icons
+    Nothing -> return ()
