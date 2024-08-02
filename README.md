@@ -1,4 +1,4 @@
-  # drakon-renderer
+# drakon-renderer
 
 Reasonably portable drakon diagrams renderer. Development, compilation and execution are intended to take place in containers.
 
@@ -14,6 +14,51 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 [source 1](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
 
 [source 2](https://en.m.wikipedia.org/wiki/DRAKON)
+
+## input syntax
+
+```json
+[
+    {
+        "iconDescription": "hello world process",
+        "iconKind": "Title",
+        "iconName": "1",
+        "iconNamesOfDependentIcons": [
+            "2",
+            "3"
+        ]
+    },
+    {
+        "iconDescription": "Hello, world!",
+        "iconKind": "Action",
+        "iconName": "2",
+        "iconNamesOfDependentIcons": [
+            "3"
+        ]
+    },
+    {
+        "iconDescription": "end",
+        "iconKind": "End",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": []
+    }
+]
+```
+
+## output
+
+As this is work in progress, at the time being the oputput is not svg but instead, it is a pretty printed directed graph resulting from deserializing input icons.
+
+```
+Vertices:
+(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3])
+(Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3])
+(Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
+Edges:
+(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3]) -> (Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3])
+(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
+(Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
+```
 
 ## development environment
 
