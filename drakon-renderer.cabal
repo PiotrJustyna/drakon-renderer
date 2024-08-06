@@ -59,6 +59,7 @@ executable drakon-renderer
                         bytestring,
                         colour,
                         containers,
+                        directory,
                         ghc,
                         pandoc,
                         text
