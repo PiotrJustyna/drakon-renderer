@@ -1,3 +1,7 @@
+# 2024-08-06
+
+I have implemented basic error handling, but having glimpsed into the rabbit hole of Haskell exceptions I am positive that this is not something I want to explore at the moment. I think I could just get away with using simpler techniques (`Maybe` or `Either` monads instead of exceptions) and focus my attention instead on more valuable things like setting up a home server (I want this renderer to be a service) on my raspberry pi. I'm planning to focus on it for the time being to gather my thoughts about a smooth transition from the `Icon` types and deserialization I have today to actual svg rendering which I've already implemented twice and don't seem to be particularly happy with either one of those implementations.
+
 # 2024-08-02
 
 Reading drakon diagrams from json files is now working fine, or at least the happy path is. What I think would make sense now is a degree of error handling:
