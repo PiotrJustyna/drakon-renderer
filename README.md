@@ -60,6 +60,18 @@ Edges:
 (Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
 ```
 
+## method
+
+1. read serialized collection of `Icon`s
+
+2. deserialize
+
+3. attempt to position deserialized `Icon`s on a cartesian plane:
+
+    * positive integer x coordinates only
+
+    * negative integer y coordinates only
+
 ## development environment
 
 | command | description |
