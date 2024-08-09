@@ -20,12 +20,7 @@ maxInputFileSizeInBytes = 102400
 originYCoordinate :: Int
 originYCoordinate = 0
 
-directedGraph ::
-  [Records.Icon] ->
-  GHC.Data.Graph.Directed.Graph
-    (GHC.Data.Graph.Directed.Node
-    GHC.Data.FastString.FastString
-    Records.Icon)
+directedGraph :: [Records.Icon] -> GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon)
 directedGraph icons =
   GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
   where
@@ -35,32 +30,53 @@ directedGraph icons =
         GHC.Data.Graph.Directed.node_dependencies = GHC.Data.FastString.fsLit <$> Records.getIconNamesOfDependentIcons icon }
         | icon <- icons]
 
+payload :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> Records.Icon
+payload
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = i,
+    GHC.Data.Graph.Directed.node_key = _,
+    GHC.Data.Graph.Directed.node_dependencies = _ } = i
+
+key :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> GHC.Data.FastString.FastString
+key
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = _,
+    GHC.Data.Graph.Directed.node_key = k,
+    GHC.Data.Graph.Directed.node_dependencies = _ } = k
+
+dependencies :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.FastString.FastString]
+dependencies
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = _,
+    GHC.Data.Graph.Directed.node_key = _,
+    GHC.Data.Graph.Directed.node_dependencies = d } = d
+
+nodesIdentifiedWithKeys :: [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.FastString.FastString] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon]
+nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) nodes
+
 --- 2024-08-09 PJ:
 --- If we place it in a module, it should be public
-cartesianPositioning ::
-  GHC.Data.Graph.Directed.Graph
-    (GHC.Data.Graph.Directed.Node
-    GHC.Data.FastString.FastString
-    Records.Icon) ->
-    [Records.PositionedIcon]
+cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
-  cartesianPositioningOfTopologicallySortedIcons originYCoordinate (GHC.Data.Graph.Directed.topologicalSortG x)
+  exploratoryCartesianPositioning originYCoordinate firstNode topologicallySortedNodes
+  where
+    topologicallySortedNodes = GHC.Data.Graph.Directed.topologicalSortG x
+    firstNode = head topologicallySortedNodes
+
+--- todo: remove duplicates
+
+exploratoryCartesianPositioning :: Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
+exploratoryCartesianPositioning y n ns =
+  Records.PositionedIcon { Records.icon = payload n, Records.iconPositionY = y } : (concat $ [exploratoryCartesianPositioning (y - 1) dependentNode ns | dependentNode <- dependentNodes])
+  where
+    nodeKeysOfDependentNodes = dependencies n
+    dependentNodes = nodesIdentifiedWithKeys ns nodeKeysOfDependentNodes
 
 --- 2024-08-09 PJ:
 --- If we place it in a module, it should be private
-cartesianPositioningOfTopologicallySortedIcons ::
-  Int ->
-  [GHC.Data.Graph.Directed.Node
-    GHC.Data.FastString.FastString
-    Records.Icon] ->
-  [Records.PositionedIcon]
+cartesianPositioningOfTopologicallySortedIcons :: Int -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
 cartesianPositioningOfTopologicallySortedIcons y (n : ns) =
-  Records.PositionedIcon { Records.icon = i, Records.iconPositionY = y } : cartesianPositioningOfTopologicallySortedIcons (y - 1) ns
-  where
-    GHC.Data.Graph.Directed.DigraphNode {
-      GHC.Data.Graph.Directed.node_payload = i,
-      GHC.Data.Graph.Directed.node_key = _,
-      GHC.Data.Graph.Directed.node_dependencies = _ } = n
+  Records.PositionedIcon { Records.icon = payload n, Records.iconPositionY = y } : cartesianPositioningOfTopologicallySortedIcons (y - 1) ns
 cartesianPositioningOfTopologicallySortedIcons _ [] = []
 
 handleReadError ::
