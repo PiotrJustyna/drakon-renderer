@@ -7,6 +7,14 @@ import qualified Data.Aeson
 import qualified DataTypes
 import qualified GHC.Utils.Outputable
 
+--- Icon -> ---------------------------------------------------------------------------------------
+
+--- 2024-08-09 PJ: --------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--- This is a basic representation of a drakon icon and, in its serialized form, it is used as
+--- renderer input.
+---------------------------------------------------------------------------------------------------
+
 data Icon = Icon {
   iconName                  :: String,
   iconDescription           :: String,
@@ -29,7 +37,7 @@ getIconNamesOfDependentIcons Icon {
   iconKind = _ } = x
 
 instance GHC.Utils.Outputable.Outputable Icon where
-    ppr icon = GHC.Utils.Outputable.text $ show icon
+    ppr = GHC.Utils.Outputable.text . show
 
 instance Data.Aeson.ToJSON Icon where
   toJSON (Icon name description namesOfDependentIcons kind) =
@@ -48,3 +56,21 @@ instance Data.Aeson.FromJSON Icon where
       v Data.Aeson..: "iconKind"
   parseJSON _                     =
     Control.Applicative.empty
+
+--- <- Icon ---------------------------------------------------------------------------------------
+
+
+
+--- Positioned Icon -> ----------------------------------------------------------------------------
+
+--- 2024-08-09 PJ: --------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--- This is an experimental attempt at representing basic icon layout on a cartesian plane.
+---------------------------------------------------------------------------------------------------
+
+data PositionedIcon = PositionedIcon {
+  icon          :: Icon,
+  iconPositionY :: Int }
+    deriving (Show)
+
+--- <- Positioned Icon ----------------------------------------------------------------------------
