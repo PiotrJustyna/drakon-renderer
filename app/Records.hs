@@ -5,6 +5,8 @@ module Records where
 import qualified Control.Applicative
 import qualified Data.Aeson
 import qualified DataTypes
+import qualified GHC.Data.FastString
+import qualified GHC.Data.Graph.Directed
 import qualified GHC.Utils.Outputable
 
 --- Icon -> ---------------------------------------------------------------------------------------
@@ -56,6 +58,40 @@ instance Data.Aeson.FromJSON Icon where
       v Data.Aeson..: "iconKind"
   parseJSON _                     =
     Control.Applicative.empty
+
+directedGraph :: [Icon] -> GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon)
+directedGraph icons =
+  GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
+  where
+    nodes = [GHC.Data.Graph.Directed.DigraphNode {
+        GHC.Data.Graph.Directed.node_payload = icon,
+        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit $ getIconName icon,
+        GHC.Data.Graph.Directed.node_dependencies = GHC.Data.FastString.fsLit <$> getIconNamesOfDependentIcons icon }
+        | icon <- icons]
+
+payload :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> Icon
+payload
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = i,
+    GHC.Data.Graph.Directed.node_key = _,
+    GHC.Data.Graph.Directed.node_dependencies = _ } = i
+
+key :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> GHC.Data.FastString.FastString
+key
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = _,
+    GHC.Data.Graph.Directed.node_key = k,
+    GHC.Data.Graph.Directed.node_dependencies = _ } = k
+
+dependencies :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> [GHC.Data.FastString.FastString]
+dependencies
+  GHC.Data.Graph.Directed.DigraphNode {
+    GHC.Data.Graph.Directed.node_payload = _,
+    GHC.Data.Graph.Directed.node_key = _,
+    GHC.Data.Graph.Directed.node_dependencies = d } = d
+
+nodesIdentifiedWithKeys :: [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon] -> [GHC.Data.FastString.FastString] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon]
+nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) nodes
 
 --- <- Icon ---------------------------------------------------------------------------------------
 
