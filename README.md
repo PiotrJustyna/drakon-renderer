@@ -49,7 +49,7 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 As this is work in progress, the oputput is not svg yet but instead:
 
-* a pretty printed directed graph resulting from deserializing input icons directed to stdout:
+* a pretty printed directed graph sent to stdout, resulting from deserializing input icons:
 
 ```
 Vertices:

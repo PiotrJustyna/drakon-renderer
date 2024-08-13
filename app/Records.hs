@@ -105,7 +105,7 @@ nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) 
 ---------------------------------------------------------------------------------------------------
 
 data PositionedIcon = PositionedIcon {
-  icon  :: Icon,
+  icon              :: Icon,
   iconPositionX     :: Int,
   iconPositionY     :: Int }
     deriving (Show)
