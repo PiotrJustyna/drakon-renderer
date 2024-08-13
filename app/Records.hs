@@ -110,6 +110,12 @@ data PositionedIcon = PositionedIcon {
   iconPositionY     :: Int }
     deriving (Show)
 
+getPositionedIconName :: PositionedIcon -> String
+getPositionedIconName PositionedIcon {
+  icon = x,
+  iconPositionX = _,
+  iconPositionY = _ } = getIconName x
+
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon icon positionX positionY) =
     Data.Aeson.object [

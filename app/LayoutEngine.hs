@@ -12,7 +12,7 @@ originXCoordinate = 0
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
-  exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
+ removeDuplicates $ exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
   where
     topologicallySortedNodes = GHC.Data.Graph.Directed.topologicalSortG x
     firstNode = head topologicallySortedNodes
@@ -27,3 +27,6 @@ exploratoryCartesianPositioning x y n ns =
     nodeKeysOfDependentNodes = Records.dependencies n
     dependentNodes = Records.nodesIdentifiedWithKeys ns nodeKeysOfDependentNodes
     indexedDependentNodes = zip [0 ..] dependentNodes :: [(Int, GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon)]
+
+removeDuplicates :: [Records.PositionedIcon] -> [Records.PositionedIcon]
+removeDuplicates = reverse . foldl (\acc x -> if any (\y -> Records.getPositionedIconName y == Records.getPositionedIconName x) acc then acc else x:acc) []
