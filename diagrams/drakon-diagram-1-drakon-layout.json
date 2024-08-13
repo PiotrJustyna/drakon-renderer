@@ -33,15 +33,5 @@
         },
         "iconPositionX": 0,
         "iconPositionY": -2
-    },
-    {
-        "icon": {
-            "iconDescription": "end",
-            "iconKind": "End",
-            "iconName": "3",
-            "iconNamesOfDependentIcons": []
-        },
-        "iconPositionX": 1,
-        "iconPositionY": -1
     }
 ]
