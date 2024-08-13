@@ -3,6 +3,7 @@
 module Main where
 
 import qualified Data.Aeson
+import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
 import qualified GHC.Utils.Outputable
@@ -23,15 +24,19 @@ handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading fi
 
 main :: IO ()
 main = do
-  let diagramFilePath = "./diagrams/drakon-diagram-1.json"
+  let diagramFileName = "drakon-diagram-1"
 
-  fileSizeInBytes <- System.Directory.getFileSize diagramFilePath
+  let inputFilePath = "./diagrams/" ++ diagramFileName ++ ".json"
+
+  let outputFilePath = "./diagrams/" ++ diagramFileName ++ "-drakon-layout.json"
+
+  fileSizeInBytes <- System.Directory.getFileSize inputFilePath
 
   if fileSizeInBytes > maxInputFileSizeInBytes
     then
-      putStrLn $ "Problem with diagram file \"" ++ diagramFilePath ++ "\" (" ++ show fileSizeInBytes ++ " bytes). Max allowed input file size: " ++ show maxInputFileSizeInBytes ++ " bytes."
+      putStrLn $ "Problem with diagram file \"" ++ inputFilePath ++ "\" (" ++ show fileSizeInBytes ++ " bytes). Max allowed input file size: " ++ show maxInputFileSizeInBytes ++ " bytes."
     else do
-      content <- Control.Exception.catch (Data.ByteString.Lazy.readFile diagramFilePath) handleReadError
+      content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputFilePath) handleReadError
 
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
@@ -42,7 +47,11 @@ main = do
             GHC.Utils.Ppr.LeftMode
             System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
 
-          print . LayoutEngine.cartesianPositioning $ graph
+          handle <- System.IO.openFile outputFilePath System.IO.WriteMode
+
+          Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty $ LayoutEngine.cartesianPositioning graph)
+
+          System.IO.hClose handle
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
-          putStrLn $ "Problem interpreting diagram file \"" ++ diagramFilePath ++ "\". Details: " ++ unpackedContent
+          putStrLn $ "Problem interpreting diagram file \"" ++ inputFilePath ++ "\". Details: " ++ unpackedContent

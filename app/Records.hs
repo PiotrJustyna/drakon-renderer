@@ -105,9 +105,16 @@ nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) 
 ---------------------------------------------------------------------------------------------------
 
 data PositionedIcon = PositionedIcon {
-  icon          :: Icon,
-  iconPositionX :: Int,
-  iconPositionY :: Int }
+  icon  :: Icon,
+  iconPositionX     :: Int,
+  iconPositionY     :: Int }
     deriving (Show)
+
+instance Data.Aeson.ToJSON PositionedIcon where
+  toJSON (PositionedIcon icon positionX positionY) =
+    Data.Aeson.object [
+      "icon" Data.Aeson..= icon,
+      "iconPositionX" Data.Aeson..= positionX,
+      "iconPositionY" Data.Aeson..= positionY]
 
 --- <- Positioned Icon ----------------------------------------------------------------------------
