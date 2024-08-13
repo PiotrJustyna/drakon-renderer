@@ -47,7 +47,9 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 ## output
 
-As this is work in progress, at the time being the oputput is not svg but instead, it is a pretty printed directed graph resulting from deserializing input icons.
+As this is work in progress, the oputput is not svg yet but instead:
+
+* a pretty printed directed graph resulting from deserializing input icons directed to stdout:
 
 ```
 Vertices:
@@ -60,17 +62,77 @@ Edges:
 (Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
 ```
 
+* a serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
+
+```json
+[
+    {
+        "icon": {
+            "iconDescription": "hello world process",
+            "iconKind": "Title",
+            "iconName": "1",
+            "iconNamesOfDependentIcons": [
+                "2",
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": 0
+    },
+    {
+        "icon": {
+            "iconDescription": "Hello, world!",
+            "iconKind": "Action",
+            "iconName": "2",
+            "iconNamesOfDependentIcons": [
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -1
+    },
+    {
+        "icon": {
+            "iconDescription": "end",
+            "iconKind": "End",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "end",
+            "iconKind": "End",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 1,
+        "iconPositionY": -1
+    }
+]
+```
+
 ## method
 
 1. read serialized collection of `Icon`s
 
 2. deserialize
 
-3. attempt to position deserialized `Icon`s on a cartesian plane:
+3. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane during
+
+4. attempt to position the directed graph's nodes on a cartesian plane:
 
     * positive integer x coordinates only
 
     * negative integer y coordinates only
+
+5. serialize the product (`[PositionedIcon]`) to a file where:
+
+    * input: `file.json`
+
+    * output: `file-drakon-layout.json`
 
 ## development environment
 

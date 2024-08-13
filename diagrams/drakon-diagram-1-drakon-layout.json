@@ -1,0 +1,47 @@
+[
+    {
+        "icon": {
+            "iconDescription": "hello world process",
+            "iconKind": "Title",
+            "iconName": "1",
+            "iconNamesOfDependentIcons": [
+                "2",
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": 0
+    },
+    {
+        "icon": {
+            "iconDescription": "Hello, world!",
+            "iconKind": "Action",
+            "iconName": "2",
+            "iconNamesOfDependentIcons": [
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -1
+    },
+    {
+        "icon": {
+            "iconDescription": "end",
+            "iconKind": "End",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "end",
+            "iconKind": "End",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 1,
+        "iconPositionY": -1
+    }
+]
