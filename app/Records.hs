@@ -13,7 +13,7 @@ import qualified GHC.Utils.Outputable
 
 --- 2024-08-09 PJ: --------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
---- This is a basic representation of a drakon icon and, in its serialized form, it is used as
+--- This is a basic representation of a drakon icon which, in its serialized form, is used as
 --- renderer input.
 ---------------------------------------------------------------------------------------------------
 
@@ -101,11 +101,12 @@ nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) 
 
 --- 2024-08-09 PJ: --------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
---- This is an experimental attempt at representing basic icon layout on a cartesian plane.
+--- This represents basic icon layout on a cartesian plane.
 ---------------------------------------------------------------------------------------------------
 
 data PositionedIcon = PositionedIcon {
   icon          :: Icon,
+  iconPositionX :: Int,
   iconPositionY :: Int }
     deriving (Show)
 

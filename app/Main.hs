@@ -23,7 +23,7 @@ handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading fi
 
 main :: IO ()
 main = do
-  let diagramFilePath = "./diagrams/drakon-diagram-2-unsorted.json"
+  let diagramFilePath = "./diagrams/drakon-diagram-1.json"
 
   fileSizeInBytes <- System.Directory.getFileSize diagramFilePath
 
