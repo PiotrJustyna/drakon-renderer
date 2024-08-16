@@ -4,22 +4,38 @@
         "iconKind": "Title",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
-            "2",
-            "3"
+            "2"
         ]
     },
     {
-        "iconDescription": "Hello, world!",
+        "iconDescription": "Hello, world! 1",
         "iconKind": "Action",
         "iconName": "2",
         "iconNamesOfDependentIcons": [
-            "3"
+            "3",
+            "4"
+        ]
+    },
+    {
+        "iconDescription": "Hello, world! 2 - left",
+        "iconKind": "Action",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": [
+            "5"
+        ]
+    },
+    {
+        "iconDescription": "Hello, world! 2 - right",
+        "iconKind": "Action",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": [
+            "5"
         ]
     },
     {
         "iconDescription": "end",
         "iconKind": "End",
-        "iconName": "3",
+        "iconName": "5",
         "iconNamesOfDependentIcons": []
     }
 ]
