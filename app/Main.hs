@@ -24,7 +24,7 @@ handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading fi
 
 main :: IO ()
 main = do
-  let diagramFileName = "drakon-diagram-2"
+  let diagramFileName = "drakon-diagram-3"
 
   let inputFilePath = "./diagrams/" ++ diagramFileName ++ ".json"
 
