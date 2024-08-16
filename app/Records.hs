@@ -91,7 +91,7 @@ dependencies
     GHC.Data.Graph.Directed.node_dependencies = d } = d
 
 nodesIdentifiedWithKeys :: [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon] -> [GHC.Data.FastString.FastString] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon]
-nodesIdentifiedWithKeys nodes keys = filter (\x -> any (\y -> y == key x) keys) nodes
+nodesIdentifiedWithKeys nodes keys = reverse $ filter (\node -> any (\y -> y == key node) keys) nodes
 
 --- <- Icon ---------------------------------------------------------------------------------------
 
