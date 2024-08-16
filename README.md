@@ -226,7 +226,7 @@ Edges:
 
 2. deserialize
 
-3. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane during
+3. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
 
 4. attempt to position the directed graph's nodes on a cartesian plane:
 
