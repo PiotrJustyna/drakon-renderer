@@ -20,26 +20,68 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 ```json
 [
     {
-        "iconDescription": "hello world process",
+        "iconDescription": "hello world title",
         "iconKind": "Title",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
-            "2",
-            "3"
+            "2"
         ]
     },
     {
-        "iconDescription": "Hello, world!",
+        "iconDescription": "hello world icon 2",
         "iconKind": "Action",
         "iconName": "2",
         "iconNamesOfDependentIcons": [
-            "3"
+            "3",
+            "4"
         ]
     },
     {
-        "iconDescription": "end",
-        "iconKind": "End",
+        "iconDescription": "hello world icon 3",
+        "iconKind": "Action",
         "iconName": "3",
+        "iconNamesOfDependentIcons": [
+            "5",
+            "6",
+            "7"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon 4",
+        "iconKind": "Action",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": [
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon 5",
+        "iconKind": "Action",
+        "iconName": "5",
+        "iconNamesOfDependentIcons": [
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon 6",
+        "iconKind": "Action",
+        "iconName": "6",
+        "iconNamesOfDependentIcons": [
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon 7",
+        "iconKind": "Action",
+        "iconName": "7",
+        "iconNamesOfDependentIcons": [
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "hello world end",
+        "iconKind": "End",
+        "iconName": "8",
         "iconNamesOfDependentIcons": []
     }
 ]
@@ -53,13 +95,25 @@ As this is work in progress, the oputput is not svg yet but instead:
 
 ```
 Vertices:
-(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3])
-(Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3])
-(Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
+(Icon {iconName = "1", iconDescription = "hello world title", iconNamesOfDependentIcons = ["2"], iconKind = Title}, 1, [2])
+(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4])
+(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7])
+(Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8])
+(Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8])
+(Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8])
+(Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8])
+(Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
 Edges:
-(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3]) -> (Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3])
-(Icon {iconName = "1", iconDescription = "hello world process", iconNamesOfDependentIcons = ["2","3"], iconKind = Title}, 1, [2, 3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
-(Icon {iconName = "2", iconDescription = "Hello, world!", iconNamesOfDependentIcons = ["3"], iconKind = Action}, 2, [3]) -> (Icon {iconName = "3", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}, 3, [])
+(Icon {iconName = "1", iconDescription = "hello world title", iconNamesOfDependentIcons = ["2"], iconKind = Title}, 1, [2]) -> (Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4])
+(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4]) -> (Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7])
+(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4]) -> (Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8])
+(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8])
+(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8])
+(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8])
+(Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
+(Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
+(Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
+(Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
 ```
 
 * a serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
@@ -68,12 +122,11 @@ Edges:
 [
     {
         "icon": {
-            "iconDescription": "hello world process",
+            "iconDescription": "hello world title",
             "iconKind": "Title",
             "iconName": "1",
             "iconNamesOfDependentIcons": [
-                "2",
-                "3"
+                "2"
             ]
         },
         "iconPositionX": 0,
@@ -81,11 +134,12 @@ Edges:
     },
     {
         "icon": {
-            "iconDescription": "Hello, world!",
+            "iconDescription": "hello world icon 2",
             "iconKind": "Action",
             "iconName": "2",
             "iconNamesOfDependentIcons": [
-                "3"
+                "3",
+                "4"
             ]
         },
         "iconPositionX": 0,
@@ -93,12 +147,74 @@ Edges:
     },
     {
         "icon": {
-            "iconDescription": "end",
-            "iconKind": "End",
+            "iconDescription": "hello world icon 3",
+            "iconKind": "Action",
             "iconName": "3",
+            "iconNamesOfDependentIcons": [
+                "5",
+                "6",
+                "7"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 5",
+            "iconKind": "Action",
+            "iconName": "5",
+            "iconNamesOfDependentIcons": [
+                "8"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world end",
+            "iconKind": "End",
+            "iconName": "8",
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
+        "iconPositionY": -4
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 6",
+            "iconKind": "Action",
+            "iconName": "6",
+            "iconNamesOfDependentIcons": [
+                "8"
+            ]
+        },
+        "iconPositionX": 1,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 7",
+            "iconKind": "Action",
+            "iconName": "7",
+            "iconNamesOfDependentIcons": [
+                "8"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 4",
+            "iconKind": "Action",
+            "iconName": "4",
+            "iconNamesOfDependentIcons": [
+                "8"
+            ]
+        },
+        "iconPositionX": 3,
         "iconPositionY": -2
     }
 ]
