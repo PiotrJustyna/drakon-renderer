@@ -64,10 +64,10 @@ directedGraph icons =
   GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
   where
     nodes = [GHC.Data.Graph.Directed.DigraphNode {
-        GHC.Data.Graph.Directed.node_payload = icon,
-        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit $ getIconName icon,
-        GHC.Data.Graph.Directed.node_dependencies = GHC.Data.FastString.fsLit <$> getIconNamesOfDependentIcons icon }
-        | icon <- icons]
+        GHC.Data.Graph.Directed.node_payload = singleIcon,
+        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit $ getIconName singleIcon,
+        GHC.Data.Graph.Directed.node_dependencies = GHC.Data.FastString.fsLit <$> getIconNamesOfDependentIcons singleIcon }
+        | singleIcon <- icons]
 
 payload :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> Icon
 payload
@@ -116,10 +116,35 @@ getPositionedIconName PositionedIcon {
   iconPositionX = _,
   iconPositionY = _ } = getIconName x
 
+getPositionedIconPositionX :: PositionedIcon -> Int
+getPositionedIconPositionX PositionedIcon {
+  icon = _,
+  iconPositionX = x,
+  iconPositionY = _ } = x
+
+getLastPositionedIconPositionX :: [PositionedIcon] -> Int
+getLastPositionedIconPositionX x = case x of
+  [] -> 0
+  list -> getPositionedIconPositionX $ last list
+
+collision :: PositionedIcon -> PositionedIcon -> Bool
+collision
+  PositionedIcon {
+    icon = z1,
+    iconPositionX = x1,
+    iconPositionY = y1 }
+  PositionedIcon {
+    icon = z2,
+    iconPositionX = x2,
+    iconPositionY = y2 } =
+      x1 == x2 &&
+      y1 == y2 &&
+      (getIconName z1) /= (getIconName z2)
+
 instance Data.Aeson.ToJSON PositionedIcon where
-  toJSON (PositionedIcon icon positionX positionY) =
+  toJSON (PositionedIcon positionFreeIcon positionX positionY) =
     Data.Aeson.object [
-      "icon" Data.Aeson..= icon,
+      "icon" Data.Aeson..= positionFreeIcon,
       "iconPositionX" Data.Aeson..= positionX,
       "iconPositionY" Data.Aeson..= positionY]
 

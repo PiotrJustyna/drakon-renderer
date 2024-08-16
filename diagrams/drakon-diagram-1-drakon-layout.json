@@ -5,8 +5,7 @@
             "iconKind": "Title",
             "iconName": "1",
             "iconNamesOfDependentIcons": [
-                "2",
-                "3"
+                "2"
             ]
         },
         "iconPositionX": 0,
@@ -14,11 +13,12 @@
     },
     {
         "icon": {
-            "iconDescription": "Hello, world!",
+            "iconDescription": "Hello, world! 1",
             "iconKind": "Action",
             "iconName": "2",
             "iconNamesOfDependentIcons": [
-                "3"
+                "3",
+                "4"
             ]
         },
         "iconPositionX": 0,
@@ -26,12 +26,36 @@
     },
     {
         "icon": {
+            "iconDescription": "Hello, world! 2 - right",
+            "iconKind": "Action",
+            "iconName": "4",
+            "iconNamesOfDependentIcons": [
+                "5"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
             "iconDescription": "end",
             "iconKind": "End",
-            "iconName": "3",
+            "iconName": "5",
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "Hello, world! 2 - left",
+            "iconKind": "Action",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": [
+                "5"
+            ]
+        },
+        "iconPositionX": 1,
         "iconPositionY": -2
     }
 ]
