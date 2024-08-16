@@ -12,63 +12,29 @@ originXCoordinate = 0
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
- removeDuplicates $ exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
+ removeDuplicates . fst $ exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
   where
     topologicallySortedNodes = GHC.Data.Graph.Directed.topologicalSortG x
     firstNode = head topologicallySortedNodes
 
-exploratoryCartesianPositioning :: Int -> Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
+exploratoryCartesianPositioning :: Int -> Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> ([Records.PositionedIcon], Int)
 exploratoryCartesianPositioning x y n ns =
-  Records.PositionedIcon {
+  (Records.PositionedIcon {
     Records.icon = Records.payload n,
     Records.iconPositionX = x,
-    Records.iconPositionY = y } : cartesianPositioningOfDependentNodes x (y - 1) dependentNodes ns
+    Records.iconPositionY = y } : positionedDependentIcons, Records.getLastPositionedIconPositionX positionedDependentIcons)
   where
     dependentNodes = Records.nodesIdentifiedWithKeys ns $ Records.dependencies n
+    positionedDependentIcons = cartesianPositioningOfDependentNodes x (y - 1) dependentNodes ns
 
 cartesianPositioningOfDependentNodes :: Int -> Int -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
 cartesianPositioningOfDependentNodes x y [] ns = []
 cartesianPositioningOfDependentNodes x y (d:ds) ns =
-  exploratoryCartesianPositioning x y d ns ++ cartesianPositioningOfDependentNodes (x + 1) y ds ns
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exploratoryCartesianPositioning' :: Int -> Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
-exploratoryCartesianPositioning' x y n ns =
-  Records.PositionedIcon {
-    Records.icon = Records.payload n,
-    Records.iconPositionX = x,
-    Records.iconPositionY = y } : foldl (\acc (index, dependentNode) -> acc ++ exploratoryCartesianPositioning' (x + index) (y - 1) dependentNode ns) [] indexedDependentNodes
+  positionedHeadIconAndItsDependentIcons ++ cartesianPositioningOfDependentNodes (maxX + 1) y ds ns
   where
-    nodeKeysOfDependentNodes = Records.dependencies n
-    dependentNodes = reverse $ Records.nodesIdentifiedWithKeys ns nodeKeysOfDependentNodes
-    indexedDependentNodes = zip [0 ..] dependentNodes :: [(Int, GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon)]
+    result = exploratoryCartesianPositioning x y d ns
+    positionedHeadIconAndItsDependentIcons = fst result
+    maxX = snd result
 
 removeDuplicates :: [Records.PositionedIcon] -> [Records.PositionedIcon]
 removeDuplicates = reverse . foldl (\acc x -> if any (\y -> Records.getPositionedIconName y == Records.getPositionedIconName x) acc then acc else x:acc) []
-
--- pushPositionedIcons :: [Records.PositionedIcon] -> [Records.PositionedIcon]
--- pushPositionedIcons allPositionedIcons = foldr (\x acc -> if collidesWithAnotherIcon x allPositionedIcons then acc else x:acc) [] allPositionedIcons
-
--- collidesWithAnotherIcon :: Records.PositionedIcon -> [Records.PositionedIcon] -> Bool
--- collidesWithAnotherIcon singlePositonedIcon allPositionedIcons = any (\x -> Records.collision x singlePositonedIcon) allPositionedIcons
