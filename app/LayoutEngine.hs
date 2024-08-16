@@ -19,15 +19,17 @@ cartesianPositioning x =
 
 exploratoryCartesianPositioning :: Int -> Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
 exploratoryCartesianPositioning x y n ns =
-  [Records.PositionedIcon {
+  Records.PositionedIcon {
     Records.icon = Records.payload n,
     Records.iconPositionX = x,
-    Records.iconPositionY = y }]
+    Records.iconPositionY = y } : cartesianPositioningOfDependentNodes x (y - 1) dependentNodes ns
   where
     dependentNodes = Records.nodesIdentifiedWithKeys ns $ Records.dependencies n
 
-
-
+cartesianPositioningOfDependentNodes :: Int -> Int -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
+cartesianPositioningOfDependentNodes x y [] ns = []
+cartesianPositioningOfDependentNodes x y (d:ds) ns =
+  exploratoryCartesianPositioning x y d ns ++ cartesianPositioningOfDependentNodes (x + 1) y ds ns
 
 
 
