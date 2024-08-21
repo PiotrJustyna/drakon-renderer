@@ -8,6 +8,36 @@ import qualified DataTypes
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
 import qualified GHC.Utils.Outputable
+import qualified Options.Applicative
+
+--- DrakonRendererArguments -> --------------------------------------------------------------------
+
+--- 2024-08-21 PJ: --------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--- All the information the renderer needs to run.
+---------------------------------------------------------------------------------------------------
+
+data DrakonRendererArguments = DrakonRendererArguments
+  { input   :: String,
+    output  :: String }
+
+drakonRendererArguments :: Options.Applicative.Parser DrakonRendererArguments
+drakonRendererArguments = DrakonRendererArguments
+  <$> Options.Applicative.strOption
+    ( Options.Applicative.long "input"
+      <> Options.Applicative.short 'i'
+      <> Options.Applicative.metavar "PATH"
+      <> Options.Applicative.help "Path to input *.json drakon diagram file." )
+  <*> Options.Applicative.strOption
+    ( Options.Applicative.long "output"
+      <> Options.Applicative.short 'o'
+      <> Options.Applicative.metavar "PATH"
+      <> Options.Applicative.help "Path to output *.json drakon diagram file." )
+
+--- <- DrakonRendererArguments --------------------------------------------------------------------
+
+
+
 
 --- Icon -> ---------------------------------------------------------------------------------------
 
@@ -126,20 +156,6 @@ getLastPositionedIconPositionX :: [PositionedIcon] -> Int
 getLastPositionedIconPositionX x = case x of
   [] -> 0
   list -> getPositionedIconPositionX $ last list
-
-collision :: PositionedIcon -> PositionedIcon -> Bool
-collision
-  PositionedIcon {
-    icon = z1,
-    iconPositionX = x1,
-    iconPositionY = y1 }
-  PositionedIcon {
-    icon = z2,
-    iconPositionX = x2,
-    iconPositionY = y2 } =
-      x1 == x2 &&
-      y1 == y2 &&
-      (getIconName z1) /= (getIconName z2)
 
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =

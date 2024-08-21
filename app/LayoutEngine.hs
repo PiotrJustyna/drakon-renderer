@@ -28,7 +28,7 @@ exploratoryCartesianPositioning x y n ns =
     positionedDependentIcons = cartesianPositioningOfDependentNodes x (y - 1) dependentNodes ns
 
 cartesianPositioningOfDependentNodes :: Int -> Int -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
-cartesianPositioningOfDependentNodes x y [] ns = []
+cartesianPositioningOfDependentNodes _ _ [] _ = []
 cartesianPositioningOfDependentNodes x y (d:ds) ns =
   positionedHeadIconAndItsDependentIcons ++ cartesianPositioningOfDependentNodes (maxX + 1) y ds ns
   where
