@@ -2,6 +2,7 @@
 
 module Main where
 
+import qualified Control.Exception
 import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
@@ -9,10 +10,10 @@ import qualified Data.ByteString.Lazy.Char8
 import qualified GHC.Utils.Outputable
 import qualified GHC.Utils.Ppr
 import qualified LayoutEngine
+import qualified Options.Applicative
 import qualified Records
 import qualified System.Directory
 import qualified System.IO
-import qualified Control.Exception
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -23,13 +24,15 @@ handleReadError ::
 handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading file: " ++ show e
 
 main :: IO ()
-main = do
-  let diagramFileName = "drakon-diagram-3"
+main = process =<< Options.Applicative.execParser options
+  where
+    options = Options.Applicative.info (Records.drakonRendererArguments Options.Applicative.<**> Options.Applicative.helper)
+      ( Options.Applicative.fullDesc
+     <> Options.Applicative.progDesc "drakon renderer"
+     <> Options.Applicative.header "drakon renderer" )
 
-  let inputFilePath = "./diagrams/" ++ diagramFileName ++ ".json"
-
-  let outputFilePath = "./diagrams/" ++ diagramFileName ++ "-drakon-layout.json"
-
+process :: Records.DrakonRendererArguments -> IO ()
+process (Records.DrakonRendererArguments inputFilePath outputFilePath) = do
   fileSizeInBytes <- System.Directory.getFileSize inputFilePath
 
   if fileSizeInBytes > maxInputFileSizeInBytes

@@ -62,8 +62,9 @@ executable drakon-renderer
                         containers,
                         directory,
                         ghc,
+                        optparse-applicative,
                         pandoc,
-                        text
+                        text,
 
     hs-source-dirs:     app
 
