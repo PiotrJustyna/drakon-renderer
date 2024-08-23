@@ -60,6 +60,8 @@ executable drakon-renderer
                         bytestring,
                         colour,
                         containers,
+                        diagrams-lib,
+                        diagrams-svg,
                         directory,
                         ghc,
                         optparse-applicative,
