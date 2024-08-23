@@ -18,21 +18,27 @@ import qualified Options.Applicative
 ---------------------------------------------------------------------------------------------------
 
 data DrakonRendererArguments = DrakonRendererArguments
-  { input   :: String,
-    output  :: String }
+  { textInputPath   :: String,
+    textOutputPath  :: String,
+    svgOutputPath   :: String }
 
 drakonRendererArguments :: Options.Applicative.Parser DrakonRendererArguments
 drakonRendererArguments = DrakonRendererArguments
   <$> Options.Applicative.strOption
-    ( Options.Applicative.long "input"
+    ( Options.Applicative.long "textInputPath"
       <> Options.Applicative.short 'i'
       <> Options.Applicative.metavar "PATH"
       <> Options.Applicative.help "Path to input *.json drakon diagram file." )
   <*> Options.Applicative.strOption
-    ( Options.Applicative.long "output"
-      <> Options.Applicative.short 'o'
+    ( Options.Applicative.long "textOutputPath"
+      <> Options.Applicative.short 't'
       <> Options.Applicative.metavar "PATH"
       <> Options.Applicative.help "Path to output *.json drakon diagram file." )
+  <*> Options.Applicative.strOption
+    ( Options.Applicative.long "svgOutputPath"
+      <> Options.Applicative.short 's'
+      <> Options.Applicative.metavar "PATH"
+      <> Options.Applicative.help "Path to output *.svg drakon diagram file." )
 
 --- <- DrakonRendererArguments --------------------------------------------------------------------
 
