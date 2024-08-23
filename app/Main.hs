@@ -18,9 +18,6 @@ import qualified Records
 import qualified System.Directory
 import qualified System.IO
 
--- update https://github.com/diagrams/diagrams-svg/blob/master/examples/opts.hs to reflect recent
--- changes to svg-builder-0.1.1:Graphics.Svg.Core.Attribute
-
 svgOpt :: Num n => Diagrams.Prelude.Options Diagrams.Backend.SVG.SVG Diagrams.Prelude.V2 n
 svgOpt = Diagrams.Backend.SVG.SVGOptions {
   Diagrams.Backend.SVG._size = Diagrams.Prelude.mkSizeSpec $ Diagrams.Prelude.V2 (Just 400) (Just 400),
