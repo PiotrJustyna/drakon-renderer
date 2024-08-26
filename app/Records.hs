@@ -44,7 +44,6 @@ drakonRendererArguments = DrakonRendererArguments
 
 
 
-
 --- Icon -> ---------------------------------------------------------------------------------------
 
 --- 2024-08-09 PJ: --------------------------------------------------------------------------------
@@ -139,8 +138,8 @@ nodesIdentifiedWithKeys nodes keys = reverse $ filter (\node -> any (\y -> y == 
 ---------------------------------------------------------------------------------------------------
 --- This represents basic icon layout on a cartesian plane.
 ---------------------------------------------------------------------------------------------------
-
 data PositionedIcon = PositionedIcon {
+
   icon              :: Icon,
   iconPositionX     :: Int,
   iconPositionY     :: Int }
