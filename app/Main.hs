@@ -150,6 +150,18 @@ main = process =<< Options.Applicative.execParser options
       <> Options.Applicative.progDesc "drakon renderer"
       <> Options.Applicative.header "drakon renderer")
 
+-- 2024-08-27 PJ:
+-----------------
+-- This is just temporary.
+abc :: [(Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)]
+abc = []
+
+-- 2024-08-27 PJ:
+-----------------
+-- This is just temporary.
+def :: Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+def = Diagrams.Prelude.position abc
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -173,16 +185,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
           let positionedIcons = LayoutEngine.cartesianPositioning graph
 
-          let (pI0:(pI1:pIs)) = positionedIcons
-
           Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
           System.IO.hClose handle
 
-          -- 2024-08-26 PJ:
-          -----------------
-          -- For now just taking the first positioned icon.
-          Diagrams.Backend.SVG.renderSVG' svgOutputPath svgOptions (diagram pI1)
+          Diagrams.Backend.SVG.renderSVG' svgOutputPath svgOptions def
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent
