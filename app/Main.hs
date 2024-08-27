@@ -9,6 +9,7 @@ import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
 import qualified Data.Colour.SRGB
 import qualified Data.Text
+import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified Diagrams.Prelude
 import qualified GHC.Utils.Outputable
@@ -43,14 +44,23 @@ lineColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
 titleIconColour :: Diagrams.Prelude.Colour Double
 titleIconColour = Data.Colour.SRGB.sRGB (69.0/255.0) (173.0/255.0) (127.0/255.0)
 
+endIconColour :: Diagrams.Prelude.Colour Double
+endIconColour = titleIconColour
+
+actionIconColour :: Diagrams.Prelude.Colour Double
+actionIconColour = titleIconColour
+
+questionIconColour :: Diagrams.Prelude.Colour Double
+questionIconColour = titleIconColour
+
 fontColour :: Diagrams.Prelude.Colour Double
 fontColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
 
 fontSize :: Double
 fontSize = 0.075
 
-text :: String -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-text content translateX translateY =
+text :: String -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+text content =
   Diagrams.Prelude.text content
   Diagrams.Prelude.#
   Diagrams.Prelude.fontSize (Diagrams.Prelude.local fontSize)
@@ -61,14 +71,25 @@ text content translateX translateY =
   Diagrams.Prelude.#
   Diagrams.Prelude.fc fontColour
   Diagrams.Prelude.#
-  Diagrams.Prelude.translate (Diagrams.Prelude.r2 (translateX,  translateY))
+  Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
+-- 2024-08-27 PJ:
+-----------------
+-- TODO: for the next session, implement [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 diagram :: Records.PositionedIcon -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-diagram _ =
-  text "helo, world!" 0.0 0.0
-  <> shape
+diagram Records.PositionedIcon {
+  Records.icon = positionedIcon,
+  Records.iconPositionX = _,
+  Records.iconPositionY = _ } =
+  case kind of
+    DataTypes.Title -> text description <> titleShape
+    DataTypes.End -> text description <> endShape
+    DataTypes.Action -> text description <> actionShape
+    DataTypes.Question -> text description <> questionShape
   where
-    shape =
+    kind = Records.getIconKind positionedIcon
+    description = Records.getIconDescription positionedIcon
+    titleShape =
       Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
       Diagrams.Prelude.#
       Diagrams.Prelude.fc titleIconColour
@@ -76,6 +97,42 @@ diagram _ =
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
       Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+    endShape =
+      Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+      Diagrams.Prelude.#
+      Diagrams.Prelude.fc endIconColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+    actionShape =
+      Diagrams.Prelude.rect iconWidth iconHeight
+      Diagrams.Prelude.#
+      Diagrams.Prelude.fc actionIconColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+    questionShape =
+      Diagrams.Prelude.fromOffsets
+      [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
+      Diagrams.Prelude.V2 0.1 (iconHeight * 0.5),
+      Diagrams.Prelude.V2 (iconWidth - 0.1 - 0.1) 0.0,
+      Diagrams.Prelude.V2 0.1 (iconHeight * (-0.5)),
+      Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5)),
+      Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0]
+      Diagrams.Prelude.#
+      Diagrams.Prelude.closeLine
+      Diagrams.Prelude.#
+      Diagrams.Prelude.strokeLoop
+      Diagrams.Prelude.#
+      Diagrams.Prelude.fc questionIconColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -116,6 +173,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
           let positionedIcons = LayoutEngine.cartesianPositioning graph
 
+          let (pI0:(pI1:pIs)) = positionedIcons
+
           Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
           System.IO.hClose handle
@@ -123,7 +182,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           -- 2024-08-26 PJ:
           -----------------
           -- For now just taking the first positioned icon.
-          Diagrams.Backend.SVG.renderSVG' svgOutputPath svgOptions (diagram (head positionedIcons))
+          Diagrams.Backend.SVG.renderSVG' svgOutputPath svgOptions (diagram pI1)
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent

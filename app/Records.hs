@@ -66,12 +66,26 @@ getIconName Icon {
   iconNamesOfDependentIcons = _,
   iconKind = _ } = x
 
+getIconDescription :: Icon -> String
+getIconDescription Icon {
+  iconName = _,
+  iconDescription = x,
+  iconNamesOfDependentIcons = _,
+  iconKind = _ } = x
+
 getIconNamesOfDependentIcons :: Icon -> [String]
 getIconNamesOfDependentIcons Icon {
   iconName = _,
   iconDescription = _,
   iconNamesOfDependentIcons = x,
   iconKind = _ } = x
+
+getIconKind :: Icon -> DataTypes.IconKind
+getIconKind Icon {
+  iconName = _,
+  iconDescription = _,
+  iconNamesOfDependentIcons = _,
+  iconKind = x } = x
 
 instance GHC.Utils.Outputable.Outputable Icon where
     ppr = GHC.Utils.Outputable.text . show
@@ -139,7 +153,6 @@ nodesIdentifiedWithKeys nodes keys = reverse $ filter (\node -> any (\y -> y == 
 --- This represents basic icon layout on a cartesian plane.
 ---------------------------------------------------------------------------------------------------
 data PositionedIcon = PositionedIcon {
-
   icon              :: Icon,
   iconPositionX     :: Int,
   iconPositionY     :: Int }
