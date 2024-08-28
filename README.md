@@ -89,8 +89,6 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 ## output
 
-As this is work in progress, the oputput is not svg yet but instead:
-
 * a pretty printed directed graph sent to stdout, resulting from deserializing input icons:
 
 ```
@@ -220,6 +218,10 @@ Edges:
 ]
 ```
 
+* an svg diagram:
+
+![](./diagrams/drakon-diagram-3.svg)
+
 ## method
 
 1. read serialized collection of `Icon`s
@@ -239,6 +241,8 @@ Edges:
     * input: `file.json`
 
     * output: `file-drakon-layout.json`
+
+6. Render the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 
