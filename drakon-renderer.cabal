@@ -49,8 +49,9 @@ executable drakon-renderer
     main-is:            Main.hs
 
     other-modules:      DataTypes,
+                        LayoutEngine,
                         Records,
-                        LayoutEngine
+                        Renderer
 
     default-extensions: LambdaCase
 
