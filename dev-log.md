@@ -1,3 +1,9 @@
+# 2024-08-28
+
+SVG rendering is now finally connected with the process of deserialization and positioning. Very happy with the results so far. In the upcoming days I am planning to clean up how the diagrams look like and then to move on to connecting the rendered icons with lines adhering to drakon rules.
+
+![](./diagrams/drakon-diagram-3.svg)
+
 # 2024-08-09
 
 I have implemented basic error handling, but having glimpsed into the rabbit hole of Haskell exceptions I am positive that this is not something I want to explore at the moment. I think I could just get away with using simpler techniques (`Maybe` or `Either` monads instead of exceptions) and focus my attention instead on more valuable things like setting up a home server (I want this renderer to be a service) on my raspberry pi. I'm planning to focus on it for the time being and to gather my thoughts on a smooth transition from the `Icon` type to a new type that will represent positioned icons. For positioning I'm planning to use a simple cartesian plane - positive x corrdinates and negative y coordinates only.
