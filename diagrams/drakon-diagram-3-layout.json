@@ -71,7 +71,7 @@
                 "c"
             ]
         },
-        "iconPositionX": 1,
+        "iconPositionX": 2,
         "iconPositionY": -3
     },
     {
@@ -83,7 +83,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 1,
+        "iconPositionX": 2,
         "iconPositionY": -4
     },
     {
@@ -95,7 +95,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 4,
         "iconPositionY": -4
     },
     {
@@ -107,7 +107,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 3,
+        "iconPositionX": 6,
         "iconPositionY": -4
     },
     {
@@ -119,7 +119,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 4,
+        "iconPositionX": 8,
         "iconPositionY": -3
     },
     {
@@ -131,7 +131,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 5,
+        "iconPositionX": 10,
         "iconPositionY": -2
     }
 ]
