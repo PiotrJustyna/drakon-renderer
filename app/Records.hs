@@ -154,8 +154,8 @@ nodesIdentifiedWithKeys nodes keys = reverse $ filter (\node -> any (\y -> y == 
 ---------------------------------------------------------------------------------------------------
 data PositionedIcon = PositionedIcon {
   icon              :: Icon,
-  iconPositionX     :: Int,
-  iconPositionY     :: Int }
+  iconPositionX     :: Double,
+  iconPositionY     :: Double }
     deriving (Show)
 
 getPositionedIconName :: PositionedIcon -> String
@@ -164,13 +164,13 @@ getPositionedIconName PositionedIcon {
   iconPositionX = _,
   iconPositionY = _ } = getIconName x
 
-getPositionedIconPositionX :: PositionedIcon -> Int
+getPositionedIconPositionX :: PositionedIcon -> Double
 getPositionedIconPositionX PositionedIcon {
   icon = _,
   iconPositionX = x,
   iconPositionY = _ } = x
 
-getLastPositionedIconPositionX :: [PositionedIcon] -> Int
+getLastPositionedIconPositionX :: [PositionedIcon] -> Double
 getLastPositionedIconPositionX x = case x of
   [] -> 0
   list -> getPositionedIconPositionX $ last list

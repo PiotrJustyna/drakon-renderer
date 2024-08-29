@@ -5,7 +5,6 @@ import qualified Data.Text
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified Diagrams.Prelude
-import qualified GHC.Float
 import qualified Records
 
 svgOptions :: Num n => Diagrams.Prelude.Options Diagrams.Backend.SVG.SVG Diagrams.Prelude.V2 n
@@ -72,7 +71,7 @@ renderSingle Records.PositionedIcon {
     DataTypes.Action -> (coordinates, text description <> actionShape)
     DataTypes.Question -> (coordinates, text description <> questionShape)
   where
-    coordinates = Diagrams.Prelude.p2 (GHC.Float.int2Double x, GHC.Float.int2Double y)
+    coordinates = Diagrams.Prelude.p2 (x, y)
     kind = Records.getIconKind positionedIcon
     description = Records.getIconDescription positionedIcon
     titleShape =

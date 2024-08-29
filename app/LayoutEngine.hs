@@ -4,20 +4,20 @@ import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
 import qualified Records
 
-originXCoordinate :: Int
-originXCoordinate = 0
+originXCoordinate :: Double
+originXCoordinate = 0.0
 
-originYCoordinate :: Int
-originYCoordinate = 0
+originYCoordinate :: Double
+originYCoordinate = 0.0
 
-iconWidth :: Int
-iconWidth = 1
+iconWidth :: Double
+iconWidth = 1.0
 
-iconHeigth :: Int
-iconHeigth = 1
+iconHeigth :: Double
+iconHeigth = 1.0
 
-spaceBetweenIconsX :: Int
-spaceBetweenIconsX = 1
+spaceBetweenIconsX :: Double
+spaceBetweenIconsX = 1.0
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
@@ -26,7 +26,7 @@ cartesianPositioning x =
     topologicallySortedNodes = GHC.Data.Graph.Directed.topologicalSortG x
     firstNode = head topologicallySortedNodes
 
-exploratoryCartesianPositioning :: Int -> Int -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> ([Records.PositionedIcon], Int)
+exploratoryCartesianPositioning :: Double -> Double -> GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> ([Records.PositionedIcon], Double)
 exploratoryCartesianPositioning x y n ns =
   (Records.PositionedIcon {
     Records.icon = Records.payload n,
@@ -36,7 +36,7 @@ exploratoryCartesianPositioning x y n ns =
     dependentNodes = Records.nodesIdentifiedWithKeys ns $ Records.dependencies n
     positionedDependentIcons = cartesianPositioningOfDependentNodes x (y - iconHeigth) dependentNodes ns
 
-cartesianPositioningOfDependentNodes :: Int -> Int -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
+cartesianPositioningOfDependentNodes :: Double -> Double -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
 cartesianPositioningOfDependentNodes _ _ [] _ = []
 cartesianPositioningOfDependentNodes x y (d:ds) ns =
   positionedHeadIconAndItsDependentIcons ++ cartesianPositioningOfDependentNodes (maxX + iconWidth + spaceBetweenIconsX) y ds ns
