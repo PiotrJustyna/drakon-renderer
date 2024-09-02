@@ -175,6 +175,14 @@ getLastPositionedIconPositionX x = case x of
   [] -> 0
   list -> getPositionedIconPositionX $ last list
 
+getDependentPositionedIcons :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon]
+getDependentPositionedIcons
+  Records.PositionedIcon {
+    Records.icon = positionedIcon,
+    Records.iconPositionX = _,
+    Records.iconPositionY = _ } =
+  filter (\x -> any (\y -> y == Records.getPositionedIconName x) (Records.getIconNamesOfDependentIcons positionedIcon))
+
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =
     Data.Aeson.object [

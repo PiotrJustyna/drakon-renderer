@@ -57,11 +57,35 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
-renderAll :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderAll positionedIcons = Diagrams.Prelude.position $ map renderSingle positionedIcons
+renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderSingleConnection
+  Records.PositionedIcon {
+    Records.icon = _,
+    Records.iconPositionX = x1,
+    Records.iconPositionY = y1 }
+  Records.PositionedIcon {
+    Records.icon = _,
+    Records.iconPositionX = x2,
+    Records.iconPositionY = y2 } =
+    Diagrams.Prelude.fromVertices $ map Diagrams.Prelude.p2 [(x1, y1), (x2, y2)]
 
-renderSingle :: Records.PositionedIcon -> (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-renderSingle Records.PositionedIcon {
+renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderConnections _ []     = mempty
+renderConnections x [y]    = renderSingleConnection x y
+renderConnections x (y:ys) = renderSingleConnection x y <> renderConnections x ys
+
+renderAllConnections :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderAllConnections allPositionedIcons =
+  foldl
+    (<>)
+    mempty
+    [renderConnections x (Records.getDependentPositionedIcons x allPositionedIcons) | x <- allPositionedIcons]
+
+renderAllIcons :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderAllIcons positionedIcons = Diagrams.Prelude.position $ map renderSingleIcon positionedIcons
+
+renderSingleIcon :: Records.PositionedIcon -> (Diagrams.Prelude.Point Diagrams.Prelude.V2 Double, Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+renderSingleIcon Records.PositionedIcon {
   Records.icon = positionedIcon,
   Records.iconPositionX = x,
   Records.iconPositionY = y } =

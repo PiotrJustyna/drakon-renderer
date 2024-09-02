@@ -60,7 +60,10 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
           System.IO.hClose handle
 
-          Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $ Renderer.renderAll positionedIcons
+          Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
+            Renderer.renderAllIcons positionedIcons
+            <>
+            Renderer.renderAllConnections positionedIcons
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent
