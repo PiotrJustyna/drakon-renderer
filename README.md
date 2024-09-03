@@ -36,54 +36,7 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
             "4"
         ]
     },
-    {
-        "iconDescription": "hello world icon 3",
-        "iconKind": "Action",
-        "iconName": "3",
-        "iconNamesOfDependentIcons": [
-            "5",
-            "6",
-            "7"
-        ]
-    },
-    {
-        "iconDescription": "hello world icon 4",
-        "iconKind": "Action",
-        "iconName": "4",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
-        "iconDescription": "hello world icon 5",
-        "iconKind": "Action",
-        "iconName": "5",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
-        "iconDescription": "hello world icon 6",
-        "iconKind": "Action",
-        "iconName": "6",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
-        "iconDescription": "hello world icon 7",
-        "iconKind": "Action",
-        "iconName": "7",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
-        "iconDescription": "hello world end",
-        "iconKind": "End",
-        "iconName": "8",
-        "iconNamesOfDependentIcons": []
-    }
+    ...
 ]
 ```
 
@@ -143,84 +96,13 @@ Edges:
         "iconPositionX": 0,
         "iconPositionY": -1
     },
-    {
-        "icon": {
-            "iconDescription": "hello world icon 3",
-            "iconKind": "Action",
-            "iconName": "3",
-            "iconNamesOfDependentIcons": [
-                "5",
-                "6",
-                "7"
-            ]
-        },
-        "iconPositionX": 0,
-        "iconPositionY": -2
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon 5",
-            "iconKind": "Action",
-            "iconName": "5",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 0,
-        "iconPositionY": -3
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world end",
-            "iconKind": "End",
-            "iconName": "8",
-            "iconNamesOfDependentIcons": []
-        },
-        "iconPositionX": 0,
-        "iconPositionY": -4
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon 6",
-            "iconKind": "Action",
-            "iconName": "6",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 1,
-        "iconPositionY": -3
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon 7",
-            "iconKind": "Action",
-            "iconName": "7",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 2,
-        "iconPositionY": -3
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon 4",
-            "iconKind": "Action",
-            "iconName": "4",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 3,
-        "iconPositionY": -2
-    }
+    ...
 ]
 ```
 
 * an svg diagram:
 
-![](./diagrams/drakon-diagram-3.svg)
+![](./diagrams/drakon-diagram-4.svg)
 
 ## method
 
@@ -243,6 +125,8 @@ Edges:
     * output: `file-drakon-layout.json`
 
 6. Render the collection of `PositionedIcon`s into the final svg diagram.
+
+7. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 

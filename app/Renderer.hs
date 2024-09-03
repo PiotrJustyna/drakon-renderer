@@ -9,7 +9,7 @@ import qualified Records
 
 svgOptions :: Num n => Diagrams.Prelude.Options Diagrams.Backend.SVG.SVG Diagrams.Prelude.V2 n
 svgOptions = Diagrams.Backend.SVG.SVGOptions {
-  Diagrams.Backend.SVG._size = Diagrams.Prelude.mkSizeSpec $ Diagrams.Prelude.V2 (Just 400) (Just 400),
+  Diagrams.Backend.SVG._size = Diagrams.Prelude.mkSizeSpec $ Diagrams.Prelude.V2 (Just 1000) (Just 1000),
   Diagrams.Backend.SVG._idPrefix = Data.Text.empty,
   Diagrams.Backend.SVG._svgDefinitions = Nothing,
   Diagrams.Backend.SVG._svgAttributes = [],
@@ -57,7 +57,7 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
-renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderSingleConnection
   Records.PositionedIcon {
     Records.icon = _,
@@ -66,20 +66,36 @@ renderSingleConnection
   Records.PositionedIcon {
     Records.icon = _,
     Records.iconPositionX = x2,
-    Records.iconPositionY = y2 } =
+    Records.iconPositionY = y2 }
+  minY
+  | x1 <= x2 =
+    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x2, y1), (x2, y2)])
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.thin
+  | x1 > x2 =
+    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x1, minY - iconHeight), (x2 + iconWidth, minY - iconHeight), (x2 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)])
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.thin
+  | otherwise =
     Diagrams.Prelude.fromVertices $ map Diagrams.Prelude.p2 [(x1, y1), (x2, y2)]
 
-renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderConnections _ []     = mempty
-renderConnections x [y]    = renderSingleConnection x y
-renderConnections x (y:ys) = renderSingleConnection x y <> renderConnections x ys
+renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderConnections _ [] _        = mempty
+renderConnections x [y] minY    = renderSingleConnection x y minY
+renderConnections x (y:ys) minY = renderSingleConnection x y minY <> renderConnections x ys minY
 
 renderAllConnections :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderAllConnections allPositionedIcons =
   foldl
     (<>)
     mempty
-    [renderConnections x (Records.getDependentPositionedIcons x allPositionedIcons) | x <- allPositionedIcons]
+    [renderConnections x (Records.getDependentPositionedIcons x allPositionedIcons) minY | x <- allPositionedIcons]
+  where
+    minY = foldl (\acc Records.PositionedIcon { Records.icon = _, Records.iconPositionX = _, Records.iconPositionY = y } -> min acc y) 0 allPositionedIcons
 
 renderAllIcons :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderAllIcons positionedIcons = Diagrams.Prelude.position $ map renderSingleIcon positionedIcons
@@ -105,7 +121,7 @@ renderSingleIcon Records.PositionedIcon {
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+      Diagrams.Prelude.lw Diagrams.Prelude.thin
     endShape =
       Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
       Diagrams.Prelude.#
@@ -113,7 +129,7 @@ renderSingleIcon Records.PositionedIcon {
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+      Diagrams.Prelude.lw Diagrams.Prelude.thin
     actionShape =
       Diagrams.Prelude.rect iconWidth iconHeight
       Diagrams.Prelude.#
@@ -121,7 +137,7 @@ renderSingleIcon Records.PositionedIcon {
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+      Diagrams.Prelude.lw Diagrams.Prelude.thin
     questionShape =
       Diagrams.Prelude.fromOffsets
       [Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5),
@@ -139,6 +155,6 @@ renderSingleIcon Records.PositionedIcon {
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.ultraThin
+      Diagrams.Prelude.lw Diagrams.Prelude.thin
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), -0.2))
