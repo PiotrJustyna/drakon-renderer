@@ -7,6 +7,7 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
+import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified GHC.Utils.Outputable
 import qualified GHC.Utils.Ppr
@@ -33,6 +34,22 @@ main = process =<< Options.Applicative.execParser options
       <> Options.Applicative.progDesc "drakon renderer"
       <> Options.Applicative.header "drakon renderer")
 
+titleIconPresent :: [Records.Icon] -> Bool
+titleIconPresent = any (\x ->
+  case Records.getIconKind x of
+    DataTypes.Title -> True
+    _ -> False)
+
+onlyOneTitleIcon :: [Records.Icon] -> Bool
+onlyOneTitleIcon icons = (1 :: Int) == foldl (\acc x ->
+  case Records.getIconKind x of
+  DataTypes.Title -> acc + 1
+  _ -> acc) 0 icons
+
+validation :: [[Records.Icon] -> Bool] -> [Records.Icon] -> Bool
+validation validationPredicates icons =
+  foldl (\acc predicate -> acc && predicate icons) True validationPredicates
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -45,25 +62,37 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let graph = Records.directedGraph icons
+          let validationSuccessful = validation
+                [titleIconPresent,
+                onlyOneTitleIcon]
+                icons
 
-          GHC.Utils.Outputable.printSDocLn
-            GHC.Utils.Outputable.defaultSDocContext
-            GHC.Utils.Ppr.LeftMode
-            System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
+          if validationSuccessful
+            then do
+              let graph = Records.directedGraph icons
 
-          handle <- System.IO.openFile textOutputPath System.IO.WriteMode
+              GHC.Utils.Outputable.printSDocLn
+                GHC.Utils.Outputable.defaultSDocContext
+                GHC.Utils.Ppr.LeftMode
+                System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
 
-          let positionedIcons = LayoutEngine.cartesianPositioning graph
+              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
-          Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
+              let positionedIcons = LayoutEngine.cartesianPositioning graph
 
-          System.IO.hClose handle
+              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
-          Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-            Renderer.renderAllIcons positionedIcons
-            <>
-            Renderer.renderAllConnections positionedIcons
+              System.IO.hClose handle
+
+              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
+                Renderer.renderAllIcons positionedIcons
+                <>
+                Renderer.renderAllConnections positionedIcons
+            else
+              -- 2024-09-04 PJ:
+              -----------------
+              -- TODO: print out why it did not succeed
+              putStrLn "validation did not succeed"
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent
