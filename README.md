@@ -106,27 +106,25 @@ Edges:
 
 ## method
 
-1. read serialized collection of `Icon`s
+1. read serialized collection of `Icon`s & deserialize
 
-2. deserialize
+2. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
 
-3. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
-
-4. attempt to position the directed graph's nodes on a cartesian plane:
+3. attempt to position the directed graph's nodes on a cartesian plane:
 
     * positive integer x coordinates only
 
     * negative integer y coordinates only
 
-5. serialize the product (`[PositionedIcon]`) to a file where:
+4. serialize the product (`[PositionedIcon]`) to a file where:
 
     * input: `file.json`
 
     * output: `file-drakon-layout.json`
 
-6. Render the collection of `PositionedIcon`s into the final svg diagram.
+5. Render the collection of `PositionedIcon`s into the final svg diagram.
 
-7. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
+6. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 
