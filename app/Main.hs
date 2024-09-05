@@ -34,6 +34,9 @@ main = process =<< Options.Applicative.execParser options
       <> Options.Applicative.progDesc "drakon renderer"
       <> Options.Applicative.header "drakon renderer")
 
+correctNumberOfQuestionDependencies :: Int
+correctNumberOfQuestionDependencies = 2
+
 oneTitleIconPresent :: [Records.Icon] -> Maybe (String, String)
 oneTitleIconPresent icons =
   if  (1 :: Int) == foldl (\acc x ->
@@ -46,20 +49,19 @@ oneTitleIconPresent icons =
       "The diagram is required to have exactly one icon of kind \"" ++ show DataTypes.Title ++ "\".",
       "Make sure your input diagram contains an icon of kind \"" ++ show DataTypes.Title ++ "\" and that it is the only icon of that kind.")
 
-correctNumberOfDependencies :: Int
-correctNumberOfDependencies = 2
-
-correctNumberOfDependenciesInQuestionIcons :: [Records.Icon] -> Maybe (String, String)
-correctNumberOfDependenciesInQuestionIcons icons =
+correctNumberOfDependenciesInAllIcons :: [Records.Icon] -> Maybe (String, String)
+correctNumberOfDependenciesInAllIcons icons =
   if any (\x ->
       case Records.getIconKind x of
-        DataTypes.Question -> correctNumberOfDependencies == Records.getNumberOfDependentIcons x
-        _ -> False) icons
+        DataTypes.Question -> correctNumberOfQuestionDependencies /= Records.getNumberOfDependentIcons x
+        DataTypes.End -> 0 /= Records.getNumberOfDependentIcons x
+        _ -> 1 /= Records.getNumberOfDependentIcons x) icons
     then
+      Just (
+        "wip",
+        "wip")
+    else
       Nothing
-    else Just (
-      "The diagram contains one or more icon of kind \"" ++ show DataTypes.Question ++ "\" containing an incorrect number of dependencies.",
-      "Check that all icons of kind \"" ++ show DataTypes.Question ++ "\" have exactly " ++ show correctNumberOfDependencies ++ " dependencies.")
 
 validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
 validation validationPredicates icons =
@@ -82,7 +84,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Just icons -> do
           let validationErrors = validation
                 [oneTitleIconPresent,
-                correctNumberOfDependenciesInQuestionIcons]
+                correctNumberOfDependenciesInAllIcons]
                 icons
 
           case validationErrors of

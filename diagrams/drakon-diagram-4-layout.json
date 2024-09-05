@@ -14,7 +14,7 @@
     {
         "icon": {
             "iconDescription": "hello world icon 2",
-            "iconKind": "Action",
+            "iconKind": "Question",
             "iconName": "2",
             "iconNamesOfDependentIcons": [
                 "3",
@@ -62,12 +62,11 @@
     {
         "icon": {
             "iconDescription": "hello world icon 6",
-            "iconKind": "Action",
+            "iconKind": "Question",
             "iconName": "6",
             "iconNamesOfDependentIcons": [
                 "a",
-                "b",
-                "c"
+                "b"
             ]
         },
         "iconPositionX": 2,
@@ -111,56 +110,6 @@
     },
     {
         "icon": {
-            "iconDescription": "hello world icon c",
-            "iconKind": "Action",
-            "iconName": "c",
-            "iconNamesOfDependentIcons": [
-                "c1",
-                "c2",
-                "c3"
-            ]
-        },
-        "iconPositionX": 6,
-        "iconPositionY": -4
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon c",
-            "iconKind": "Action",
-            "iconName": "c1",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 6,
-        "iconPositionY": -5
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon c",
-            "iconKind": "Action",
-            "iconName": "c2",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 8,
-        "iconPositionY": -5
-    },
-    {
-        "icon": {
-            "iconDescription": "hello world icon c",
-            "iconKind": "Action",
-            "iconName": "c3",
-            "iconNamesOfDependentIcons": [
-                "8"
-            ]
-        },
-        "iconPositionX": 10,
-        "iconPositionY": -5
-    },
-    {
-        "icon": {
             "iconDescription": "hello world icon 4",
             "iconKind": "Action",
             "iconName": "4",
@@ -168,7 +117,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 12,
+        "iconPositionX": 6,
         "iconPositionY": -2
     }
 ]
