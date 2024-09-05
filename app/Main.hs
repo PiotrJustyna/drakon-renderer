@@ -34,11 +34,19 @@ main = process =<< Options.Applicative.execParser options
       <> Options.Applicative.progDesc "drakon renderer"
       <> Options.Applicative.header "drakon renderer")
 
-titleIconPresent :: [Records.Icon] -> Bool
-titleIconPresent = any (\x ->
-  case Records.getIconKind x of
-    DataTypes.Title -> True
-    _ -> False)
+titleIconPresent :: [Records.Icon] -> Maybe (String, String)
+titleIconPresent icons =
+  if anyTitleIcons
+    then
+      Nothing
+    else Just (
+      "The diagram is required to have exactly one icon of kind \"" ++ show DataTypes.Title ++ "\".",
+      "Make sure your input diagram contains an icon of type \"" ++ show DataTypes.Title ++ "\" and that it is the only icon of that kind.")
+  where
+    anyTitleIcons = any (\x ->
+      case Records.getIconKind x of
+        DataTypes.Title -> True
+        _               -> False) icons
 
 onlyOneTitleIcon :: [Records.Icon] -> Bool
 onlyOneTitleIcon icons = (1 :: Int) == foldl (\acc x ->
@@ -46,9 +54,12 @@ onlyOneTitleIcon icons = (1 :: Int) == foldl (\acc x ->
   DataTypes.Title -> acc + 1
   _ -> acc) 0 icons
 
-validation :: [[Records.Icon] -> Bool] -> [Records.Icon] -> Bool
+validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
 validation validationPredicates icons =
-  foldl (\acc predicate -> acc && predicate icons) True validationPredicates
+  foldl (\acc predicate ->
+    case predicate icons of
+      Nothing -> acc
+      Just (validationError, hint) -> (validationError, hint):acc) [] validationPredicates
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -62,13 +73,12 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let validationSuccessful = validation
-                [titleIconPresent,
-                onlyOneTitleIcon]
+          let validationErrors = validation
+                [titleIconPresent]
                 icons
 
-          if validationSuccessful
-            then do
+          case validationErrors of
+            [] -> do
               let graph = Records.directedGraph icons
 
               GHC.Utils.Outputable.printSDocLn
@@ -88,11 +98,9 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 Renderer.renderAllIcons positionedIcons
                 <>
                 Renderer.renderAllConnections positionedIcons
-            else
-              -- 2024-09-04 PJ:
-              -----------------
-              -- TODO: print out why it did not succeed
-              putStrLn "validation did not succeed"
+            _ -> do
+              let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
+              putStrLn $ "Input validation did not succeed for the following reasons:\n" ++ failureReasons
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent
