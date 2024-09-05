@@ -110,7 +110,7 @@ Edges:
 
 2. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
 
-3. validate Icons (only one title icon per diagram, title icon needs to be present, etc.) - sample input validation:
+3. validate Icons (only one title icon per diagram, correct numbers of dependencies, etc.) - sample input validation:
 
     ```
     Input validation did not succeed for following reasons:
