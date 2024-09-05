@@ -27,7 +27,7 @@
     {
         "icon": {
             "iconDescription": "hello world icon 3",
-            "iconKind": "Action",
+            "iconKind": "Question",
             "iconName": "3",
             "iconNamesOfDependentIcons": [
                 "5",

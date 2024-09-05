@@ -48,12 +48,6 @@ titleIconPresent icons =
         DataTypes.Title -> True
         _               -> False) icons
 
-onlyOneTitleIcon :: [Records.Icon] -> Bool
-onlyOneTitleIcon icons = (1 :: Int) == foldl (\acc x ->
-  case Records.getIconKind x of
-  DataTypes.Title -> acc + 1
-  _ -> acc) 0 icons
-
 validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
 validation validationPredicates icons =
   foldl (\acc predicate ->
@@ -99,7 +93,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 <>
                 Renderer.renderAllConnections positionedIcons
             _ -> do
-              let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
+              let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
               putStrLn $ "Input validation did not succeed for the following reasons:\n" ++ failureReasons
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
