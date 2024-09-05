@@ -1,7 +1,7 @@
 [
     {
         "iconDescription": "hello world title",
-        "iconKind": "Title",
+        "iconKind": "Action",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
             "2"
@@ -9,21 +9,18 @@
     },
     {
         "iconDescription": "hello world icon 2",
-        "iconKind": "Action",
+        "iconKind": "Question",
         "iconName": "2",
         "iconNamesOfDependentIcons": [
-            "3",
-            "4"
+            "3"
         ]
     },
     {
         "iconDescription": "hello world icon 3",
-        "iconKind": "Action",
+        "iconKind": "Question",
         "iconName": "3",
         "iconNamesOfDependentIcons": [
-            "5",
-            "6",
-            "7"
+            "5"
         ]
     },
     {
@@ -44,18 +41,25 @@
     },
     {
         "iconDescription": "hello world icon 6",
-        "iconKind": "Action",
+        "iconKind": "Question",
         "iconName": "6",
         "iconNamesOfDependentIcons": [
             "a",
-            "b",
-            "c"
+            "b"
         ]
     },
     {
         "iconDescription": "hello world icon a",
         "iconKind": "Action",
         "iconName": "a",
+        "iconNamesOfDependentIcons": [
+            "a1"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon a",
+        "iconKind": "Action",
+        "iconName": "a1",
         "iconNamesOfDependentIcons": [
             "8"
         ]
@@ -69,24 +73,8 @@
         ]
     },
     {
-        "iconDescription": "hello world icon c",
-        "iconKind": "Action",
-        "iconName": "c",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
-        "iconDescription": "hello world icon 7",
-        "iconKind": "Action",
-        "iconName": "7",
-        "iconNamesOfDependentIcons": [
-            "8"
-        ]
-    },
-    {
         "iconDescription": "hello world end",
-        "iconKind": "End",
+        "iconKind": "Action",
         "iconName": "8",
         "iconNamesOfDependentIcons": []
     }

@@ -46,22 +46,40 @@ oneTitleIconPresent icons =
     then
       Nothing
     else Just (
-      "The diagram is required to have exactly one icon of kind \"" ++ show DataTypes.Title ++ "\".",
+      "Diagram is required to have exactly one icon of kind \"" ++ show DataTypes.Title ++ "\".",
       "Make sure your input diagram contains an icon of kind \"" ++ show DataTypes.Title ++ "\" and that it is the only icon of that kind.")
 
-correctNumberOfDependenciesInAllIcons :: [Records.Icon] -> Maybe (String, String)
-correctNumberOfDependenciesInAllIcons icons =
-  if any (\x ->
-      case Records.getIconKind x of
-        DataTypes.Question -> correctNumberOfQuestionDependencies /= Records.getNumberOfDependentIcons x
-        DataTypes.End -> 0 /= Records.getNumberOfDependentIcons x
-        _ -> 1 /= Records.getNumberOfDependentIcons x) icons
+oneEndIconPresent :: [Records.Icon] -> Maybe (String, String)
+oneEndIconPresent icons =
+  if  (1 :: Int) == foldl (\acc x ->
+    case Records.getIconKind x of
+      DataTypes.End -> acc + 1
+      _ -> acc) 0 icons
     then
-      Just (
-        "wip",
-        "wip")
-    else
       Nothing
+    else Just (
+      "Diagram is required to have exactly one icon of kind \"" ++ show DataTypes.End ++ "\".",
+      "Make sure your input diagram contains an icon of kind \"" ++ show DataTypes.End ++ "\" and that it is the only icon of that kind.")
+
+correctNumberOfDependencies :: [Records.Icon] -> Maybe (String, String)
+correctNumberOfDependencies icons =
+  case iconsWithIncorrectDependencies of
+    [] ->
+      Nothing
+    _ ->
+      Just (
+        take (length errorText - 2) errorText ++ ".",
+        "Make sure your icons have the expected number of dependencies. For reference: \"" ++ show DataTypes.Title ++ "\" and \"" ++ show DataTypes.Action ++ "\" icons should have 1 depdenency, \"" ++ show DataTypes.Question ++ "\" icon should have 2 dependencies and \"" ++ show DataTypes.End ++ "\" should have no dependencies.")
+  where
+    iconsWithIncorrectDependencies = foldl (\acc x ->
+      case Records.getIconKind x of
+        DataTypes.Question -> if correctNumberOfQuestionDependencies /= Records.getNumberOfDependentIcons x then Records.getIconName x : acc else acc
+        DataTypes.End -> if 0 /= Records.getNumberOfDependentIcons x then Records.getIconName x : acc else acc
+        _ -> if 1 /= Records.getNumberOfDependentIcons x then Records.getIconName x : acc else acc) [] icons
+    errorText = foldl
+          (\acc x -> acc ++ "\"" ++ x ++ "\", ")
+          "Icons identified with following names contain incorrect number of dependencies: "
+          iconsWithIncorrectDependencies
 
 validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
 validation validationPredicates icons =
@@ -84,7 +102,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Just icons -> do
           let validationErrors = validation
                 [oneTitleIconPresent,
-                correctNumberOfDependenciesInAllIcons]
+                oneEndIconPresent,
+                correctNumberOfDependencies]
                 icons
 
           case validationErrors of
@@ -110,7 +129,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 Renderer.renderAllConnections positionedIcons
             _ -> do
               let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
-              putStrLn $ "Input validation did not succeed for the following reasons:\n" ++ failureReasons
+              putStrLn $ "Input validation did not succeed for following reasons:\n" ++ failureReasons
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn $ "Problem interpreting diagram file \"" ++ textInputPath ++ "\". Details: " ++ unpackedContent
