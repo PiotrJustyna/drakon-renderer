@@ -11,9 +11,11 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
   * yes
   * no
 
-[source 1](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
+[source 1 - wikipedia](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
 
-[source 2](https://en.m.wikipedia.org/wiki/DRAKON)
+[source 2 - wikipedia](https://en.m.wikipedia.org/wiki/DRAKON)
+
+[source 3 - drakon.su](https://drakon.su/start)
 
 ## input syntax
 
