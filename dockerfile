@@ -22,7 +22,7 @@ RUN \
   && \
   cabal install hlint \
   && \
-  echo "PROMPT='%F{green}%*UTC%f %F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
+  echo "PROMPT='%F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
 
 # 2024-06-03 PJ:
 # --------------
