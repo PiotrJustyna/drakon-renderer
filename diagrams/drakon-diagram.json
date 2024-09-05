@@ -1,7 +1,7 @@
 [
     {
         "iconDescription": "hello world title",
-        "iconKind": "Action",
+        "iconKind": "Title",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
             "2"
@@ -12,7 +12,8 @@
         "iconKind": "Question",
         "iconName": "2",
         "iconNamesOfDependentIcons": [
-            "3"
+            "3",
+            "4"
         ]
     },
     {
@@ -20,7 +21,8 @@
         "iconKind": "Question",
         "iconName": "3",
         "iconNamesOfDependentIcons": [
-            "5"
+            "5",
+            "6"
         ]
     },
     {
@@ -74,7 +76,7 @@
     },
     {
         "iconDescription": "hello world end",
-        "iconKind": "Action",
+        "iconKind": "End",
         "iconName": "8",
         "iconNamesOfDependentIcons": []
     }

@@ -113,9 +113,10 @@ Edges:
 3. validate Icons (only one title icon per diagram, title icon needs to be present, etc.) - sample input validation:
 
     ```
-    Input validation did not succeed for the following reasons:
-    * Error: The diagram contains one or more icon of kind "Question" containing an incorrect number of dependencies. Hint: Check that all icons of kind "Question" have exactly 2 dependencies.
-    * Error: The diagram is required to have exactly one icon of kind "Title". Hint: Make sure your input diagram contains an icon of kind "Title" and that it is the only icon of that kind.
+    Input validation did not succeed for following reasons:
+    * Error: Icons identified with following names contain incorrect number of dependencies: "8", "3", "2". Hint: Make sure your icons have the expected number of dependencies. For reference: "Title" and "Action" icons should have 1 depdenency, "Question" icon should have 2 dependencies and "End" should have no dependencies.
+    * Error: Diagram is required to have exactly one icon of kind "End". Hint: Make sure your input diagram contains an icon of kind "End" and that it is the only icon of that kind.
+    * Error: Diagram is required to have exactly one icon of kind "Title". Hint: Make sure your input diagram contains an icon of kind "Title" and that it is the only icon of that kind.
     ```
 
 4. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
