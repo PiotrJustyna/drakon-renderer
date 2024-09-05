@@ -102,7 +102,7 @@ Edges:
 
 * an svg diagram:
 
-![](./diagrams/drakon-diagram-4.svg)
+![](./diagrams/drakon-diagram.svg)
 
 ## method
 
