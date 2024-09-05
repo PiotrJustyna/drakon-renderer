@@ -34,19 +34,32 @@ main = process =<< Options.Applicative.execParser options
       <> Options.Applicative.progDesc "drakon renderer"
       <> Options.Applicative.header "drakon renderer")
 
-titleIconPresent :: [Records.Icon] -> Maybe (String, String)
-titleIconPresent icons =
-  if anyTitleIcons
+oneTitleIconPresent :: [Records.Icon] -> Maybe (String, String)
+oneTitleIconPresent icons =
+  if  (1 :: Int) == foldl (\acc x ->
+    case Records.getIconKind x of
+      DataTypes.Title -> acc + 1
+      _ -> acc) 0 icons
     then
       Nothing
     else Just (
       "The diagram is required to have exactly one icon of kind \"" ++ show DataTypes.Title ++ "\".",
-      "Make sure your input diagram contains an icon of type \"" ++ show DataTypes.Title ++ "\" and that it is the only icon of that kind.")
-  where
-    anyTitleIcons = any (\x ->
+      "Make sure your input diagram contains an icon of kind \"" ++ show DataTypes.Title ++ "\" and that it is the only icon of that kind.")
+
+correctNumberOfDependencies :: Int
+correctNumberOfDependencies = 2
+
+correctNumberOfDependenciesInQuestionIcons :: [Records.Icon] -> Maybe (String, String)
+correctNumberOfDependenciesInQuestionIcons icons =
+  if any (\x ->
       case Records.getIconKind x of
-        DataTypes.Title -> True
-        _               -> False) icons
+        DataTypes.Question -> correctNumberOfDependencies == Records.getNumberOfDependentIcons x
+        _ -> False) icons
+    then
+      Nothing
+    else Just (
+      "The diagram contains one or more icon of kind \"" ++ show DataTypes.Question ++ "\" containing an incorrect number of dependencies.",
+      "Check that all icons of kind \"" ++ show DataTypes.Question ++ "\" have exactly " ++ show correctNumberOfDependencies ++ " dependencies.")
 
 validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
 validation validationPredicates icons =
@@ -68,7 +81,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
           let validationErrors = validation
-                [titleIconPresent]
+                [oneTitleIconPresent,
+                correctNumberOfDependenciesInQuestionIcons]
                 icons
 
           case validationErrors of

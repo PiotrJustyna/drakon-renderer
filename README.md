@@ -110,7 +110,13 @@ Edges:
 
 2. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
 
-3. validate Icons (only one title icon per diagram, title icon needs to be present, etc.)
+3. validate Icons (only one title icon per diagram, title icon needs to be present, etc.) - sample input validation:
+
+    ```
+    Input validation did not succeed for the following reasons:
+    * Error: The diagram contains one or more icon of kind "Question" containing an incorrect number of dependencies. Hint: Check that all icons of kind "Question" have exactly 2 dependencies.
+    * Error: The diagram is required to have exactly one icon of kind "Title". Hint: Make sure your input diagram contains an icon of kind "Title" and that it is the only icon of that kind.
+    ```
 
 4. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
 

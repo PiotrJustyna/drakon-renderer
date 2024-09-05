@@ -80,6 +80,13 @@ getIconNamesOfDependentIcons Icon {
   iconNamesOfDependentIcons = x,
   iconKind = _ } = x
 
+getNumberOfDependentIcons :: Icon -> Int
+getNumberOfDependentIcons Icon {
+  iconName = _,
+  iconDescription = _,
+  iconNamesOfDependentIcons = x,
+  iconKind = _ } = length x
+
 getIconKind :: Icon -> DataTypes.IconKind
 getIconKind Icon {
   iconName = _,
