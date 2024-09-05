@@ -110,21 +110,23 @@ Edges:
 
 2. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
 
-3. attempt to position the directed graph's nodes on a cartesian plane:
+3. validate Icons (only one title icon per diagram, title icon needs to be present, etc.)
+
+4. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
 
     * positive integer x coordinates only
 
     * negative integer y coordinates only
 
-4. serialize the product (`[PositionedIcon]`) to a file where:
+5. serialize the product (`[PositionedIcon]`) to a file where:
 
     * input: `file.json`
 
     * output: `file-drakon-layout.json`
 
-5. Render the collection of `PositionedIcon`s into the final svg diagram.
+6. Render the collection of `PositionedIcon`s into the final svg diagram.
 
-6. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
+7. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 
