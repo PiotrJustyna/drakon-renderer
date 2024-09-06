@@ -110,6 +110,8 @@ renderSingleIcon Records.PositionedIcon {
     DataTypes.End -> (coordinates, text description <> endShape)
     DataTypes.Action -> (coordinates, text description <> actionShape)
     DataTypes.Question -> (coordinates, text description <> questionShape)
+    DataTypes.Headline -> (coordinates, text description <> headlineShape)
+    DataTypes.Address -> (coordinates, text description <> addressShape)
   where
     coordinates = Diagrams.Prelude.p2 (x, y)
     kind = Records.getIconKind positionedIcon
@@ -158,3 +160,40 @@ renderSingleIcon Records.PositionedIcon {
       Diagrams.Prelude.lw Diagrams.Prelude.veryThin
       Diagrams.Prelude.#
       Diagrams.Prelude.translate (Diagrams.Prelude.r2 ((iconWidth - 0.1 - 0.1) * (-0.5), iconHeight * (-0.5)))
+    headlineShape =
+      Diagrams.Prelude.fromOffsets
+      [Diagrams.Prelude.V2 0.0 iconHeight,
+      Diagrams.Prelude.V2 iconWidth 0.0,
+      Diagrams.Prelude.V2 0.0 (iconHeight * (-1.0)),
+      Diagrams.Prelude.V2 (iconWidth * (-0.5)) (-0.1)]
+      Diagrams.Prelude.#
+      Diagrams.Prelude.closeLine
+      Diagrams.Prelude.#
+      Diagrams.Prelude.strokeLoop
+      Diagrams.Prelude.#
+      Diagrams.Prelude.fc questionIconColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
+    addressShape =
+      Diagrams.Prelude.fromOffsets
+      [Diagrams.Prelude.V2 0.0 iconHeight,
+      Diagrams.Prelude.V2 (iconWidth * 0.5) 0.1,
+      Diagrams.Prelude.V2 (iconWidth * 0.5) (-0.1),
+      Diagrams.Prelude.V2 0.0 (iconHeight * (-1.0)),
+      Diagrams.Prelude.V2 (iconWidth * (-1.0)) 0]
+      Diagrams.Prelude.#
+      Diagrams.Prelude.closeLine
+      Diagrams.Prelude.#
+      Diagrams.Prelude.strokeLoop
+      Diagrams.Prelude.#
+      Diagrams.Prelude.fc questionIconColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+      Diagrams.Prelude.#
+      Diagrams.Prelude.translate (Diagrams.Prelude.r2 (iconWidth * (-0.5), iconHeight * (-0.5)))

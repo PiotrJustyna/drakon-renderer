@@ -2,6 +2,14 @@
     {
         "iconDescription": "hello world title",
         "iconKind": "Title",
+        "iconName": "0",
+        "iconNamesOfDependentIcons": [
+            "1"
+        ]
+    },
+    {
+        "iconDescription": "hello world headline",
+        "iconKind": "Headline",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
             "2"
@@ -30,7 +38,7 @@
         "iconKind": "Action",
         "iconName": "4",
         "iconNamesOfDependentIcons": [
-            "8"
+            "9"
         ]
     },
     {
@@ -70,6 +78,14 @@
         "iconDescription": "hello world icon b",
         "iconKind": "Action",
         "iconName": "b",
+        "iconNamesOfDependentIcons": [
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "hello world address",
+        "iconKind": "Address",
+        "iconName": "9",
         "iconNamesOfDependentIcons": [
             "8"
         ]

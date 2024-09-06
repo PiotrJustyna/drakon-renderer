@@ -61,6 +61,9 @@ oneEndIconPresent icons =
       "Diagram is required to have exactly one icon of kind \"" ++ show DataTypes.End ++ "\".",
       "Make sure your input diagram contains an icon of kind \"" ++ show DataTypes.End ++ "\" and that it is the only icon of that kind.")
 
+-- 2024-09-06 PJ:
+-----------------
+-- TODO: adjust for the new kinds of icons.
 correctNumberOfDependencies :: [Records.Icon] -> Maybe (String, String)
 correctNumberOfDependencies icons =
   case iconsWithIncorrectDependencies of
