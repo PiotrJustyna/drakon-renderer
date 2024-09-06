@@ -1,0 +1,61 @@
+[
+    {
+        "icon": {
+            "iconDescription": "transport",
+            "iconKind": "Title",
+            "iconName": "1",
+            "iconNamesOfDependentIcons": [
+                "2"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": 0
+    },
+    {
+        "icon": {
+            "iconDescription": "Cryopreservation",
+            "iconKind": "Headline",
+            "iconName": "2",
+            "iconNamesOfDependentIcons": [
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -1
+    },
+    {
+        "icon": {
+            "iconDescription": "perfusion",
+            "iconKind": "Question",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": [
+                "4",
+                "6"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "perfuse the brain",
+            "iconKind": "Action",
+            "iconName": "4",
+            "iconNamesOfDependentIcons": [
+                "6"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "The end",
+            "iconKind": "End",
+            "iconName": "6",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -4
+    }
+]
