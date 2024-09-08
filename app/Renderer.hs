@@ -57,7 +57,7 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
-renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderSingleConnection
   Records.PositionedIcon {
     Records.icon = _,
@@ -67,8 +67,15 @@ renderSingleConnection
     Records.icon = _,
     Records.iconPositionX = x2,
     Records.iconPositionY = y2 }
+  x1Shift
   minY
-  | x1 <= x2 =
+  | x1 == x2 =
+    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x1 + x1Shift, y1), (x2, y2)])
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lc lineColour
+    Diagrams.Prelude.#
+    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+  | x1 < x2 =
     Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x2, y1), (x2, y2)])
     Diagrams.Prelude.#
     Diagrams.Prelude.lc lineColour
@@ -83,10 +90,33 @@ renderSingleConnection
   | otherwise =
     Diagrams.Prelude.fromVertices $ map Diagrams.Prelude.p2 [(x1, y1), (x2, y2)]
 
+-- 2024-09-08 PJ:
+-----------------
+-- Here I feel I'm on the right track, but instead of
+-- using "xshift", i should probably consider two extra waypoints
+-- to be added to the connection.
+-----------------
+-- example:
+-----------------
+-- connection before:
+-----------------
+-- straght line, 2 vertices:
+-- [(0, -2), (0, -4)]
+-----------------
+-- connection after:
+-----------------
+-- 3 lines, starting end end points preserved,
+-- 2 waypoints (think google maps route with a coffee shop waypoint):
+-- [(0, -2), (0 + iconWidth, -2), (0 + iconWidth, -4), (0, -4)]
 renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderConnections _ [] _        = mempty
-renderConnections x [y] minY    = renderSingleConnection x y minY
-renderConnections x (y:ys) minY = renderSingleConnection x y minY <> renderConnections x ys minY
+renderConnections parent dependents minY = foldl (\acc (x1Shift, dependent) -> renderSingleConnection parent dependent x1Shift minY <> acc) mempty x1Shifts
+  where
+    x1Shifts = foldl (\acc dependent ->
+      case acc of
+        [] -> [(0.0, dependent)]
+        pairs -> (if Records.getPositionedIconPositionX (snd (head acc)) == Records.getPositionedIconPositionX dependent then iconWidth else 0.0, dependent):acc)
+      ([] :: [(Double, Records.PositionedIcon)])
+      dependents
 
 renderAllConnections :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderAllConnections allPositionedIcons =

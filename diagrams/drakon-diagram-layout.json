@@ -42,12 +42,25 @@
             "iconKind": "Question",
             "iconName": "3",
             "iconNamesOfDependentIcons": [
-                "5",
+                "5'",
                 "6"
             ]
         },
         "iconPositionX": 0,
         "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 5'",
+            "iconKind": "Question",
+            "iconName": "5'",
+            "iconNamesOfDependentIcons": [
+                "5",
+                "8"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -4
     },
     {
         "icon": {
@@ -59,7 +72,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -4
+        "iconPositionY": -5
     },
     {
         "icon": {
@@ -69,7 +82,7 @@
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
-        "iconPositionY": -5
+        "iconPositionY": -6
     },
     {
         "icon": {
@@ -81,7 +94,7 @@
                 "b"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 4,
         "iconPositionY": -4
     },
     {
@@ -93,7 +106,7 @@
                 "a1"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 4,
         "iconPositionY": -5
     },
     {
@@ -105,7 +118,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 4,
         "iconPositionY": -6
     },
     {
@@ -117,7 +130,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 4,
+        "iconPositionX": 6,
         "iconPositionY": -5
     },
     {
@@ -129,7 +142,7 @@
                 "9"
             ]
         },
-        "iconPositionX": 6,
+        "iconPositionX": 8,
         "iconPositionY": -3
     },
     {
@@ -141,7 +154,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 6,
+        "iconPositionX": 8,
         "iconPositionY": -4
     }
 ]
