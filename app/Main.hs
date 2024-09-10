@@ -126,10 +126,16 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
               System.IO.hClose handle
 
+              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
+
+              putStrLn "length:"
+              print . length $ fst thisIsJustTemporary
+              print $ fst thisIsJustTemporary 
+
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
                 Renderer.renderAllIcons positionedIcons
                 <>
-                Renderer.renderAllConnections positionedIcons
+                snd thisIsJustTemporary
             _ -> do
               let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
               putStrLn $ "Input validation did not succeed for following reasons:\n" ++ failureReasons

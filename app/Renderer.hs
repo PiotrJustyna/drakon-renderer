@@ -57,6 +57,13 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
+-- 2024-09-09 PJ:
+-----------------
+-- I do not like this.
+-- renderConnections should only determine point A (start) and point B (end).
+-- This function needs to figure out the path in an elegant, clean way.
+-- At the moment this function seeminhly does a lot but it's all pre-scripted
+-- and it does not handle all scenarios. We can do better than this.
 renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderSingleConnection
   Records.PositionedIcon {
@@ -126,6 +133,53 @@ renderAllConnections allPositionedIcons =
     [renderConnections x (Records.getDependentPositionedIcons x allPositionedIcons) minY | x <- allPositionedIcons]
   where
     minY = foldl (\acc Records.PositionedIcon { Records.icon = _, Records.iconPositionX = _, Records.iconPositionY = y } -> min acc y) 0 allPositionedIcons
+
+addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
+addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
+
+shiftIfContains :: (Double, Double) -> [(Double, Double)] -> ((Double, Double), [(Double, Double)])
+shiftIfContains (x1, y1) z = (newPair, newPair:z)
+  where
+    newPair = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then (x1 + iconWidth, y1) else (x1, y1)
+
+alternativeRenderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderSingleConnection
+  Records.PositionedIcon {
+    Records.icon = _,
+    Records.iconPositionX = x1,
+    Records.iconPositionY = y1 }
+  Records.PositionedIcon {
+    Records.icon = _,
+    Records.iconPositionX = x2,
+    Records.iconPositionY = y2 }
+  takenCoonectionCoordinates = (startAndFinish, line)
+  where
+    (finish, newTakenCoonectionCoordinates) = shiftIfContains (x2, y2) takenCoonectionCoordinates
+    startAndFinish = addIfNotContains (x1, y1) newTakenCoonectionCoordinates
+    line = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), finish])
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lc lineColour
+      Diagrams.Prelude.#
+      Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+
+alternativeRenderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderConnections _ [] takenCoonectionCoordinates = (takenCoonectionCoordinates, mempty)
+alternativeRenderConnections parent (d:ds) takenCoonectionCoordinates =
+  (fst dsResult,snd dResult <> snd dsResult)
+  where
+    dResult   = alternativeRenderSingleConnection parent d takenCoonectionCoordinates
+    dsResult  = alternativeRenderConnections parent ds (fst dResult)
+
+alternativeRenderAllConnections' :: [Records.PositionedIcon] -> [Records.PositionedIcon] -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderAllConnections' [] _ takenCoonectionCoordinates = (takenCoonectionCoordinates, mempty)
+alternativeRenderAllConnections' (p:ps) allParents takenCoonectionCoordinates =
+  (fst psResult, snd pResult <> snd psResult)
+  where
+    pResult   = alternativeRenderConnections p (Records.getDependentPositionedIcons p allParents) takenCoonectionCoordinates
+    psResult  = alternativeRenderAllConnections' ps allParents (fst pResult)
+
+alternativeRenderAllConnections :: [Records.PositionedIcon] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderAllConnections parents = alternativeRenderAllConnections' parents parents []
 
 renderAllIcons :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderAllIcons positionedIcons = Diagrams.Prelude.position $ map renderSingleIcon positionedIcons
