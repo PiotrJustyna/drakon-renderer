@@ -137,11 +137,30 @@ renderAllConnections allPositionedIcons =
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
 
-shiftIfContains :: (Double, Double) -> [(Double, Double)] -> ((Double, Double), [(Double, Double)])
-shiftIfContains (x1, y1) z = (newPair, newPair:z)
-  where
-    newPair = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then (x1 + iconWidth, y1) else (x1, y1)
+-- 2024-09-10 PJ:
+-----------------
+-- This will also produce taken coordinates,
+-- so they will have to be added to the list.
+-- Connections can actually overlap (and they
+-- do it quite often - see many connections
+-- converging towards the end), but they can never:
+-- * cross each other
+-- * cross positioned icons
+startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [(Double, Double)]
+startToFinishWaypoints (x1, y1) (x2, y2)
+  | (x1 < x2)   && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1 + iconWidth, y1) (x2, y2))
+  | (x1 == x2)  && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1, y1 - iconHeight) (x2, y2))
+  | (x1 > x2)   && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1, y1 - iconHeight) (x2, y2))
+  | (x1 > x2)   && (y1 == y2) = (x1, y1):(startToFinishWaypoints (x1 - iconWidth, y1) (x2, y2))
+  | otherwise = [(x1, y1), (x2, y2)]
 
+-- X - X1
+-- |   |
+-- |   |
+-- Y   |
+-- |   |
+-- |   |
+-- Z - Z1
 alternativeRenderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 alternativeRenderSingleConnection
   Records.PositionedIcon {
@@ -154,9 +173,8 @@ alternativeRenderSingleConnection
     Records.iconPositionY = y2 }
   takenCoonectionCoordinates = (startAndFinish, line)
   where
-    (finish, newTakenCoonectionCoordinates) = shiftIfContains (x2, y2) takenCoonectionCoordinates
-    startAndFinish = addIfNotContains (x1, y1) newTakenCoonectionCoordinates
-    line = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), finish])
+    startAndFinish = addIfNotContains (x2, y2) (addIfNotContains (x1, y1) takenCoonectionCoordinates)
+    line = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 (startToFinishWaypoints (x1, y1) (x2, y2)))
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
