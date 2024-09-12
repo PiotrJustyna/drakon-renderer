@@ -55,6 +55,14 @@
         "iconKind": "Action",
         "iconName": "5",
         "iconNamesOfDependentIcons": [
+            "5a"
+        ]
+    },
+    {
+        "iconDescription": "hello world icon 5a",
+        "iconKind": "Action",
+        "iconName": "5a",
+        "iconNamesOfDependentIcons": [
             "8"
         ]
     },

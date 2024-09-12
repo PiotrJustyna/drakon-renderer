@@ -68,11 +68,23 @@
             "iconKind": "Action",
             "iconName": "5",
             "iconNamesOfDependentIcons": [
-                "8"
+                "5a"
             ]
         },
         "iconPositionX": 0,
         "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "hello world icon 5a",
+            "iconKind": "Action",
+            "iconName": "5a",
+            "iconNamesOfDependentIcons": [
+                "8"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -6
     },
     {
         "icon": {
@@ -82,7 +94,7 @@
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
-        "iconPositionY": -6
+        "iconPositionY": -7
     },
     {
         "icon": {
