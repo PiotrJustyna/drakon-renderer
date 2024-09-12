@@ -139,7 +139,7 @@ addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then 
 
 startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [Records.PositionedIcon] -> [(Double, Double)]
 startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
-  | x1 == x2  = (x1, y1) : (if iconClash then [(x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
+  | x1 == x2  = (x1, y1) : (if iconClash then [(x1 + iconWidth, y1), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
   | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
   | otherwise = [(x1, y1), (x1, y2), (x2, y2)]
   where
