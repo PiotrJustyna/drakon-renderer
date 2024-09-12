@@ -63,7 +63,7 @@ oneEndIconPresent icons =
 
 -- 2024-09-06 PJ:
 -----------------
--- TODO: adjust for the new kinds of icons.
+-- TODO: adjust for the new kinds of icons (headline + address).
 correctNumberOfDependencies :: [Records.Icon] -> Maybe (String, String)
 correctNumberOfDependencies icons =
   case iconsWithIncorrectDependencies of

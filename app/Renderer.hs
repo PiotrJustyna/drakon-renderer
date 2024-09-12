@@ -137,31 +137,29 @@ renderAllConnections allPositionedIcons =
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
 
--- 2024-09-10 PJ:
------------------
--- This will also produce taken coordinates,
--- so they will have to be added to the list.
--- Connections can actually overlap (and they
--- do it quite often - see many connections
--- converging towards the end), but they can never:
--- * cross each other
--- * cross positioned icons
-startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [(Double, Double)]
-startToFinishWaypoints (x1, y1) (x2, y2)
-  | (x1 < x2)   && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1 + iconWidth, y1) (x2, y2))
-  | (x1 == x2)  && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1, y1 - iconHeight) (x2, y2))
-  | (x1 > x2)   && (y1 > y2)  = (x1, y1):(startToFinishWaypoints (x1, y1 - iconHeight) (x2, y2))
-  | (x1 > x2)   && (y1 == y2) = (x1, y1):(startToFinishWaypoints (x1 - iconWidth, y1) (x2, y2))
-  | otherwise = [(x1, y1), (x2, y2)]
+startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [Records.PositionedIcon] -> [(Double, Double)]
+startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
+  | x1 == x2  = (x1, y1) : (if iconClash then [(x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
+  | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
+  | otherwise = [(x1, y1), (x1, y2), (x2, y2)]
+  where
+    -- 2024-09-12 PJ:
+    -----------------
+    -- 1. There could be more than 1 clash and in that case we should bypass them all.
+    -- 2. Now we simply add hardcoded waypoints to the right of the clash.
+    --    Ideally the code should iterate the process of positioning new waypoints
+    --    until there are no clashes between the parent and the dependent positioned icons.
+    iconClash = any (\positionedIcon ->
+      x1 == Records.getPositionedIconPositionX positionedIcon &&
+      y1 > Records.getPositionedIconPositionY positionedIcon &&
+      y2 < Records.getPositionedIconPositionY positionedIcon) positionedIcons
 
--- X - X1
--- |   |
--- |   |
--- Y   |
--- |   |
--- |   |
--- Z - Z1
-alternativeRenderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderSingleConnection ::
+  Records.PositionedIcon ->
+  Records.PositionedIcon ->
+  [Records.PositionedIcon] ->
+  [[(Double, Double)]] ->
+  ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 alternativeRenderSingleConnection
   Records.PositionedIcon {
     Records.icon = _,
@@ -171,32 +169,33 @@ alternativeRenderSingleConnection
     Records.icon = _,
     Records.iconPositionX = x2,
     Records.iconPositionY = y2 }
-  takenCoonectionCoordinates = (startAndFinish, line)
+  positionedIcons
+  coordinatesOfTakenLines = (coordinatesOfNewLine:coordinatesOfTakenLines, renderedNewLine)
   where
-    startAndFinish = addIfNotContains (x2, y2) (addIfNotContains (x1, y1) takenCoonectionCoordinates)
-    line = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 (startToFinishWaypoints (x1, y1) (x2, y2)))
+    coordinatesOfNewLine = startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
+    renderedNewLine = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
       Diagrams.Prelude.lw Diagrams.Prelude.veryThin
 
-alternativeRenderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-alternativeRenderConnections _ [] takenCoonectionCoordinates = (takenCoonectionCoordinates, mempty)
-alternativeRenderConnections parent (d:ds) takenCoonectionCoordinates =
+alternativeRenderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
+alternativeRenderConnections parent (d:ds) allPositionedIcons coordinatesOfTakenLines =
   (fst dsResult,snd dResult <> snd dsResult)
   where
-    dResult   = alternativeRenderSingleConnection parent d takenCoonectionCoordinates
-    dsResult  = alternativeRenderConnections parent ds (fst dResult)
+    dResult   = alternativeRenderSingleConnection parent d allPositionedIcons coordinatesOfTakenLines
+    dsResult  = alternativeRenderConnections parent ds allPositionedIcons (fst dResult)
 
-alternativeRenderAllConnections' :: [Records.PositionedIcon] -> [Records.PositionedIcon] -> [(Double, Double)] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-alternativeRenderAllConnections' [] _ takenCoonectionCoordinates = (takenCoonectionCoordinates, mempty)
-alternativeRenderAllConnections' (p:ps) allParents takenCoonectionCoordinates =
+alternativeRenderAllConnections' :: [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderAllConnections' [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
+alternativeRenderAllConnections' (p:ps) allParents coordinatesOfTakenLines =
   (fst psResult, snd pResult <> snd psResult)
   where
-    pResult   = alternativeRenderConnections p (Records.getDependentPositionedIcons p allParents) takenCoonectionCoordinates
+    pResult   = alternativeRenderConnections p (Records.getDependentPositionedIcons p allParents) allParents coordinatesOfTakenLines
     psResult  = alternativeRenderAllConnections' ps allParents (fst pResult)
 
-alternativeRenderAllConnections :: [Records.PositionedIcon] -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+alternativeRenderAllConnections :: [Records.PositionedIcon] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 alternativeRenderAllConnections parents = alternativeRenderAllConnections' parents parents []
 
 renderAllIcons :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B

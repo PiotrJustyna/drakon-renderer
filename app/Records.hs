@@ -177,6 +177,12 @@ getPositionedIconPositionX PositionedIcon {
   iconPositionX = x,
   iconPositionY = _ } = x
 
+getPositionedIconPositionY :: PositionedIcon -> Double
+getPositionedIconPositionY PositionedIcon {
+  icon = _,
+  iconPositionX = _,
+  iconPositionY = y } = y
+
 getLastPositionedIconPositionX :: [PositionedIcon] -> Double
 getLastPositionedIconPositionX x = case x of
   [] -> 0
