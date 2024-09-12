@@ -21,7 +21,7 @@ spaceBetweenIconsX = 1.0
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
- removeDuplicates . fst $ exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
+  removeDuplicates . fst $ exploratoryCartesianPositioning originXCoordinate originYCoordinate firstNode topologicallySortedNodes
   where
     topologicallySortedNodes = GHC.Data.Graph.Directed.topologicalSortG x
     firstNode = head topologicallySortedNodes

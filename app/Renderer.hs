@@ -57,83 +57,6 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
 
--- 2024-09-09 PJ:
------------------
--- I do not like this.
--- renderConnections should only determine point A (start) and point B (end).
--- This function needs to figure out the path in an elegant, clean way.
--- At the moment this function seeminhly does a lot but it's all pre-scripted
--- and it does not handle all scenarios. We can do better than this.
-renderSingleConnection :: Records.PositionedIcon -> Records.PositionedIcon -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderSingleConnection
-  Records.PositionedIcon {
-    Records.icon = _,
-    Records.iconPositionX = x1,
-    Records.iconPositionY = y1 }
-  Records.PositionedIcon {
-    Records.icon = _,
-    Records.iconPositionX = x2,
-    Records.iconPositionY = y2 }
-  x1Shift
-  minY
-  | x1 == x2 =
-    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x1 + x1Shift, y1), (x2, y2)])
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lc lineColour
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-  | x1 < x2 =
-    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x2, y1), (x2, y2)])
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lc lineColour
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-  | x1 > x2 =
-    Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 [(x1, y1), (x1, minY - iconHeight), (x2 + iconWidth, minY - iconHeight), (x2 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)])
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lc lineColour
-    Diagrams.Prelude.#
-    Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-  | otherwise =
-    Diagrams.Prelude.fromVertices $ map Diagrams.Prelude.p2 [(x1, y1), (x2, y2)]
-
--- 2024-09-08 PJ:
------------------
--- Here I feel I'm on the right track, but instead of
--- using "xshift", i should probably consider two extra waypoints
--- to be added to the connection.
------------------
--- example:
------------------
--- connection before:
------------------
--- straght line, 2 vertices:
--- [(0, -2), (0, -4)]
------------------
--- connection after:
------------------
--- 3 lines, starting end end points preserved,
--- 2 waypoints (think google maps route with a coffee shop waypoint):
--- [(0, -2), (0 + iconWidth, -2), (0 + iconWidth, -4), (0, -4)]
-renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderConnections parent dependents minY = foldl (\acc (x1Shift, dependent) -> renderSingleConnection parent dependent x1Shift minY <> acc) mempty x1Shifts
-  where
-    x1Shifts = foldl (\acc dependent ->
-      case acc of
-        [] -> [(0.0, dependent)]
-        pairs -> (if Records.getPositionedIconPositionX (snd (head acc)) == Records.getPositionedIconPositionX dependent then iconWidth else 0.0, dependent):acc)
-      ([] :: [(Double, Records.PositionedIcon)])
-      dependents
-
-renderAllConnections :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderAllConnections allPositionedIcons =
-  foldl
-    (<>)
-    mempty
-    [renderConnections x (Records.getDependentPositionedIcons x allPositionedIcons) minY | x <- allPositionedIcons]
-  where
-    minY = foldl (\acc Records.PositionedIcon { Records.icon = _, Records.iconPositionX = _, Records.iconPositionY = y } -> min acc y) 0 allPositionedIcons
-
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
 
@@ -143,12 +66,6 @@ startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
   | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
   | otherwise = [(x1, y1), (x1, y2), (x2, y2)]
   where
-    -- 2024-09-12 PJ:
-    -----------------
-    -- 1. There could be more than 1 clash and in that case we should bypass them all.
-    -- 2. Now we simply add hardcoded waypoints to the right of the clash.
-    --    Ideally the code should iterate the process of positioning new waypoints
-    --    until there are no clashes between the parent and the dependent positioned icons.
     iconClash = any (\positionedIcon ->
       x1 == Records.getPositionedIconPositionX positionedIcon &&
       y1 > Records.getPositionedIconPositionY positionedIcon &&
