@@ -36,6 +36,15 @@ exploratoryCartesianPositioning x y n ns =
     dependentNodes = Records.nodesIdentifiedWithKeys ns $ Records.dependencies n
     positionedDependentIcons = cartesianPositioningOfDependentNodes x (y - iconHeigth) dependentNodes ns
 
+-- 2024-09-13 PJ:
+-----------------
+-- maxX is not the best concept as "removeDuplicates"
+-- could make that value invalid.
+-------------------------------------------------
+-- OR
+-------------------------------------------------
+-- do not insert duplicates. Keep track of what's
+-- already inserted (0(1) dictionary).
 cartesianPositioningOfDependentNodes :: Double -> Double -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon] -> [Records.PositionedIcon]
 cartesianPositioningOfDependentNodes _ _ [] _ = []
 cartesianPositioningOfDependentNodes x y (d:ds) ns =

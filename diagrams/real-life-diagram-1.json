@@ -33,9 +33,35 @@
         ]
     },
     {
+        "iconDescription": "remove brain",
+        "iconKind": "Question",
+        "iconName": "6",
+        "iconNamesOfDependentIcons": [
+            "100",
+            "7"
+        ]
+    },
+    {
+        "iconDescription": "remove alternative",
+        "iconKind": "Question",
+        "iconName": "7",
+        "iconNamesOfDependentIcons": [
+            "100",
+            "8"
+        ]
+    },
+    {
+        "iconDescription": "embalm",
+        "iconKind": "Action",
+        "iconName": "8",
+        "iconNamesOfDependentIcons": [
+            "100"
+        ]
+    },
+    {
         "iconDescription": "The end",
         "iconKind": "End",
-        "iconName": "6",
+        "iconName": "100",
         "iconNamesOfDependentIcons": []
     }
 ]

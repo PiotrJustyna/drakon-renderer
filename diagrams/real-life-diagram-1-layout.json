@@ -50,12 +50,50 @@
     },
     {
         "icon": {
-            "iconDescription": "The end",
-            "iconKind": "End",
+            "iconDescription": "remove brain",
+            "iconKind": "Question",
             "iconName": "6",
-            "iconNamesOfDependentIcons": []
+            "iconNamesOfDependentIcons": [
+                "100",
+                "7"
+            ]
         },
         "iconPositionX": 0,
         "iconPositionY": -4
+    },
+    {
+        "icon": {
+            "iconDescription": "The end",
+            "iconKind": "End",
+            "iconName": "100",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "remove alternative",
+            "iconKind": "Question",
+            "iconName": "7",
+            "iconNamesOfDependentIcons": [
+                "100",
+                "8"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "embalm",
+            "iconKind": "Action",
+            "iconName": "8",
+            "iconNamesOfDependentIcons": [
+                "100"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -6
     }
 ]

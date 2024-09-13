@@ -43,8 +43,8 @@ fontColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
 fontSize :: Double
 fontSize = 0.075
 
-text :: String -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-text content =
+text :: String -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+text content translateX translateY =
   Diagrams.Prelude.text content
   Diagrams.Prelude.#
   Diagrams.Prelude.fontSize (Diagrams.Prelude.local fontSize)
@@ -55,7 +55,7 @@ text content =
   Diagrams.Prelude.#
   Diagrams.Prelude.fc fontColour
   Diagrams.Prelude.#
-  Diagrams.Prelude.translate (Diagrams.Prelude.r2 (0.0 :: Double,  0.0 :: Double))
+  Diagrams.Prelude.translate (Diagrams.Prelude.r2 (translateX, translateY))
 
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
@@ -124,12 +124,12 @@ renderSingleIcon Records.PositionedIcon {
   Records.iconPositionX = x,
   Records.iconPositionY = y } =
   case kind of
-    DataTypes.Title -> (coordinates, text description <> titleShape)
-    DataTypes.End -> (coordinates, text description <> endShape)
-    DataTypes.Action -> (coordinates, text description <> actionShape)
-    DataTypes.Question -> (coordinates, text description <> questionShape)
-    DataTypes.Headline -> (coordinates, text description <> headlineShape)
-    DataTypes.Address -> (coordinates, text description <> addressShape)
+    DataTypes.Title -> (coordinates, text description 0.0 0.0 <> titleShape)
+    DataTypes.End -> (coordinates, text description 0.0 0.0 <> endShape)
+    DataTypes.Action -> (coordinates, text description 0.0 0.0 <> actionShape)
+    DataTypes.Question -> (coordinates, text description 0.0 0.0 <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7)) <> text "no" (iconWidth * 0.55) (iconHeight * 0.15) <> questionShape)
+    DataTypes.Headline -> (coordinates, text description 0.0 0.0 <> headlineShape)
+    DataTypes.Address -> (coordinates, text description 0.0 0.0 <> addressShape)
   where
     coordinates = Diagrams.Prelude.p2 (x, y)
     kind = Records.getIconKind positionedIcon
