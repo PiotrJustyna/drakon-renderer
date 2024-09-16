@@ -109,16 +109,18 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 correctNumberOfDependencies]
                 icons
 
+          let titleIcon = LayoutEngine.titleIcon icons
+          let dependencyPlane = [titleIcon] : LayoutEngine.xyz [titleIcon] icons
+          print dependencyPlane
+
           case validationErrors of
             [] -> do
               let graph = Records.directedGraph icons
 
-              GHC.Utils.Outputable.printSDocLn
-                GHC.Utils.Outputable.defaultSDocContext
-                GHC.Utils.Ppr.LeftMode
-                System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
-
-              print $ LayoutEngine.alternativeCartesianPositioning graph
+--              GHC.Utils.Outputable.printSDocLn
+--                GHC.Utils.Outputable.defaultSDocContext
+--                GHC.Utils.Ppr.LeftMode
+--                System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
 
               let positionedIcons = LayoutEngine.cartesianPositioning graph
 
@@ -130,9 +132,9 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
               let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
 
-              putStrLn "length:"
-              print . length $ fst thisIsJustTemporary
-              print $ fst thisIsJustTemporary 
+--              putStrLn "length:"
+--              print . length $ fst thisIsJustTemporary
+--              print $ fst thisIsJustTemporary 
 
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
                 Renderer.renderAllIcons positionedIcons

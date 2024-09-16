@@ -80,6 +80,15 @@ getIconNamesOfDependentIcons Icon {
   iconNamesOfDependentIcons = x,
   iconKind = _ } = x
 
+getIconNamesOfDependentIcons' :: Icon -> [Icon] -> [String]
+getIconNamesOfDependentIcons' Icon {
+  iconName = _,
+  iconDescription = _,
+  iconNamesOfDependentIcons = names,
+  iconKind = _ } blacklist = case blacklist of
+    []  -> names
+    _   -> filter (\x -> all (\y -> x /= getIconName y) blacklist) names
+
 getNumberOfDependentIcons :: Icon -> Int
 getNumberOfDependentIcons Icon {
   iconName = _,
