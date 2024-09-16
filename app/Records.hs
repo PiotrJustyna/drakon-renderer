@@ -124,6 +124,27 @@ instance Data.Aeson.FromJSON Icon where
   parseJSON _                     =
     Control.Applicative.empty
 
+titleIcon :: [Icon] -> Icon
+titleIcon allIcons = head $ filter (\x -> case getIconKind x of
+  DataTypes.Title -> True
+  _ -> False) allIcons
+
+allDependents :: [Icon] -> [Icon] -> [[Icon]]
+allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
+  [] -> []
+  nextLevelDependents -> nextLevelDependents : allDependents nextLevelDependents allIcons
+
+allDependentsOfAllDependents :: [Icon] -> [Icon] -> [Icon]
+allDependentsOfAllDependents dependents allIcons = foldl (\acc singleDependent ->  acc ++ allDependentsOfOneDependent singleDependent allIcons acc) [] dependents
+
+allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
+allDependentsOfOneDependent icon allIcons butNotThese = dependents
+  where
+    dependentNames = getIconNamesOfDependentIcons' icon butNotThese
+    dependents = filter
+      (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
+      allIcons
+
 directedGraph :: [Icon] -> GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon)
 directedGraph icons =
   GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
@@ -197,13 +218,12 @@ getLastPositionedIconPositionX x = case x of
   [] -> 0
   list -> getPositionedIconPositionX $ last list
 
-getDependentPositionedIcons :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon]
-getDependentPositionedIcons
-  Records.PositionedIcon {
-    Records.icon = positionedIcon,
-    Records.iconPositionX = _,
-    Records.iconPositionY = _ } =
-  filter (\x -> any (\y -> y == Records.getPositionedIconName x) (Records.getIconNamesOfDependentIcons positionedIcon))
+getDependentPositionedIcons :: PositionedIcon -> [PositionedIcon] -> [PositionedIcon]
+getDependentPositionedIcons PositionedIcon {
+  icon = positionedIcon,
+  iconPositionX = _,
+  iconPositionY = _ } =
+    filter (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
 
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =

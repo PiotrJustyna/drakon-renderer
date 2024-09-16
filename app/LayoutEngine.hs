@@ -1,6 +1,5 @@
-module LayoutEngine (cartesianPositioning, titleIcon, xyz) where
+module LayoutEngine (cartesianPositioning) where
 
-import qualified DataTypes
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
 import qualified Records
@@ -19,29 +18,6 @@ iconHeigth = 1.0
 
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
-
-titleIcon :: [Records.Icon] -> Records.Icon
-titleIcon allIcons = head $ filter (\x -> case Records.getIconKind x of
-  DataTypes.Title -> True
-  _ -> False) allIcons
-
-xyz :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-xyz subset allIcons = case abc subset allIcons of
-  [] -> []
-  nextLevelDependents -> nextLevelDependents : xyz nextLevelDependents allIcons
-
-abc :: [Records.Icon] -> [Records.Icon] -> [Records.Icon]
-abc dependents allIcons = theirDependents
-  where
-    theirDependents = foldl (\acc singleDependent ->  acc ++ ghi singleDependent allIcons acc) [] dependents
-
-ghi :: Records.Icon -> [Records.Icon] -> [Records.Icon] -> [Records.Icon]
-ghi icon allIcons butNotThese = dependents
-  where
-    dependentNames = Records.getIconNamesOfDependentIcons' icon butNotThese
-    dependents = filter
-      (\singleIcon -> any (\singleDependentName -> singleDependentName == Records.getIconName singleIcon) dependentNames)
-      allIcons
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =

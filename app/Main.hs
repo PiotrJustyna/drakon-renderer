@@ -109,8 +109,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 correctNumberOfDependencies]
                 icons
 
-          let titleIcon = LayoutEngine.titleIcon icons
-          let dependencyPlane = [titleIcon] : LayoutEngine.xyz [titleIcon] icons
+          let titleIcon = Records.titleIcon icons
+          let dependencyPlane = [titleIcon] : Records.allDependents [titleIcon] icons
           print dependencyPlane
 
           case validationErrors of
