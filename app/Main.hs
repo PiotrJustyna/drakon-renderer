@@ -118,9 +118,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 GHC.Utils.Ppr.LeftMode
                 System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
 
-              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
+              print $ LayoutEngine.alternativeCartesianPositioning graph
 
               let positionedIcons = LayoutEngine.cartesianPositioning graph
+
+              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
               Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
