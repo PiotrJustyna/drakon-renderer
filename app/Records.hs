@@ -124,13 +124,23 @@ instance Data.Aeson.FromJSON Icon where
   parseJSON _                     =
     Control.Applicative.empty
 
+instance Eq Icon where
+  (==) (Icon name1 description1 namesOfDependentIcons1 kind1) (Icon name2 description2 namesOfDependentIcons2 kind2) = name1 == name2
+
 titleIcon :: [Icon] -> Icon
 titleIcon allIcons = head $ filter (\x -> case getIconKind x of
   DataTypes.Title -> True
   _ -> False) allIcons
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
-removeDuplicates iconsBefore uniqueIcons = foldl (\singleRow -> [] iconsBefore
+removeDuplicates [] uniqueIcons = []
+removeDuplicates (singleRow:remainingRows) uniqueIcons = removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
+  where
+    newUniqueIcons = foldl (\acc x -> if not (elem x uniqueIcons) then x:acc else acc) [] singleRow
+      --filter (\singleIcon -> not $ any (\singleUniqueIcon -> getIconName singleIcon == getIconName singleUniqueIcon) uniqueIcons) singleRow
+-- if unique icons do not contain an element from row r:
+-- add the element to unique icons
+-- add the element to the result row
 
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
@@ -138,7 +148,7 @@ allDependents subset allIcons = case allDependentsOfAllDependents subset allIcon
   nextLevelDependents -> nextLevelDependents : allDependents nextLevelDependents allIcons
 
 allDependentsOfAllDependents :: [Icon] -> [Icon] -> [Icon]
-allDependentsOfAllDependents dependents allIcons = foldl (\acc singleDependent ->  acc ++ allDependentsOfOneDependent singleDependent allIcons acc) [] dependents
+allDependentsOfAllDependents dependents allIcons = foldl (\acc singleDependent -> acc ++ allDependentsOfOneDependent singleDependent allIcons acc) [] dependents
 
 allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
 allDependentsOfOneDependent icon allIcons butNotThese = dependents

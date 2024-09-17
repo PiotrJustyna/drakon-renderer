@@ -110,7 +110,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 icons
 
           let titleIcon = Records.titleIcon icons
-          let dependencyPlane = [titleIcon] : Records.allDependents [titleIcon] icons
+          let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
           print dependencyPlane
 
           case validationErrors of
