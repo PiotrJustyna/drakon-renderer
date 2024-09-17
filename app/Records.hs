@@ -129,6 +129,9 @@ titleIcon allIcons = head $ filter (\x -> case getIconKind x of
   DataTypes.Title -> True
   _ -> False) allIcons
 
+removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
+removeDuplicates iconsBefore uniqueIcons = foldl (\singleRow -> [] iconsBefore
+
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
   [] -> []
