@@ -123,8 +123,15 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
               let titleIcon = Records.titleIcon icons
               let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
               --print dependencyPlane
+
               let firstColumn = LayoutEngine.abc dependencyPlane 0.0
-              --print firstColumn
+              print firstColumn
+
+              let newDependencyPlane = LayoutEngine.def dependencyPlane firstColumn
+              print newDependencyPlane
+
+              let secondColumn = LayoutEngine.abc newDependencyPlane 1.0
+              print secondColumn
 
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
