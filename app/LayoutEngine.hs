@@ -1,4 +1,4 @@
-module LayoutEngine (cartesianPositioning) where
+module LayoutEngine (cartesianPositioning, abc) where
 
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
@@ -18,6 +18,20 @@ iconHeigth = 1.0
 
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
+
+firstIcon :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
+firstIcon [] _ _    = Nothing
+firstIcon (i:_) x y = Just $ Records.PositionedIcon {
+  Records.icon = i,
+  Records.iconPositionX = x,
+  Records.iconPositionY = y }
+
+abc :: [[Records.Icon]] -> Double -> [Records.PositionedIcon]
+abc [] _ = []
+abc (currentRow:remainingRows) depth =
+  case firstIcon currentRow 0.0 depth of
+    Nothing -> abc remainingRows (depth - 1.0)
+    Just x -> x : abc remainingRows (depth - 1.0)
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =

@@ -136,11 +136,7 @@ removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] uniqueIcons = []
 removeDuplicates (singleRow:remainingRows) uniqueIcons = removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
   where
-    newUniqueIcons = foldl (\acc x -> if not (elem x uniqueIcons) then x:acc else acc) [] singleRow
-      --filter (\singleIcon -> not $ any (\singleUniqueIcon -> getIconName singleIcon == getIconName singleUniqueIcon) uniqueIcons) singleRow
--- if unique icons do not contain an element from row r:
--- add the element to unique icons
--- add the element to the result row
+    newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
 
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
@@ -154,7 +150,7 @@ allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
 allDependentsOfOneDependent icon allIcons butNotThese = dependents
   where
     dependentNames = getIconNamesOfDependentIcons' icon butNotThese
-    dependents = filter
+    dependents = reverse $ filter
       (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
       allIcons
 

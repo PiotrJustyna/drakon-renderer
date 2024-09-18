@@ -109,10 +109,6 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 correctNumberOfDependencies]
                 icons
 
-          let titleIcon = Records.titleIcon icons
-          let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
-          print dependencyPlane
-
           case validationErrors of
             [] -> do
               let graph = Records.directedGraph icons
@@ -124,20 +120,26 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
               let positionedIcons = LayoutEngine.cartesianPositioning graph
 
+              let titleIcon = Records.titleIcon icons
+              let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
+              --print dependencyPlane
+              let firstColumn = LayoutEngine.abc dependencyPlane 0.0
+              --print firstColumn
+
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
-              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
+              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty firstColumn)
 
               System.IO.hClose handle
 
-              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
+              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstColumn
 
 --              putStrLn "length:"
 --              print . length $ fst thisIsJustTemporary
 --              print $ fst thisIsJustTemporary 
 
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                Renderer.renderAllIcons positionedIcons
+                Renderer.renderAllIcons firstColumn
                 <>
                 snd thisIsJustTemporary
             _ -> do
