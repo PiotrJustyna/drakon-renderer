@@ -125,12 +125,12 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
               --print dependencyPlane
 
               let firstColumn = LayoutEngine.abc dependencyPlane 0.0
-              print firstColumn
+              --print firstColumn
 
               let newDependencyPlane = LayoutEngine.def dependencyPlane firstColumn
-              print newDependencyPlane
+              --print newDependencyPlane
 
-              let secondColumn = LayoutEngine.abc newDependencyPlane 1.0
+              let secondColumn = LayoutEngine.abc' newDependencyPlane 1.0 0.0 firstColumn
               print secondColumn
 
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode

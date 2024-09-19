@@ -1,4 +1,4 @@
-module LayoutEngine (cartesianPositioning, abc, def) where
+module LayoutEngine (cartesianPositioning, abc, abc', def) where
 
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
@@ -19,31 +19,37 @@ iconHeight = 1.0
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
 
-firstIcon :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
-firstIcon [] _ _    = Nothing
-firstIcon (i:_) x y = Just $ Records.PositionedIcon {
+firstIconPositioned :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
+firstIconPositioned [] _ _    = Nothing
+firstIconPositioned (i:_) x y = Just $ Records.PositionedIcon {
   Records.icon = i,
   Records.iconPositionX = x,
   Records.iconPositionY = y }
 
 abc :: [[Records.Icon]] -> Double -> [Records.PositionedIcon]
 abc [] _ = []
-abc (currentRow:remainingRows) depth =
-  case firstIcon currentRow 0.0 depth of
-    Nothing -> abc remainingRows (depth - iconHeight)
-    Just x -> x : abc remainingRows (depth - iconHeight)
+abc (currentRow:remainingRows) y =
+  case firstIconPositioned currentRow 0.0 y of
+    Nothing -> abc remainingRows (y - iconHeight)
+    Just x -> x : abc remainingRows (y - iconHeight)
 
--- todo: abc' :: [[Records.Icon]] -> Double -> [Records.PositionedIcon]
-
-notIconElem :: Records.Icon -> [Records.PositionedIcon] -> Bool
-notIconElem icon = all (\x -> Records.getPositionedIconName x /= Records.getIconName icon)
+-- todo1: y needs to change as we iterate
+-- todo2: we only take the first found icon which parent is already a positioned icon
+abc' :: [[Records.Icon]] -> Double -> Double -> [Records.PositionedIcon] -> [Records.PositionedIcon]
+abc' dependencyPlane x y currentlyPositionedIcons = foldr (\(i:is) acc ->
+  if Records.iconParentElem i currentlyPositionedIcons
+    then Records.PositionedIcon {
+      Records.icon = i,
+      Records.iconPositionX = x,
+      Records.iconPositionY = y } : acc
+    else acc) [] dependencyPlane
 
 ghi :: [Records.Icon] -> [Records.PositionedIcon] -> [[Records.Icon]]
 ghi icons positionedIcons = case result of
   [] -> []
   _ -> [result]
   where
-    result = filter (\x -> notIconElem x positionedIcons) icons
+    result = filter (\x -> Records.notIconElem x positionedIcons) icons
 
 def :: [[Records.Icon]] -> [Records.PositionedIcon] -> [[Records.Icon]]
 def dependencyPlane positionedIcons =

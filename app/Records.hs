@@ -80,8 +80,8 @@ getIconNamesOfDependentIcons Icon {
   iconNamesOfDependentIcons = x,
   iconKind = _ } = x
 
-getIconNamesOfDependentIcons' :: Icon -> [Icon] -> [String]
-getIconNamesOfDependentIcons' Icon {
+getIconNamesOfDependentIconsWithBlacklist :: Icon -> [Icon] -> [String]
+getIconNamesOfDependentIconsWithBlacklist Icon {
   iconName = _,
   iconDescription = _,
   iconNamesOfDependentIcons = names,
@@ -149,7 +149,7 @@ allDependentsOfAllDependents dependents allIcons = foldl (\acc singleDependent -
 allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
 allDependentsOfOneDependent icon allIcons butNotThese = dependents
   where
-    dependentNames = getIconNamesOfDependentIcons' icon butNotThese
+    dependentNames = getIconNamesOfDependentIconsWithBlacklist icon butNotThese
     dependents = reverse $ filter
       (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
       allIcons
@@ -222,6 +222,12 @@ getPositionedIconPositionY PositionedIcon {
   iconPositionX = _,
   iconPositionY = y } = y
 
+getPositionedIconNamesOfDependentIcons :: PositionedIcon -> [String]
+getPositionedIconNamesOfDependentIcons PositionedIcon {
+  icon = x,
+  iconPositionX = _,
+  iconPositionY = _ } = getIconNamesOfDependentIcons x
+
 getLastPositionedIconPositionX :: [PositionedIcon] -> Double
 getLastPositionedIconPositionX x = case x of
   [] -> 0
@@ -233,6 +239,12 @@ getDependentPositionedIcons PositionedIcon {
   iconPositionX = _,
   iconPositionY = _ } =
     filter (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
+
+iconParentElem :: Icon -> [PositionedIcon] -> Bool
+iconParentElem icon = any (\x -> any (\y -> y == getIconName icon) (getPositionedIconNamesOfDependentIcons x))
+
+notIconElem :: Icon -> [PositionedIcon] -> Bool
+notIconElem icon = all (\x -> getPositionedIconName x /= getIconName icon)
 
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =
