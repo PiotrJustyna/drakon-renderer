@@ -127,11 +127,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
               let firstColumn = LayoutEngine.abc dependencyPlane 0.0
               --print firstColumn
 
-              let newDependencyPlane = LayoutEngine.def dependencyPlane firstColumn
+              let newDependencyPlane = LayoutEngine.extractPositionedIcons dependencyPlane firstColumn
               --print newDependencyPlane
 
-              let secondColumn = LayoutEngine.abc' newDependencyPlane 1.0 0.0 firstColumn
-              print secondColumn
+              let firstAndSecondColumn = LayoutEngine.abc' newDependencyPlane (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
+              --print firstAndSecondColumn
 
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
@@ -139,14 +139,14 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
               System.IO.hClose handle
 
-              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstColumn
+              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstAndSecondColumn
 
 --              putStrLn "length:"
 --              print . length $ fst thisIsJustTemporary
 --              print $ fst thisIsJustTemporary 
 
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                Renderer.renderAllIcons firstColumn
+                Renderer.renderAllIcons firstAndSecondColumn
                 <>
                 snd thisIsJustTemporary
             _ -> do

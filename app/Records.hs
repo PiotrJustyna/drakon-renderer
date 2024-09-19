@@ -4,6 +4,7 @@ module Records where
 
 import qualified Control.Applicative
 import qualified Data.Aeson
+import qualified Data.List
 import qualified DataTypes
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
@@ -240,8 +241,9 @@ getDependentPositionedIcons PositionedIcon {
   iconPositionY = _ } =
     filter (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
 
-iconParentElem :: Icon -> [PositionedIcon] -> Bool
-iconParentElem icon = any (\x -> any (\y -> y == getIconName icon) (getPositionedIconNamesOfDependentIcons x))
+iconParentElem :: Icon -> [PositionedIcon] -> Maybe PositionedIcon
+iconParentElem icon positionedIcons =
+  Data.List.find (\x -> getIconName icon `elem` getPositionedIconNamesOfDependentIcons x) positionedIcons
 
 notIconElem :: Icon -> [PositionedIcon] -> Bool
 notIconElem icon = all (\x -> getPositionedIconName x /= getIconName icon)
