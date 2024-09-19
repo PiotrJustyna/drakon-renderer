@@ -31,7 +31,7 @@ abc [] _ = []
 abc (currentRow:remainingRows) y =
   case firstIconPositioned currentRow 0.0 y of
     Nothing -> abc remainingRows (y - iconHeight)
-    Just x -> x : abc remainingRows (y - iconHeight)
+    Just x -> x:abc remainingRows (y - iconHeight)
 
 -- todo1: y needs to change as we iterate
 -- todo2: we only take the first found icon which parent is already a positioned icon
@@ -48,16 +48,28 @@ abc' dependencyPlane x currentlyPositionedIcons = currentlyPositionedIcons ++ ne
         _ -> acc) (Nothing :: Maybe Records.PositionedIcon) dependencyPlane
     newPositionedIcons = case firstPositionedIcon  of
       Nothing -> []
-      Just newParent -> newParent : (firstLineDependents newParent dependencyPlane)
+      Just newParent -> newParent:(firstLineDependents newParent dependencyPlane)
 
 firstLineDependents :: Records.PositionedIcon -> [[Records.Icon]] -> [Records.PositionedIcon]
 firstLineDependents parent dependencyPlane =
-  map
-    (\i -> Records.PositionedIcon { Records.icon = i, Records.iconPositionX = x, Records.iconPositionY = y })
-    (map head (filter (\(i:_) -> Records.getIconName i `elem` namesOfDependentIcons) dependencyPlane))
+  case namesOfDependentIcons of
+  [] -> []
+  _ -> foldl (\acc (i:_) ->
+    if Records.getIconName i `elem` namesOfDependentIcons
+      then
+        let newPositionedIcon = toPositionedIconWithParent i parent
+        in newPositionedIcon:(firstLineDependents newPositionedIcon dependencyPlane) ++ acc
+      else acc) [] dependencyPlane
   where
-    -- if any dependents found...
     namesOfDependentIcons = Records.getPositionedIconNamesOfDependentIcons parent
+
+toPositionedIconWithParent :: Records.Icon -> Records.PositionedIcon -> Records.PositionedIcon
+toPositionedIconWithParent icon parent =
+  Records.PositionedIcon {
+    Records.icon = icon,
+    Records.iconPositionX = x,
+    Records.iconPositionY = y }
+  where
     x = Records.getPositionedIconPositionX parent
     y = (Records.getPositionedIconPositionY parent) - iconHeight
 
@@ -85,7 +97,7 @@ exploratoryCartesianPositioning x y n ns =
   (Records.PositionedIcon {
     Records.icon = Records.payload n,
     Records.iconPositionX = x,
-    Records.iconPositionY = y } : positionedDependentIcons, Records.getLastPositionedIconPositionX positionedDependentIcons)
+    Records.iconPositionY = y }:positionedDependentIcons, Records.getLastPositionedIconPositionX positionedDependentIcons)
   where
     dependentNodes = Records.nodesIdentifiedWithKeys ns $ Records.dependencies n
     positionedDependentIcons = cartesianPositioningOfDependentNodes x (y - iconHeight) dependentNodes ns
