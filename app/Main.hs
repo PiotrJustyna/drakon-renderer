@@ -127,11 +127,30 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
               let firstColumn = LayoutEngine.abc dependencyPlane 0.0
               --print firstColumn
 
-              let newDependencyPlane = LayoutEngine.extractPositionedIcons dependencyPlane firstColumn
-              --print newDependencyPlane
+              let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane dependencyPlane firstColumn
+              --print newDependencyPlane1
 
-              let firstAndSecondColumn = LayoutEngine.abc' newDependencyPlane (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
+              let secondColumn = LayoutEngine.abc' newDependencyPlane1 (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
+
+              let firstAndSecondColumn = firstColumn ++ secondColumn
               --print firstAndSecondColumn
+
+              -- start
+
+              let newDependencyPlane2 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane1) firstAndSecondColumn
+              --print newDependencyPlane2
+
+              let thirdColumn = LayoutEngine.abc' newDependencyPlane2 (LayoutEngine.iconWidth * 2.0 + LayoutEngine.spaceBetweenIconsX * 2.0) firstAndSecondColumn
+              --print thirdColumn
+
+              -- end
+
+              let newDependencyPlane3 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane2) (firstAndSecondColumn ++ thirdColumn)
+              --print newDependencyPlane3
+
+              let fourthColumn = LayoutEngine.abc' newDependencyPlane3 (LayoutEngine.iconWidth * 3.0 + LayoutEngine.spaceBetweenIconsX * 3.0) (firstAndSecondColumn ++ thirdColumn)
+
+              let firstSecondAndThirdAndFourthColumn = firstAndSecondColumn ++ thirdColumn ++ fourthColumn
 
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
@@ -139,14 +158,14 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
               System.IO.hClose handle
 
-              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstAndSecondColumn
+              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstSecondAndThirdAndFourthColumn
 
 --              putStrLn "length:"
 --              print . length $ fst thisIsJustTemporary
 --              print $ fst thisIsJustTemporary 
 
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                Renderer.renderAllIcons firstAndSecondColumn
+                Renderer.renderAllIcons firstSecondAndThirdAndFourthColumn
                 <>
                 snd thisIsJustTemporary
             _ -> do

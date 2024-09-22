@@ -1,4 +1,4 @@
-module LayoutEngine (cartesianPositioning, abc, abc', extractPositionedIcons, spaceBetweenIconsX, iconWidth) where
+module LayoutEngine (cartesianPositioning, abc, abc', reducedDependencyPlane, spaceBetweenIconsX, iconWidth) where
 
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
@@ -33,18 +33,15 @@ abc (currentRow:remainingRows) y =
     Nothing -> abc remainingRows (y - iconHeight)
     Just x -> x:abc remainingRows (y - iconHeight)
 
--- todo1: y needs to change as we iterate
--- todo2: we only take the first found icon which parent is already a positioned icon
--- todo3: we also want all first dependents of the first found icon
 abc' :: [[Records.Icon]] -> Double -> [Records.PositionedIcon] -> [Records.PositionedIcon]
-abc' dependencyPlane x currentlyPositionedIcons = currentlyPositionedIcons ++ newPositionedIcons
+abc' dependencyPlane x currentlyPositionedIcons = newPositionedIcons
   where
     firstPositionedIcon = foldl (\acc (i:_) ->
       case acc of
         Nothing ->
           case Records.iconParentElem i currentlyPositionedIcons of
             Nothing -> acc
-            Just parent -> Just Records.PositionedIcon { Records.icon = i, Records.iconPositionX = x, Records.iconPositionY = (Records.getPositionedIconPositionY parent) - iconHeight }
+            Just parent -> Just $ toPositionedIconWithParent' i parent x
         _ -> acc) (Nothing :: Maybe Records.PositionedIcon) dependencyPlane
     newPositionedIcons = case firstPositionedIcon  of
       Nothing -> []
@@ -73,17 +70,26 @@ toPositionedIconWithParent icon parent =
     x = Records.getPositionedIconPositionX parent
     y = (Records.getPositionedIconPositionY parent) - iconHeight
 
-ghi :: [Records.Icon] -> [Records.PositionedIcon] -> [[Records.Icon]]
-ghi icons positionedIcons =
+toPositionedIconWithParent' :: Records.Icon -> Records.PositionedIcon -> Double -> Records.PositionedIcon
+toPositionedIconWithParent' icon parent x =
+  Records.PositionedIcon {
+    Records.icon = icon,
+    Records.iconPositionX = x,
+    Records.iconPositionY = y }
+  where
+    y = (Records.getPositionedIconPositionY parent) - iconHeight
+
+reducedDependencyPlaneRow :: [Records.Icon] -> [Records.PositionedIcon] -> [[Records.Icon]]
+reducedDependencyPlaneRow icons positionedIcons =
   case result of
     [] -> []
     _ -> [result]
   where
     result = filter (\x -> Records.notIconElem x positionedIcons) icons
 
-extractPositionedIcons :: [[Records.Icon]] -> [Records.PositionedIcon] -> [[Records.Icon]]
-extractPositionedIcons dependencyPlane positionedIcons =
-  foldl (\acc singleRow -> (ghi singleRow positionedIcons) ++ acc) [] dependencyPlane
+reducedDependencyPlane :: [[Records.Icon]] -> [Records.PositionedIcon] -> [[Records.Icon]]
+reducedDependencyPlane dependencyPlane positionedIcons =
+  foldl (\acc singleRow -> (reducedDependencyPlaneRow singleRow positionedIcons) ++ acc) [] dependencyPlane
 
 cartesianPositioning :: GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Records.Icon) -> [Records.PositionedIcon]
 cartesianPositioning x =
