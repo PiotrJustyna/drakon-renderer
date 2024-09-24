@@ -6,9 +6,6 @@ import qualified Control.Applicative
 import qualified Data.Aeson
 import qualified Data.List
 import qualified DataTypes
-import qualified GHC.Data.FastString
-import qualified GHC.Data.Graph.Directed
-import qualified GHC.Utils.Outputable
 import qualified Options.Applicative
 
 --- DrakonRendererArguments -> --------------------------------------------------------------------
@@ -104,9 +101,6 @@ getIconKind Icon {
   iconNamesOfDependentIcons = _,
   iconKind = x } = x
 
-instance GHC.Utils.Outputable.Outputable Icon where
-    ppr = GHC.Utils.Outputable.text . show
-
 instance Data.Aeson.ToJSON Icon where
   toJSON (Icon name description namesOfDependentIcons kind) =
     Data.Aeson.object [
@@ -126,12 +120,17 @@ instance Data.Aeson.FromJSON Icon where
     Control.Applicative.empty
 
 instance Eq Icon where
-  (==) (Icon name1 description1 namesOfDependentIcons1 kind1) (Icon name2 description2 namesOfDependentIcons2 kind2) = name1 == name2
+  (==) (Icon name1 _ _ _) (Icon name2 _ _ _) = name1 == name2
 
-titleIcon :: [Icon] -> Icon
-titleIcon allIcons = head $ filter (\x -> case getIconKind x of
-  DataTypes.Title -> True
-  _ -> False) allIcons
+titleIcon :: [Icon] -> Maybe Icon
+titleIcon allIcons =
+  case titleIcons of
+    [] -> Nothing
+    (titleIcon:_) -> Just titleIcon
+  where
+    titleIcons = filter (\x -> case getIconKind x of
+      DataTypes.Title -> True
+      _ -> False) allIcons
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] uniqueIcons = []
@@ -154,40 +153,6 @@ allDependentsOfOneDependent icon allIcons butNotThese = dependents
     dependents = reverse $ filter
       (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
       allIcons
-
-directedGraph :: [Icon] -> GHC.Data.Graph.Directed.Graph (GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon)
-directedGraph icons =
-  GHC.Data.Graph.Directed.graphFromEdgedVerticesUniq nodes
-  where
-    nodes = [GHC.Data.Graph.Directed.DigraphNode {
-        GHC.Data.Graph.Directed.node_payload = singleIcon,
-        GHC.Data.Graph.Directed.node_key = GHC.Data.FastString.fsLit $ getIconName singleIcon,
-        GHC.Data.Graph.Directed.node_dependencies = GHC.Data.FastString.fsLit <$> getIconNamesOfDependentIcons singleIcon }
-        | singleIcon <- icons]
-
-payload :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> Icon
-payload
-  GHC.Data.Graph.Directed.DigraphNode {
-    GHC.Data.Graph.Directed.node_payload = i,
-    GHC.Data.Graph.Directed.node_key = _,
-    GHC.Data.Graph.Directed.node_dependencies = _ } = i
-
-key :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> GHC.Data.FastString.FastString
-key
-  GHC.Data.Graph.Directed.DigraphNode {
-    GHC.Data.Graph.Directed.node_payload = _,
-    GHC.Data.Graph.Directed.node_key = k,
-    GHC.Data.Graph.Directed.node_dependencies = _ } = k
-
-dependencies :: GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon -> [GHC.Data.FastString.FastString]
-dependencies
-  GHC.Data.Graph.Directed.DigraphNode {
-    GHC.Data.Graph.Directed.node_payload = _,
-    GHC.Data.Graph.Directed.node_key = _,
-    GHC.Data.Graph.Directed.node_dependencies = d } = d
-
-nodesIdentifiedWithKeys :: [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon] -> [GHC.Data.FastString.FastString] -> [GHC.Data.Graph.Directed.Node GHC.Data.FastString.FastString Icon]
-nodesIdentifiedWithKeys nodes = foldl (\acc x -> acc ++ filter (\y -> x == key y) nodes) []
 
 --- <- Icon ---------------------------------------------------------------------------------------
 

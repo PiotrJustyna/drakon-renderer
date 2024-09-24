@@ -9,8 +9,6 @@ import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
-import qualified GHC.Utils.Outputable
-import qualified GHC.Utils.Ppr
 import qualified LayoutEngine
 import qualified Options.Applicative
 import qualified Records
@@ -111,61 +109,25 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
           case validationErrors of
             [] -> do
-              let graph = Records.directedGraph icons
+              case Records.titleIcon icons of
+                Just titleIcon -> do
+                  let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
 
---              GHC.Utils.Outputable.printSDocLn
---                GHC.Utils.Outputable.defaultSDocContext
---                GHC.Utils.Ppr.LeftMode
---                System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
+                  let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
 
-              let positionedIcons' = LayoutEngine.cartesianPositioning graph
+                  handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
-              let titleIcon = Records.titleIcon icons
-              let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
-              -- --print dependencyPlane
+                  Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
-              -- let firstColumn = LayoutEngine.abc dependencyPlane 0.0
-              -- --print firstColumn
+                  System.IO.hClose handle
 
-              -- let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane dependencyPlane firstColumn
-              -- --print newDependencyPlane1
+                  let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
 
-              -- let secondColumn = LayoutEngine.abc' newDependencyPlane1 (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
-
-              -- let firstAndSecondColumn = firstColumn ++ secondColumn
-              -- --print firstAndSecondColumn
-
-              -- -- start
-
-              -- let newDependencyPlane2 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane1) firstAndSecondColumn
-              -- --print newDependencyPlane2
-
-              -- let thirdColumn = LayoutEngine.abc' newDependencyPlane2 (LayoutEngine.iconWidth * 2.0 + LayoutEngine.spaceBetweenIconsX * 2.0) firstAndSecondColumn
-              -- --print thirdColumn
-
-              -- -- end
-
-              -- let newDependencyPlane3 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane2) (firstAndSecondColumn ++ thirdColumn)
-              -- --print newDependencyPlane3
-
-              -- let fourthColumn = LayoutEngine.abc' newDependencyPlane3 (LayoutEngine.iconWidth * 3.0 + LayoutEngine.spaceBetweenIconsX * 3.0) (firstAndSecondColumn ++ thirdColumn)
-
-              -- let firstSecondAndThirdAndFourthColumn = firstAndSecondColumn ++ thirdColumn ++ fourthColumn
-
-              let positionedIcons = LayoutEngine.def dependencyPlane
-
-              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
-
-              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
-
-              System.IO.hClose handle
-
-              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
-
-              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                Renderer.renderAllIcons positionedIcons
-                <>
-                snd thisIsJustTemporary
+                  Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
+                    Renderer.renderAllIcons positionedIcons
+                    <>
+                    snd thisIsJustTemporary
+                Nothing -> putStrLn $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input."
             _ -> do
               let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
               putStrLn $ "Input validation did not succeed for following reasons:\n" ++ failureReasons

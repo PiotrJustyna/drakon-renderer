@@ -64,7 +64,6 @@ executable drakon-renderer
                         diagrams-lib,
                         diagrams-svg,
                         directory,
-                        ghc,
                         optparse-applicative,
                         pandoc,
                         text,
