@@ -1,3 +1,11 @@
+# 2024-09-24
+
+Just finished rewriting the layout algorithm. It took a while but it addresses the problem of removed icons still having effect on their (still present) dependents' positions.
+
+The process of rewriting that algorithm took a good degree of work and time, but as a bonus I was able to delete the ghc package as a dependency.
+
+Next steps: finish cleaning up hlint hints, correct connections where x1 > x2, make more progress with the real life diagram.
+
 # 2024-08-28
 
 SVG rendering is now finally connected with the process of deserialization and positioning. Very happy with the results so far. In the upcoming days I am planning to clean up how the diagrams look like and then to move on to connecting the rendered icons with lines adhering to drakon rules.
