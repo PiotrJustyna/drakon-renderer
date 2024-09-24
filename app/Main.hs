@@ -118,54 +118,52 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 --                GHC.Utils.Ppr.LeftMode
 --                System.IO.stdout . GHC.Utils.Outputable.ppr $ graph
 
-              let positionedIcons = LayoutEngine.cartesianPositioning graph
+              let positionedIcons' = LayoutEngine.cartesianPositioning graph
 
               let titleIcon = Records.titleIcon icons
               let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
-              --print dependencyPlane
+              -- --print dependencyPlane
 
-              let firstColumn = LayoutEngine.abc dependencyPlane 0.0
-              --print firstColumn
+              -- let firstColumn = LayoutEngine.abc dependencyPlane 0.0
+              -- --print firstColumn
 
-              let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane dependencyPlane firstColumn
-              --print newDependencyPlane1
+              -- let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane dependencyPlane firstColumn
+              -- --print newDependencyPlane1
 
-              let secondColumn = LayoutEngine.abc' newDependencyPlane1 (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
+              -- let secondColumn = LayoutEngine.abc' newDependencyPlane1 (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX) firstColumn
 
-              let firstAndSecondColumn = firstColumn ++ secondColumn
-              --print firstAndSecondColumn
+              -- let firstAndSecondColumn = firstColumn ++ secondColumn
+              -- --print firstAndSecondColumn
 
-              -- start
+              -- -- start
 
-              let newDependencyPlane2 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane1) firstAndSecondColumn
-              --print newDependencyPlane2
+              -- let newDependencyPlane2 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane1) firstAndSecondColumn
+              -- --print newDependencyPlane2
 
-              let thirdColumn = LayoutEngine.abc' newDependencyPlane2 (LayoutEngine.iconWidth * 2.0 + LayoutEngine.spaceBetweenIconsX * 2.0) firstAndSecondColumn
-              --print thirdColumn
+              -- let thirdColumn = LayoutEngine.abc' newDependencyPlane2 (LayoutEngine.iconWidth * 2.0 + LayoutEngine.spaceBetweenIconsX * 2.0) firstAndSecondColumn
+              -- --print thirdColumn
 
-              -- end
+              -- -- end
 
-              let newDependencyPlane3 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane2) (firstAndSecondColumn ++ thirdColumn)
-              --print newDependencyPlane3
+              -- let newDependencyPlane3 = LayoutEngine.reducedDependencyPlane (reverse newDependencyPlane2) (firstAndSecondColumn ++ thirdColumn)
+              -- --print newDependencyPlane3
 
-              let fourthColumn = LayoutEngine.abc' newDependencyPlane3 (LayoutEngine.iconWidth * 3.0 + LayoutEngine.spaceBetweenIconsX * 3.0) (firstAndSecondColumn ++ thirdColumn)
+              -- let fourthColumn = LayoutEngine.abc' newDependencyPlane3 (LayoutEngine.iconWidth * 3.0 + LayoutEngine.spaceBetweenIconsX * 3.0) (firstAndSecondColumn ++ thirdColumn)
 
-              let firstSecondAndThirdAndFourthColumn = firstAndSecondColumn ++ thirdColumn ++ fourthColumn
+              -- let firstSecondAndThirdAndFourthColumn = firstAndSecondColumn ++ thirdColumn ++ fourthColumn
+
+              let positionedIcons = LayoutEngine.def dependencyPlane
 
               handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
-              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty firstColumn)
+              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
 
               System.IO.hClose handle
 
-              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections firstSecondAndThirdAndFourthColumn
-
---              putStrLn "length:"
---              print . length $ fst thisIsJustTemporary
---              print $ fst thisIsJustTemporary 
+              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
 
               Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                Renderer.renderAllIcons firstSecondAndThirdAndFourthColumn
+                Renderer.renderAllIcons positionedIcons
                 <>
                 snd thisIsJustTemporary
             _ -> do

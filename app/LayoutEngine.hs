@@ -1,4 +1,4 @@
-module LayoutEngine (cartesianPositioning, abc, abc', reducedDependencyPlane, spaceBetweenIconsX, iconWidth) where
+module LayoutEngine (cartesianPositioning, abc, abc', def, reducedDependencyPlane, spaceBetweenIconsX, iconWidth) where
 
 import qualified GHC.Data.FastString
 import qualified GHC.Data.Graph.Directed
@@ -25,6 +25,20 @@ firstIconPositioned (i:_) x y = Just $ Records.PositionedIcon {
   Records.icon = i,
   Records.iconPositionX = x,
   Records.iconPositionY = y }
+
+def :: [[Records.Icon]] -> [Records.PositionedIcon]
+def [] = []
+def dependencyPlane = column ++ def' newDependencyPlane (iconWidth + spaceBetweenIconsX) column
+  where
+    column = abc dependencyPlane 0.0
+    newDependencyPlane = reducedDependencyPlane dependencyPlane column
+
+def' :: [[Records.Icon]] -> Double -> [Records.PositionedIcon] -> [Records.PositionedIcon]
+def' [] _ _ = []
+def' dependencyPlane x positionedIcons = column ++ def' newDependencyPlane (x + iconWidth + spaceBetweenIconsX) (column ++ positionedIcons)
+  where
+    column = abc' dependencyPlane x positionedIcons
+    newDependencyPlane = reverse $ reducedDependencyPlane dependencyPlane column
 
 abc :: [[Records.Icon]] -> Double -> [Records.PositionedIcon]
 abc [] _ = []
