@@ -1,6 +1,6 @@
 # 2024-09-24
 
-Just finished rewriting the layout algorithm. It took a while but it addresses the problem of removed icons still having effect on their (still present) dependents' positions.
+Just finished rewriting the layout algorithm. It took a while but it addresses the problem of the removed icons still having effect on their (still present) dependents' positions.
 
 The process of rewriting that algorithm took a good degree of work and time, but as a bonus I was able to delete the ghc package as a dependency.
 
