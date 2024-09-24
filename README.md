@@ -44,31 +44,6 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 ## output
 
-* a pretty printed directed graph sent to stdout, resulting from deserializing input icons:
-
-```
-Vertices:
-(Icon {iconName = "1", iconDescription = "hello world title", iconNamesOfDependentIcons = ["2"], iconKind = Title}, 1, [2])
-(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4])
-(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7])
-(Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8])
-(Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8])
-(Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8])
-(Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8])
-(Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
-Edges:
-(Icon {iconName = "1", iconDescription = "hello world title", iconNamesOfDependentIcons = ["2"], iconKind = Title}, 1, [2]) -> (Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4])
-(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4]) -> (Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7])
-(Icon {iconName = "2", iconDescription = "hello world icon 2", iconNamesOfDependentIcons = ["3","4"], iconKind = Action}, 2, [3, 4]) -> (Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8])
-(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8])
-(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8])
-(Icon {iconName = "3", iconDescription = "hello world icon 3", iconNamesOfDependentIcons = ["5","6","7"], iconKind = Action}, 3, [5, 6, 7]) -> (Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8])
-(Icon {iconName = "4", iconDescription = "hello world icon 4", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 4, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
-(Icon {iconName = "5", iconDescription = "hello world icon 5", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 5, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
-(Icon {iconName = "6", iconDescription = "hello world icon 6", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 6, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
-(Icon {iconName = "7", iconDescription = "hello world icon 7", iconNamesOfDependentIcons = ["8"], iconKind = Action}, 7, [8]) -> (Icon {iconName = "8", iconDescription = "hello world end", iconNamesOfDependentIcons = [], iconKind = End}, 8, [])
-```
-
 * a serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
 
 ```json
@@ -110,9 +85,7 @@ Edges:
 
 1. read serialized collection of `Icon`s & deserialize
 
-2. translate `Icon`s to a directed graph so they can be layed out on a cartesian plane
-
-3. validate Icons (only one title icon per diagram, correct numbers of dependencies, etc.) - sample input validation:
+2. validate Icons (only one title icon per diagram, correct numbers of dependencies, etc.) - sample validation:
 
     ```
     Input validation did not succeed for following reasons:
@@ -121,21 +94,21 @@ Edges:
     * Error: Diagram is required to have exactly one icon of kind "Title". Hint: Make sure your input diagram contains an icon of kind "Title" and that it is the only icon of that kind.
     ```
 
-4. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
+3. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
 
     * positive integer x coordinates only
 
     * negative integer y coordinates only
 
-5. serialize the product (`[PositionedIcon]`) to a file where:
+4. serialize the product (`[PositionedIcon]`) to a file where:
 
     * input: `file.json`
 
     * output: `file-drakon-layout.json`
 
-6. Render the collection of `PositionedIcon`s into the final svg diagram.
+5. Render the collection of `PositionedIcon`s into the final svg diagram.
 
-7. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
+6. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 
