@@ -126,14 +126,14 @@ titleIcon :: [Icon] -> Maybe Icon
 titleIcon allIcons =
   case titleIcons of
     [] -> Nothing
-    (titleIcon:_) -> Just titleIcon
+    (x:_) -> Just x
   where
     titleIcons = filter (\x -> case getIconKind x of
       DataTypes.Title -> True
       _ -> False) allIcons
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
-removeDuplicates [] uniqueIcons = []
+removeDuplicates [] _ = []
 removeDuplicates (singleRow:remainingRows) uniqueIcons = removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
   where
     newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
@@ -147,9 +147,9 @@ allDependentsOfAllDependents :: [Icon] -> [Icon] -> [Icon]
 allDependentsOfAllDependents dependents allIcons = foldl (\acc singleDependent -> acc ++ allDependentsOfOneDependent singleDependent allIcons acc) [] dependents
 
 allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
-allDependentsOfOneDependent icon allIcons butNotThese = dependents
+allDependentsOfOneDependent parent allIcons butNotThese = dependents
   where
-    dependentNames = getIconNamesOfDependentIconsWithBlacklist icon butNotThese
+    dependentNames = getIconNamesOfDependentIconsWithBlacklist parent butNotThese
     dependents = reverse $ filter
       (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
       allIcons
@@ -207,11 +207,10 @@ getDependentPositionedIcons PositionedIcon {
     filter (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
 
 iconParentElem :: Icon -> [PositionedIcon] -> Maybe PositionedIcon
-iconParentElem icon positionedIcons =
-  Data.List.find (\x -> getIconName icon `elem` getPositionedIconNamesOfDependentIcons x) positionedIcons
+iconParentElem childIcon = Data.List.find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
 
 notIconElem :: Icon -> [PositionedIcon] -> Bool
-notIconElem icon = all (\x -> getPositionedIconName x /= getIconName icon)
+notIconElem x = all (\y -> getPositionedIconName y /= getIconName x)
 
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =

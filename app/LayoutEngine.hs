@@ -58,7 +58,7 @@ positionIcons' dependencyPlane x currentlyPositionedIcons = newPositionedIcons
             _ -> acc) (Nothing :: Maybe Records.PositionedIcon) dependencyPlane
     newPositionedIcons = case firstPositionedIcon  of
       Nothing -> []
-      Just newParent -> newParent:(firstLineDependents newParent dependencyPlane)
+      Just newParent -> newParent : firstLineDependents newParent dependencyPlane
 
 firstLineDependents :: Records.PositionedIcon -> [[Records.Icon]] -> [Records.PositionedIcon]
 firstLineDependents parent dependencyPlane =
@@ -68,11 +68,10 @@ firstLineDependents parent dependencyPlane =
     case iconsRow of
       [] -> acc
       (i:_) ->
-        case Records.getIconName i `elem` namesOfDependentIcons of
-          True ->
-            let newPositionedIcon = toPositionedIconWithParent i parent
-            in newPositionedIcon:(firstLineDependents newPositionedIcon dependencyPlane) ++ acc
-          False -> acc) [] dependencyPlane
+        if Records.getIconName i `elem` namesOfDependentIcons then
+          let newPositionedIcon = toPositionedIconWithParent i parent
+          in newPositionedIcon : firstLineDependents newPositionedIcon dependencyPlane ++ acc
+        else acc) [] dependencyPlane
   where
     namesOfDependentIcons = Records.getPositionedIconNamesOfDependentIcons parent
 
@@ -84,7 +83,7 @@ toPositionedIconWithParent icon parent =
     Records.iconPositionY = y }
   where
     x = Records.getPositionedIconPositionX parent
-    y = (Records.getPositionedIconPositionY parent) - iconHeight
+    y = Records.getPositionedIconPositionY parent - iconHeight
 
 toPositionedIconWithParent' :: Records.Icon -> Records.PositionedIcon -> Double -> Records.PositionedIcon
 toPositionedIconWithParent' icon parent x =
@@ -93,7 +92,7 @@ toPositionedIconWithParent' icon parent x =
     Records.iconPositionX = x,
     Records.iconPositionY = y }
   where
-    y = (Records.getPositionedIconPositionY parent) - iconHeight
+    y = Records.getPositionedIconPositionY parent - iconHeight
 
 reducedDependencyPlaneRow :: [Records.Icon] -> [Records.PositionedIcon] -> [[Records.Icon]]
 reducedDependencyPlaneRow icons positionedIcons =
@@ -101,8 +100,8 @@ reducedDependencyPlaneRow icons positionedIcons =
     [] -> []
     _ -> [result]
   where
-    result = filter (\x -> Records.notIconElem x positionedIcons) icons
+    result = filter (`Records.notIconElem` positionedIcons) icons
 
 reducedDependencyPlane :: [[Records.Icon]] -> [Records.PositionedIcon] -> [[Records.Icon]]
 reducedDependencyPlane dependencyPlane positionedIcons =
-  foldl (\acc singleRow -> (reducedDependencyPlaneRow singleRow positionedIcons) ++ acc) [] dependencyPlane
+  foldl (\acc singleRow -> reducedDependencyPlaneRow singleRow positionedIcons ++ acc) [] dependencyPlane
