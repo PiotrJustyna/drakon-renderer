@@ -1,5 +1,6 @@
 module Renderer where
 
+import qualified Data.Bifunctor
 import qualified Data.Colour.SRGB
 import qualified Data.Text
 import qualified DataTypes
@@ -99,7 +100,7 @@ alternativeRenderSingleConnection
 alternativeRenderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 alternativeRenderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
 alternativeRenderConnections parent (d:ds) allPositionedIcons coordinatesOfTakenLines =
-  (fst dsResult,snd dResult <> snd dsResult)
+  Data.Bifunctor.second (snd dResult <>) dsResult
   where
     dResult   = alternativeRenderSingleConnection parent d allPositionedIcons coordinatesOfTakenLines
     dsResult  = alternativeRenderConnections parent ds allPositionedIcons (fst dResult)
@@ -107,7 +108,7 @@ alternativeRenderConnections parent (d:ds) allPositionedIcons coordinatesOfTaken
 alternativeRenderAllConnections' :: [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 alternativeRenderAllConnections' [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
 alternativeRenderAllConnections' (p:ps) allParents coordinatesOfTakenLines =
-  (fst psResult, snd pResult <> snd psResult)
+  Data.Bifunctor.second (snd pResult <>) psResult
   where
     pResult   = alternativeRenderConnections p (Records.getDependentPositionedIcons p allParents) allParents coordinatesOfTakenLines
     psResult  = alternativeRenderAllConnections' ps allParents (fst pResult)
