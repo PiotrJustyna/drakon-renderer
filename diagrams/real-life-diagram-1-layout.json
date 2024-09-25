@@ -63,16 +63,6 @@
     },
     {
         "icon": {
-            "iconDescription": "The end",
-            "iconKind": "End",
-            "iconName": "100",
-            "iconNamesOfDependentIcons": []
-        },
-        "iconPositionX": 0,
-        "iconPositionY": -5
-    },
-    {
-        "icon": {
             "iconDescription": "remove alternative",
             "iconKind": "Question",
             "iconName": "7",
@@ -81,7 +71,7 @@
                 "8"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 0,
         "iconPositionY": -5
     },
     {
@@ -93,7 +83,17 @@
                 "100"
             ]
         },
-        "iconPositionX": 2,
+        "iconPositionX": 0,
         "iconPositionY": -6
+    },
+    {
+        "icon": {
+            "iconDescription": "The end",
+            "iconKind": "End",
+            "iconName": "100",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -7
     }
 ]
