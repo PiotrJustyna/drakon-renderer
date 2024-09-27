@@ -49,16 +49,16 @@ positionIcons' dependencyPlane x currentlyPositionedIcons = newPositionedIcons
     firstPositionedIcon = foldl (\acc iconsRow ->
       case iconsRow of
         [] -> acc
-        (i:_) ->
-          case acc of
-            Nothing ->
-              case Records.iconParentElem i currentlyPositionedIcons of
-                Nothing -> acc
-                Just parent -> Just $ toPositionedIconWithParent' i parent x
-            _ -> acc) (Nothing :: Maybe Records.PositionedIcon) dependencyPlane
+        icons ->
+          case Records.lowestParentAndItsIcon icons currentlyPositionedIcons of
+            Nothing -> acc
+            Just (lowestParent, itsIcon) -> (toPositionedIconWithParent' itsIcon lowestParent x) : acc) ([] :: [Records.PositionedIcon]) dependencyPlane
     newPositionedIcons = case firstPositionedIcon  of
-      Nothing -> []
-      Just newParent -> newParent : firstLineDependents newParent dependencyPlane
+      [] -> []
+      newParents ->
+        case Records.lowest newParents of
+          Nothing -> (head newParents) : firstLineDependents (head newParents) dependencyPlane
+          Just lowestParent -> lowestParent : firstLineDependents lowestParent dependencyPlane
 
 firstLineDependents :: Records.PositionedIcon -> [[Records.Icon]] -> [Records.PositionedIcon]
 firstLineDependents parent dependencyPlane =

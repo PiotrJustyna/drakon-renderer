@@ -118,18 +118,28 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                   -- let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : allDependents)) []
                   let dependencyPlane = reverse $ Records.removeDuplicates' ([titleIcon] : allDependents) []
 
-                  --let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
-                  let positionedIcons1 = LayoutEngine.positionIcons dependencyPlane 0.0
+                  let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
+                  -- let positionedIcons1 = LayoutEngine.positionIcons dependencyPlane 0.0
 
-                  let newDependencyPlane = LayoutEngine.reducedDependencyPlane dependencyPlane positionedIcons1
+                  -- let newDependencyPlane = LayoutEngine.reducedDependencyPlane dependencyPlane positionedIcons1
 
-                  print "new dependency plane:"
-                  print newDependencyPlane
+                  -- print "new dependency plane:"
+                  -- print newDependencyPlane
 
-                  let positionedIcons = LayoutEngine.positionIcons' newDependencyPlane (1.0 + 1.0) positionedIcons1
+                  -- let positionedIcons = LayoutEngine.positionIcons' newDependencyPlane (1.0 + 1.0) positionedIcons1
 
-                  print "new positioned icons:"
-                  print positionedIcons
+                  -- print "new positioned icons:"
+                  -- print positionedIcons
+
+                  -- let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane newDependencyPlane (positionedIcons ++ positionedIcons1)
+
+                  -- print "new dependency plane 1:"
+                  -- print newDependencyPlane1
+
+                  -- let positionedIcons2 = LayoutEngine.positionIcons' newDependencyPlane1 (2.0 + 1.0) (positionedIcons1 ++ positionedIcons)
+
+                  -- print "new positioned icons:"
+                  -- print positionedIcons2
 
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 

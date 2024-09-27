@@ -216,8 +216,23 @@ getDependentPositionedIcons PositionedIcon {
 iconParentElem :: Icon -> [PositionedIcon] -> Maybe PositionedIcon
 iconParentElem childIcon = Data.List.find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
 
+lowestParentAndItsIcon :: [Icon] -> [PositionedIcon] -> Maybe (PositionedIcon, Icon)
+lowestParentAndItsIcon childrenIcons positionedIcons = foldl (\acc x -> case iconParentElem x positionedIcons of
+  Nothing -> acc
+  Just parent -> case acc of
+    Nothing -> Just (parent, x)
+    Just (currentLowestParent, itsIcon) ->
+      if getPositionedIconPositionY parent < getPositionedIconPositionY currentLowestParent
+        then Just (parent, x)
+        else Just (currentLowestParent, itsIcon)) Nothing childrenIcons
+
 notIconElem :: Icon -> [PositionedIcon] -> Bool
 notIconElem x = all (\y -> getPositionedIconName y /= getIconName x)
+
+lowest :: [PositionedIcon] -> Maybe PositionedIcon
+lowest = foldl (\acc x -> case acc of
+  Nothing -> Just x
+  Just currentLowest -> Just $ if getPositionedIconPositionY x < getPositionedIconPositionY currentLowest then x else currentLowest) Nothing
 
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =
