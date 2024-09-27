@@ -138,6 +138,13 @@ removeDuplicates (singleRow:remainingRows) uniqueIcons = removeDuplicates remain
   where
     newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
 
+removeDuplicates' :: [[Icon]] -> [Icon] -> [[Icon]]
+removeDuplicates' [] _ = []
+removeDuplicates' (singleRow:remainingRows) uniqueIcons =
+  removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
+  where
+    newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
+
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
   [] -> []

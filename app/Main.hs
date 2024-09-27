@@ -111,9 +111,25 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
             [] -> do
               case Records.titleIcon icons of
                 Just titleIcon -> do
-                  let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : Records.allDependents [titleIcon] icons)) []
+                  let allDependents = Records.allDependents [titleIcon] icons
 
-                  let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
+                  --print allDependents
+
+                  -- let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : allDependents)) []
+                  let dependencyPlane = reverse $ Records.removeDuplicates' ([titleIcon] : allDependents) []
+
+                  --let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
+                  let positionedIcons1 = LayoutEngine.positionIcons dependencyPlane 0.0
+
+                  let newDependencyPlane = LayoutEngine.reducedDependencyPlane dependencyPlane positionedIcons1
+
+                  print "new dependency plane:"
+                  print newDependencyPlane
+
+                  let positionedIcons = LayoutEngine.positionIcons' newDependencyPlane (1.0 + 1.0) positionedIcons1
+
+                  print "new positioned icons:"
+                  print positionedIcons
 
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 

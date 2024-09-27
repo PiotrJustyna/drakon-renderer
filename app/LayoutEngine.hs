@@ -1,4 +1,4 @@
-module LayoutEngine (positionDependencyPlanes) where
+module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane) where
 
 import qualified Records
 
