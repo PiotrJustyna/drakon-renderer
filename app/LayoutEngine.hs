@@ -1,4 +1,4 @@
-module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane) where
+module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath) where
 
 import qualified Records
 
@@ -10,6 +10,12 @@ iconHeight = 1.0
 
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
+
+firstPath :: Records.Icon -> [Records.Icon] -> [Records.Icon]
+firstPath currentIcon allIcons =
+    case Records.allDependents' currentIcon allIcons of
+      [] -> []
+      (d:ds) -> [d] ++ firstPath d allIcons
 
 firstIconPositioned :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
 firstIconPositioned [] _ _    = Nothing

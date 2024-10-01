@@ -72,28 +72,5 @@
         },
         "iconPositionX": 0,
         "iconPositionY": -5
-    },
-    {
-        "icon": {
-            "iconDescription": "The end",
-            "iconKind": "End",
-            "iconName": "100",
-            "iconNamesOfDependentIcons": []
-        },
-        "iconPositionX": 2,
-        "iconPositionY": -5
-    },
-    {
-        "icon": {
-            "iconDescription": "remove brain",
-            "iconKind": "Question",
-            "iconName": "6",
-            "iconNamesOfDependentIcons": [
-                "100",
-                "7"
-            ]
-        },
-        "iconPositionX": 4,
-        "iconPositionY": -3
     }
 ]

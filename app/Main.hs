@@ -111,15 +111,25 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
             [] -> do
               case Records.titleIcon icons of
                 Just titleIcon -> do
+                  let titleIconDependents = LayoutEngine.firstPath titleIcon icons
+                  -- let titleIconDependents2 = LayoutEngine.firstPath (head titleIconDependents1) icons
+                  -- let titleIconDependents3 = LayoutEngine.firstPath (head titleIconDependents2) icons
+                  -- let titleIconDependents4 = LayoutEngine.firstPath (head titleIconDependents3) icons
+                  -- let titleIconDependents5 = LayoutEngine.firstPath (head titleIconDependents4) icons
+
+                  -- let alldeps = Records.allDependents' (head titleIconDependents4) icons
+                  -- print $ "all deps of " ++ show (head titleIconDependents4) ++ ": " ++ show titleIconDependents5
+
+                  print "titleIconDependents:"
+                  print titleIconDependents
+
                   let allDependents = Records.allDependents [titleIcon] icons
+                  let dependencyPlane = reverse $ Records.removeDuplicates ([titleIcon] : allDependents) []
+                  -- let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
+                  let positionedIcons = LayoutEngine.positionIcons dependencyPlane 0.0
 
-                  --print allDependents
-
-                  -- let dependencyPlane = Records.removeDuplicates (reverse ([titleIcon] : allDependents)) []
-                  let dependencyPlane = reverse $ Records.removeDuplicates' ([titleIcon] : allDependents) []
-
-                  let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
-                  -- let positionedIcons1 = LayoutEngine.positionIcons dependencyPlane 0.0
+                  --print "positioned icons:"
+                  --print positionedIcons
 
                   -- let newDependencyPlane = LayoutEngine.reducedDependencyPlane dependencyPlane positionedIcons1
 

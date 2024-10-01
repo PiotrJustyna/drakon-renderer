@@ -134,16 +134,18 @@ titleIcon allIcons =
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] _ = []
-removeDuplicates (singleRow:remainingRows) uniqueIcons = removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
-  where
-    newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
-
-removeDuplicates' :: [[Icon]] -> [Icon] -> [[Icon]]
-removeDuplicates' [] _ = []
-removeDuplicates' (singleRow:remainingRows) uniqueIcons =
+removeDuplicates (singleRow:remainingRows) uniqueIcons =
   removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
   where
     newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
+
+allDependents' :: Icon -> [Icon] -> [Icon]
+allDependents' parent allIcons = foldl (\acc x ->
+  case Data.List.find (\singleIcon -> x == getIconName singleIcon) allIcons of
+    Nothing -> acc
+    Just dependentIcon -> acc ++ [dependentIcon]) [] dependentNames
+  where
+    dependentNames = getIconNamesOfDependentIcons parent
 
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
