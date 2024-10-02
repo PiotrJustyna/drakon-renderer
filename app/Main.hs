@@ -112,16 +112,40 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
               case Records.titleIcon icons of
                 Just titleIcon -> do
                   let titleIconDependents = LayoutEngine.firstPath titleIcon icons
-                  -- let titleIconDependents2 = LayoutEngine.firstPath (head titleIconDependents1) icons
-                  -- let titleIconDependents3 = LayoutEngine.firstPath (head titleIconDependents2) icons
-                  -- let titleIconDependents4 = LayoutEngine.firstPath (head titleIconDependents3) icons
-                  -- let titleIconDependents5 = LayoutEngine.firstPath (head titleIconDependents4) icons
-
-                  -- let alldeps = Records.allDependents' (head titleIconDependents4) icons
-                  -- print $ "all deps of " ++ show (head titleIconDependents4) ++ ": " ++ show titleIconDependents5
 
                   print "titleIconDependents:"
-                  print titleIconDependents
+                  print ((Records.toPositionedIcon titleIcon 0.0 0.0) : titleIconDependents)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                   let allDependents = Records.allDependents [titleIcon] icons
                   let dependencyPlane = reverse $ Records.removeDuplicates ([titleIcon] : allDependents) []

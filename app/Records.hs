@@ -236,6 +236,13 @@ lowest = foldl (\acc x -> case acc of
   Nothing -> Just x
   Just currentLowest -> Just $ if getPositionedIconPositionY x < getPositionedIconPositionY currentLowest then x else currentLowest) Nothing
 
+toPositionedIcon :: Icon -> Double -> Double -> PositionedIcon
+toPositionedIcon icon x y =
+  PositionedIcon {
+    icon = icon,
+    iconPositionX = x,
+    iconPositionY = y }
+
 instance Data.Aeson.ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =
     Data.Aeson.object [
