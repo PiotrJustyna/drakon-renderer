@@ -1,4 +1,4 @@
-module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath) where
+module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath, firstToContainUnpositionedDependents) where
 
 import qualified Records
 
@@ -20,6 +20,23 @@ firstPath parent allIcons =
     x = Records.getPositionedIconPositionX parent
     y = Records.getPositionedIconPositionY parent
     positionedDependentIcon icon = Records.toPositionedIcon icon x (y - iconHeight)
+
+firstToContainUnpositionedDependents :: [Records.PositionedIcon] -> Maybe Records.PositionedIcon
+firstToContainUnpositionedDependents positionedIcons =
+  foldr (\singlePositionedIcon acc ->
+    case acc of
+      Nothing -> case containsUnpositionedDependents singlePositionedIcon positionedIcons of
+        True -> Just singlePositionedIcon
+        False -> Nothing
+      a -> a) Nothing positionedIcons
+
+containsUnpositionedDependents :: Records.PositionedIcon -> [Records.PositionedIcon] -> Bool
+containsUnpositionedDependents x allPositionedIcons = any (\singleName -> abc singleName allPositionedIcons) names
+  where
+    names = Records.getPositionedIconNamesOfDependentIcons x
+
+abc :: String -> [Records.PositionedIcon] -> Bool
+abc iconName = any (\x -> iconName == Records.getPositionedIconName x)
 
 firstIconPositioned :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
 firstIconPositioned [] _ _    = Nothing

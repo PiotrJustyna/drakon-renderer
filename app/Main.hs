@@ -115,9 +115,13 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                   let titleIconDependents = LayoutEngine.firstPath positionedTitleIcon icons
                   let positionedIcons  = positionedTitleIcon : titleIconDependents
 
+                  case LayoutEngine.firstToContainUnpositionedDependents positionedIcons of
+                    Nothing -> print "finished rendering!"
+                    Just parent -> print parent
 
-
-
+                  -- TODO:
+                  -- something like firstPath but one that does not take the first found dependent
+                  -- but the first found dependent that is not yet positioned
 
 
 
