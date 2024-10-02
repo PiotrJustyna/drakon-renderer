@@ -139,13 +139,13 @@ removeDuplicates (singleRow:remainingRows) uniqueIcons =
   where
     newUniqueIcons = foldl (\acc x -> if x `notElem` uniqueIcons then x:acc else acc) [] singleRow
 
-allDependents' :: Icon -> [Icon] -> [Icon]
+allDependents' :: PositionedIcon -> [Icon] -> [Icon]
 allDependents' parent allIcons = foldl (\acc x ->
   case Data.List.find (\singleIcon -> x == getIconName singleIcon) allIcons of
     Nothing -> acc
     Just dependentIcon -> acc ++ [dependentIcon]) [] dependentNames
   where
-    dependentNames = getIconNamesOfDependentIcons parent
+    dependentNames = getIconNamesOfDependentIcons $ getIcon parent
 
 allDependents :: [Icon] -> [Icon] -> [[Icon]]
 allDependents subset allIcons = case allDependentsOfAllDependents subset allIcons of
@@ -178,6 +178,12 @@ data PositionedIcon = PositionedIcon {
   iconPositionX     :: Double,
   iconPositionY     :: Double }
     deriving (Show)
+
+getIcon :: PositionedIcon -> Icon
+getIcon PositionedIcon {
+  icon = x,
+  iconPositionX = _,
+  iconPositionY = _ } = x
 
 getPositionedIconName :: PositionedIcon -> String
 getPositionedIconName PositionedIcon {

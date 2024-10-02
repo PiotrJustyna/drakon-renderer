@@ -11,11 +11,15 @@ iconHeight = 1.0
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
 
-firstPath :: Records.Icon -> [Records.Icon] -> [Records.PositionedIcon]
-firstPath currentIcon allIcons =
-    case Records.allDependents' currentIcon allIcons of
-      [] -> []
-      (d:ds) -> (Records.toPositionedIcon d 13.0 13.0) : firstPath d allIcons
+firstPath :: Records.PositionedIcon -> [Records.Icon] -> [Records.PositionedIcon]
+firstPath parent allIcons =
+  case Records.allDependents' parent allIcons of
+    [] -> []
+    (d:ds) -> (positionedDependentIcon d) : firstPath (positionedDependentIcon d) allIcons
+  where
+    x = Records.getPositionedIconPositionX parent
+    y = Records.getPositionedIconPositionY parent
+    positionedDependentIcon icon = Records.toPositionedIcon icon x (y - iconHeight)
 
 firstIconPositioned :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
 firstIconPositioned [] _ _    = Nothing

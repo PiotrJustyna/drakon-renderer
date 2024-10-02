@@ -50,12 +50,12 @@
     },
     {
         "icon": {
-            "iconDescription": "remove alternative",
+            "iconDescription": "remove brain",
             "iconKind": "Question",
-            "iconName": "7",
+            "iconName": "6",
             "iconNamesOfDependentIcons": [
                 "100",
-                "8"
+                "7"
             ]
         },
         "iconPositionX": 0,
@@ -63,12 +63,10 @@
     },
     {
         "icon": {
-            "iconDescription": "embalm",
-            "iconKind": "Action",
-            "iconName": "8",
-            "iconNamesOfDependentIcons": [
-                "100"
-            ]
+            "iconDescription": "The end",
+            "iconKind": "End",
+            "iconName": "100",
+            "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
         "iconPositionY": -5
