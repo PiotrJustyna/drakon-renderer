@@ -1,4 +1,4 @@
-module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath, firstToContainUnpositionedDependents) where
+module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath, firstToContainUnpositionedDependents, firstPath', iconWidth, spaceBetweenIconsX) where
 
 import qualified Records
 
@@ -21,6 +21,25 @@ firstPath parent allIcons =
     y = Records.getPositionedIconPositionY parent
     positionedDependentIcon icon = Records.toPositionedIcon icon x (y - iconHeight)
 
+firstPath' :: Records.PositionedIcon -> Double -> [Records.Icon] -> [Records.PositionedIcon] -> [Records.PositionedIcon]
+firstPath' parent newX allIcons allPositionedIcons =
+  case Records.allDependents' parent allIcons of
+    [] -> []
+    dependents -> case def dependents allPositionedIcons of
+      Nothing -> []
+      Just d -> (positionedDependentIcon d) : firstPath' (positionedDependentIcon d) newX allIcons allPositionedIcons
+  where
+    y = Records.getPositionedIconPositionY parent
+    positionedDependentIcon icon = Records.toPositionedIcon icon newX (y - iconHeight)
+
+def :: [Records.Icon] -> [Records.PositionedIcon] -> Maybe Records.Icon
+def dependents allPositionedIcons =
+  foldl (\acc x -> case acc of
+    Nothing -> case abc (Records.getIconName x) allPositionedIcons of
+      True -> Just x
+      False -> acc
+    _ -> acc) Nothing dependents
+
 firstToContainUnpositionedDependents :: [Records.PositionedIcon] -> Maybe Records.PositionedIcon
 firstToContainUnpositionedDependents positionedIcons =
   foldr (\singlePositionedIcon acc ->
@@ -31,12 +50,14 @@ firstToContainUnpositionedDependents positionedIcons =
       a -> a) Nothing positionedIcons
 
 containsUnpositionedDependents :: Records.PositionedIcon -> [Records.PositionedIcon] -> Bool
-containsUnpositionedDependents x allPositionedIcons = any (\singleName -> abc singleName allPositionedIcons) names
+containsUnpositionedDependents x allPositionedIcons = case names of
+  [] -> False
+  otherwise -> any (\singleName -> abc singleName allPositionedIcons) names
   where
     names = Records.getPositionedIconNamesOfDependentIcons x
 
 abc :: String -> [Records.PositionedIcon] -> Bool
-abc iconName = any (\x -> iconName == Records.getPositionedIconName x)
+abc iconName = all (\x -> iconName /= Records.getPositionedIconName x)
 
 firstIconPositioned :: [Records.Icon] -> Double -> Double -> Maybe Records.PositionedIcon
 firstIconPositioned [] _ _    = Nothing

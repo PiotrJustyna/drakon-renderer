@@ -70,5 +70,30 @@
         },
         "iconPositionX": 0,
         "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "remove alternative",
+            "iconKind": "Question",
+            "iconName": "7",
+            "iconNamesOfDependentIcons": [
+                "100",
+                "8"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "embalm",
+            "iconKind": "Action",
+            "iconName": "8",
+            "iconNamesOfDependentIcons": [
+                "100"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -6
     }
 ]

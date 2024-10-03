@@ -115,79 +115,51 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                   let titleIconDependents = LayoutEngine.firstPath positionedTitleIcon icons
                   let positionedIcons  = positionedTitleIcon : titleIconDependents
 
+                  print "positioned icons:"
+                  print positionedIcons
+
                   case LayoutEngine.firstToContainUnpositionedDependents positionedIcons of
                     Nothing -> print "finished rendering!"
-                    Just parent -> print parent
+                    Just parent -> do
+                      let newX = (Records.getPositionedIconPositionX parent) + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
+                      let newDependents = LayoutEngine.firstPath' parent newX icons positionedIcons
 
-                  -- TODO:
-                  -- something like firstPath but one that does not take the first found dependent
-                  -- but the first found dependent that is not yet positioned
+                      case LayoutEngine.firstToContainUnpositionedDependents (positionedIcons ++ newDependents) of
+                        Nothing -> print "finished rendering!"
+                        Just parent' -> do
+                          let newX' = (Records.getPositionedIconPositionX parent') + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
+                          let newDependents' = LayoutEngine.firstPath' parent' newX' icons (positionedIcons ++ newDependents)
+                          print "parent'"
+                          print parent'
 
+                          print "new positioned icons:"
+                          print newDependents'
 
+                          case LayoutEngine.firstToContainUnpositionedDependents (positionedIcons ++ newDependents ++ newDependents') of
+                            Nothing -> print "finished rendering!"
+                            Just parent'' -> do
+                              let newX'' = (Records.getPositionedIconPositionX parent'') + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
+                              let newDependents'' = LayoutEngine.firstPath' parent'' newX'' icons (positionedIcons ++ newDependents ++ newDependents')
+                              print "parent''"
+                              print parent''
 
+                              print "new positioned icons:"
+                              print newDependents''
 
+                              let refreshedPositionedIcons = positionedIcons ++ newDependents ++ newDependents' ++ newDependents''
 
+                              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
+                              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
 
+                              System.IO.hClose handle
 
+                              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections refreshedPositionedIcons
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  ---let allDependents = Records.allDependents [titleIcon] icons
-                  ---let dependencyPlane = reverse $ Records.removeDuplicates ([titleIcon] : allDependents) []
-                  -- let positionedIcons = LayoutEngine.positionDependencyPlanes dependencyPlane
-                  ---let positionedIcons = LayoutEngine.positionIcons dependencyPlane 0.0
-
-                  --print "positioned icons:"
-                  --print positionedIcons
-
-                  -- let newDependencyPlane = LayoutEngine.reducedDependencyPlane dependencyPlane positionedIcons1
-
-                  -- print "new dependency plane:"
-                  -- print newDependencyPlane
-
-                  -- let positionedIcons = LayoutEngine.positionIcons' newDependencyPlane (1.0 + 1.0) positionedIcons1
-
-                  -- print "new positioned icons:"
-                  -- print positionedIcons
-
-                  -- let newDependencyPlane1 = LayoutEngine.reducedDependencyPlane newDependencyPlane (positionedIcons ++ positionedIcons1)
-
-                  -- print "new dependency plane 1:"
-                  -- print newDependencyPlane1
-
-                  -- let positionedIcons2 = LayoutEngine.positionIcons' newDependencyPlane1 (2.0 + 1.0) (positionedIcons1 ++ positionedIcons)
-
-                  -- print "new positioned icons:"
-                  -- print positionedIcons2
-
-                  handle <- System.IO.openFile textOutputPath System.IO.WriteMode
-
-                  Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty positionedIcons)
-
-                  System.IO.hClose handle
-
-                  let thisIsJustTemporary = Renderer.alternativeRenderAllConnections positionedIcons
-
-                  Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                    Renderer.renderAllIcons positionedIcons
-                    <>
-                    snd thisIsJustTemporary
+                              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
+                                Renderer.renderAllIcons refreshedPositionedIcons
+                                <>
+                                snd thisIsJustTemporary
                 Nothing -> putStrLn $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input."
             _ -> do
               let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors

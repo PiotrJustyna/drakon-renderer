@@ -5,7 +5,7 @@ cabal run drakon-renderer -- \
     --textOutputPath "./diagrams/real-life-diagram-1-layout.json" \
     --svgOutputPath "./diagrams/real-life-diagram-1.svg"
 
-# cabal run drakon-renderer -- \
-#    --textInputPath "./diagrams/drakon-diagram.json" \
-#    --textOutputPath "./diagrams/drakon-diagram-layout.json" \
-#    --svgOutputPath "./diagrams/drakon-diagram.svg"
+cabal run drakon-renderer -- \
+   --textInputPath "./diagrams/drakon-diagram.json" \
+   --textOutputPath "./diagrams/drakon-diagram-layout.json" \
+   --svgOutputPath "./diagrams/drakon-diagram.svg"
