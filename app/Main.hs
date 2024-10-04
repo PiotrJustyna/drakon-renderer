@@ -111,11 +111,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
             [] -> do
               case Records.titleIcon icons of
                 Just titleIcon -> do
-                  let positionedTitleIcon = Records.toPositionedIcon titleIcon 0.0 0.0
-                  let titleIconDependents = LayoutEngine.firstPath positionedTitleIcon icons
-                  let positionedIcons  = positionedTitleIcon : titleIconDependents
-
-                  let refreshedPositionedIcons = positionedIcons ++ LayoutEngine.xyz positionedIcons icons (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX)
+                  let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
 
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
