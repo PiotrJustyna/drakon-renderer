@@ -54,12 +54,72 @@
             "iconKind": "Question",
             "iconName": "6",
             "iconNamesOfDependentIcons": [
-                "100",
+                "8",
                 "7"
             ]
         },
         "iconPositionX": 0,
         "iconPositionY": -4
+    },
+    {
+        "icon": {
+            "iconDescription": "remove the brain",
+            "iconKind": "Action",
+            "iconName": "8",
+            "iconNamesOfDependentIcons": [
+                "9"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "place brain",
+            "iconKind": "Action",
+            "iconName": "9",
+            "iconNamesOfDependentIcons": [
+                "10"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -6
+    },
+    {
+        "icon": {
+            "iconDescription": "freeze brain",
+            "iconKind": "Action",
+            "iconName": "10",
+            "iconNamesOfDependentIcons": [
+                "11"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -7
+    },
+    {
+        "icon": {
+            "iconDescription": "embalm 1",
+            "iconKind": "Action",
+            "iconName": "11",
+            "iconNamesOfDependentIcons": [
+                "12"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -8
+    },
+    {
+        "icon": {
+            "iconDescription": "transport Finland",
+            "iconKind": "Address",
+            "iconName": "12",
+            "iconNamesOfDependentIcons": [
+                "100"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -9
     },
     {
         "icon": {
@@ -69,7 +129,7 @@
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
-        "iconPositionY": -5
+        "iconPositionY": -10
     },
     {
         "icon": {
@@ -77,8 +137,8 @@
             "iconKind": "Question",
             "iconName": "7",
             "iconNamesOfDependentIcons": [
-                "100",
-                "8"
+                "8",
+                "13"
             ]
         },
         "iconPositionX": 2,
@@ -86,14 +146,51 @@
     },
     {
         "icon": {
-            "iconDescription": "embalm",
+            "iconDescription": "embalm 2",
             "iconKind": "Action",
-            "iconName": "8",
+            "iconName": "13",
+            "iconNamesOfDependentIcons": [
+                "14"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -6
+    },
+    {
+        "icon": {
+            "iconDescription": "Czech transit",
+            "iconKind": "Question",
+            "iconName": "14",
+            "iconNamesOfDependentIcons": [
+                "15",
+                "16"
+            ]
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -7
+    },
+    {
+        "icon": {
+            "iconDescription": "transport Czech",
+            "iconKind": "Address",
+            "iconName": "15",
             "iconNamesOfDependentIcons": [
                 "100"
             ]
         },
         "iconPositionX": 2,
-        "iconPositionY": -6
+        "iconPositionY": -8
+    },
+    {
+        "icon": {
+            "iconDescription": "transport Moscow",
+            "iconKind": "Address",
+            "iconName": "16",
+            "iconNamesOfDependentIcons": [
+                "100"
+            ]
+        },
+        "iconPositionX": 4,
+        "iconPositionY": -8
     }
 ]
