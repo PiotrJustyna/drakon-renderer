@@ -37,7 +37,7 @@
         "iconKind": "Question",
         "iconName": "6",
         "iconNamesOfDependentIcons": [
-            "100",
+            "8",
             "7"
         ]
     },
@@ -46,14 +46,79 @@
         "iconKind": "Question",
         "iconName": "7",
         "iconNamesOfDependentIcons": [
-            "100",
-            "8"
+            "8",
+            "13"
         ]
     },
     {
-        "iconDescription": "embalm",
+        "iconDescription": "remove the brain",
         "iconKind": "Action",
         "iconName": "8",
+        "iconNamesOfDependentIcons": [
+            "9"
+        ]
+    },
+    {
+        "iconDescription": "place brain",
+        "iconKind": "Action",
+        "iconName": "9",
+        "iconNamesOfDependentIcons": [
+            "10"
+        ]
+    },
+    {
+        "iconDescription": "freeze brain",
+        "iconKind": "Action",
+        "iconName": "10",
+        "iconNamesOfDependentIcons": [
+            "11"
+        ]
+    },
+    {
+        "iconDescription": "embalm 1",
+        "iconKind": "Action",
+        "iconName": "11",
+        "iconNamesOfDependentIcons": [
+            "12"
+        ]
+    },
+    {
+        "iconDescription": "transport Finland",
+        "iconKind": "Address",
+        "iconName": "12",
+        "iconNamesOfDependentIcons": [
+            "100"
+        ]
+    },
+    {
+        "iconDescription": "embalm 2",
+        "iconKind": "Action",
+        "iconName": "13",
+        "iconNamesOfDependentIcons": [
+            "14"
+        ]
+    },
+    {
+        "iconDescription": "Czech transit",
+        "iconKind": "Question",
+        "iconName": "14",
+        "iconNamesOfDependentIcons": [
+            "15",
+            "16"
+        ]
+    },
+    {
+        "iconDescription": "transport Czech",
+        "iconKind": "Address",
+        "iconName": "15",
+        "iconNamesOfDependentIcons": [
+            "100"
+        ]
+    },
+    {
+        "iconDescription": "transport Moscow",
+        "iconKind": "Address",
+        "iconName": "16",
         "iconNamesOfDependentIcons": [
             "100"
         ]
