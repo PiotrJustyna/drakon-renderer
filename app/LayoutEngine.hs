@@ -23,7 +23,7 @@ firstPath :: Records.PositionedIcon -> [Records.Icon] -> [Records.PositionedIcon
 firstPath parent allIcons =
   case Records.allDependents' parent allIcons of
     [] -> []
-    (d:ds) -> (positionedDependentIcon d) : firstPath (positionedDependentIcon d) allIcons
+    (d:_) -> positionedDependentIcon d : firstPath (positionedDependentIcon d) allIcons
   where
     x = Records.getPositionedIconPositionX parent
     y = Records.getPositionedIconPositionY parent
@@ -35,7 +35,7 @@ firstPath' parent newX allIcons allPositionedIcons =
     [] -> []
     dependents -> case firstUnpositionedDependent dependents allPositionedIcons of
       Nothing -> []
-      Just d -> (positionedDependentIcon d) : firstPath' (positionedDependentIcon d) newX allIcons allPositionedIcons
+      Just d -> positionedDependentIcon d : firstPath' (positionedDependentIcon d) newX allIcons allPositionedIcons
   where
     y = Records.getPositionedIconPositionY parent
     positionedDependentIcon icon = Records.toPositionedIcon icon newX (y - iconHeight)
@@ -43,34 +43,29 @@ firstPath' parent newX allIcons allPositionedIcons =
 firstUnpositionedDependent :: [Records.Icon] -> [Records.PositionedIcon] -> Maybe Records.Icon
 firstUnpositionedDependent dependents allPositionedIcons =
   foldl (\acc x -> case acc of
-    Nothing -> case doesNotContainName (Records.getIconName x) allPositionedIcons of
-      True -> Just x
-      False -> acc
+    Nothing -> (if doesNotContainName (Records.getIconName x) allPositionedIcons then Just x else acc)
     _ -> acc) Nothing dependents
 
 nextColumn :: [Records.PositionedIcon] -> [Records.Icon] -> Double -> [Records.PositionedIcon]
 nextColumn positionedIcons icons newX = case firstToContainUnpositionedDependents positionedIcons of
   Nothing -> []
   Just parent ->
-    let newDependents = (firstPath' parent newX icons positionedIcons)
-    in newDependents ++ (nextColumn (positionedIcons ++ newDependents) icons (newX + iconWidth + spaceBetweenIconsX))
+    let newDependents = firstPath' parent newX icons positionedIcons
+    in newDependents ++ nextColumn (positionedIcons ++ newDependents) icons (newX + iconWidth + spaceBetweenIconsX)
 
 firstToContainUnpositionedDependents :: [Records.PositionedIcon] -> Maybe Records.PositionedIcon
 firstToContainUnpositionedDependents positionedIcons =
-  foldr (\singlePositionedIcon acc ->
+  foldr (\x acc ->
     case acc of
-      Nothing -> case containsUnpositionedDependents singlePositionedIcon positionedIcons of
-        True -> Just singlePositionedIcon
-        False -> Nothing
+      Nothing -> (if containsUnpositionedDependents x positionedIcons then Just x else Nothing)
       a -> a) Nothing positionedIcons
 
 containsUnpositionedDependents :: Records.PositionedIcon -> [Records.PositionedIcon] -> Bool
 containsUnpositionedDependents x allPositionedIcons = case names of
   [] -> False
-  otherwise -> any (\singleName -> doesNotContainName singleName allPositionedIcons) names
+  _ -> any (`doesNotContainName` allPositionedIcons) names
   where
     names = Records.getPositionedIconNamesOfDependentIcons x
 
 doesNotContainName :: String -> [Records.PositionedIcon] -> Bool
 doesNotContainName iconName = all (\x -> iconName /= Records.getPositionedIconName x)
-
