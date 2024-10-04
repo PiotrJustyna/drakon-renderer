@@ -1,4 +1,4 @@
-module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath, firstToContainUnpositionedDependents, firstPath', iconWidth, spaceBetweenIconsX) where
+module LayoutEngine (positionDependencyPlanes, positionIcons, positionIcons', reducedDependencyPlane, firstPath, firstToContainUnpositionedDependents, firstPath', iconWidth, spaceBetweenIconsX, xyz) where
 
 import qualified Records
 
@@ -39,6 +39,13 @@ def dependents allPositionedIcons =
       True -> Just x
       False -> acc
     _ -> acc) Nothing dependents
+
+xyz :: [Records.PositionedIcon] -> [Records.Icon] -> Double -> [Records.PositionedIcon]
+xyz positionedIcons icons newX = case firstToContainUnpositionedDependents positionedIcons of
+  Nothing -> []
+  Just parent ->
+    let newDependents = (firstPath' parent newX icons positionedIcons)
+    in newDependents ++ (xyz (positionedIcons ++ newDependents) icons (newX + iconWidth + spaceBetweenIconsX))
 
 firstToContainUnpositionedDependents :: [Records.PositionedIcon] -> Maybe Records.PositionedIcon
 firstToContainUnpositionedDependents positionedIcons =

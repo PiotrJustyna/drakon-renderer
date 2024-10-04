@@ -115,51 +115,20 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                   let titleIconDependents = LayoutEngine.firstPath positionedTitleIcon icons
                   let positionedIcons  = positionedTitleIcon : titleIconDependents
 
-                  print "positioned icons:"
-                  print positionedIcons
+                  let refreshedPositionedIcons = positionedIcons ++ LayoutEngine.xyz positionedIcons icons (LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX)
 
-                  case LayoutEngine.firstToContainUnpositionedDependents positionedIcons of
-                    Nothing -> print "finished rendering!"
-                    Just parent -> do
-                      let newX = (Records.getPositionedIconPositionX parent) + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
-                      let newDependents = LayoutEngine.firstPath' parent newX icons positionedIcons
+                  handle <- System.IO.openFile textOutputPath System.IO.WriteMode
 
-                      case LayoutEngine.firstToContainUnpositionedDependents (positionedIcons ++ newDependents) of
-                        Nothing -> print "finished rendering!"
-                        Just parent' -> do
-                          let newX' = (Records.getPositionedIconPositionX parent') + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
-                          let newDependents' = LayoutEngine.firstPath' parent' newX' icons (positionedIcons ++ newDependents)
-                          print "parent'"
-                          print parent'
+                  Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
 
-                          print "new positioned icons:"
-                          print newDependents'
+                  System.IO.hClose handle
 
-                          case LayoutEngine.firstToContainUnpositionedDependents (positionedIcons ++ newDependents ++ newDependents') of
-                            Nothing -> print "finished rendering!"
-                            Just parent'' -> do
-                              let newX'' = (Records.getPositionedIconPositionX parent'') + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX + LayoutEngine.iconWidth + LayoutEngine.spaceBetweenIconsX
-                              let newDependents'' = LayoutEngine.firstPath' parent'' newX'' icons (positionedIcons ++ newDependents ++ newDependents')
-                              print "parent''"
-                              print parent''
+                  let thisIsJustTemporary = Renderer.alternativeRenderAllConnections refreshedPositionedIcons
 
-                              print "new positioned icons:"
-                              print newDependents''
-
-                              let refreshedPositionedIcons = positionedIcons ++ newDependents ++ newDependents' ++ newDependents''
-
-                              handle <- System.IO.openFile textOutputPath System.IO.WriteMode
-
-                              Data.ByteString.Lazy.hPutStr handle (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
-
-                              System.IO.hClose handle
-
-                              let thisIsJustTemporary = Renderer.alternativeRenderAllConnections refreshedPositionedIcons
-
-                              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
-                                Renderer.renderAllIcons refreshedPositionedIcons
-                                <>
-                                snd thisIsJustTemporary
+                  Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
+                    Renderer.renderAllIcons refreshedPositionedIcons
+                    <>
+                    snd thisIsJustTemporary
                 Nothing -> putStrLn $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input."
             _ -> do
               let failureReasons = foldl (\acc (validationError, hint) -> acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n") "" validationErrors
