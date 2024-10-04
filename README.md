@@ -79,7 +79,7 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 * an svg diagram:
 
-![](./diagrams/drakon-diagram.svg)
+![](./diagrams/real-life-diagram-1.svg)
 
 ## method
 
