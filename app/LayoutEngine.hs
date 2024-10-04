@@ -73,3 +73,4 @@ containsUnpositionedDependents x allPositionedIcons = case names of
 
 doesNotContainName :: String -> [Records.PositionedIcon] -> Bool
 doesNotContainName iconName = all (\x -> iconName /= Records.getPositionedIconName x)
+
