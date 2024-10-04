@@ -15,11 +15,11 @@ name:               drakon-renderer
 -- PVP summary:     +-+------- breaking API changes
 --                  | | +----- non-breaking API additions
 --                  | | | +--- code changes with no API change
-version:            0.1.0.0
+version:            0.1.1.0
 
-synopsis:           string -> svg drakon diagram
+synopsis:           drakon diagrams renderer
 
-description:        Drakon diagrams renderer.
+description:        string -> svg drakon diagrams renderer
 
 homepage:           https://github.com/PiotrJustyna/drakon-renderer
 

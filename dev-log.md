@@ -1,3 +1,7 @@
+# 2024-10-04
+
+It feels like I made substantial progress in recent days when it comes to layout algorithm. I have just finished implementing yet another version of it and I'm pretty happy with it's current shape. Plan for immediate future is to continue with real life drakon diagrams and also to clean up connections between positioned icons.
+
 # 2024-09-24
 
 Just finished rewriting the layout algorithm. It took a while but it addresses the problem of the removed icons still having effect on their (still present) dependents' positions.
