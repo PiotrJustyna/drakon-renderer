@@ -119,7 +119,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
 
                   System.IO.hClose handle
 
-                  let thisIsJustTemporary = Renderer.alternativeRenderAllConnections refreshedPositionedIcons
+                  let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
 
                   Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions $
                     Renderer.renderAllIcons refreshedPositionedIcons

@@ -243,9 +243,9 @@ lowest = foldl (\acc x -> case acc of
   Just currentLowest -> Just $ if getPositionedIconPositionY x < getPositionedIconPositionY currentLowest then x else currentLowest) Nothing
 
 toPositionedIcon :: Icon -> Double -> Double -> PositionedIcon
-toPositionedIcon icon x y =
+toPositionedIcon i x y =
   PositionedIcon {
-    icon = icon,
+    icon = i,
     iconPositionX = x,
     iconPositionY = y }
 
