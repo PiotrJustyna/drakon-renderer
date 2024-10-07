@@ -1,0 +1,41 @@
+[
+    {
+        "iconDescription": "Work out",
+        "iconKind": "Title",
+        "iconName": "1",
+        "iconNamesOfDependentIcons": [
+            "2"
+        ]
+    },
+    {
+        "iconDescription": "Warm up",
+        "iconKind": "Action",
+        "iconName": "2",
+        "iconNamesOfDependentIcons": [
+            "3"
+        ]
+    },
+    {
+        "iconDescription": "Tired?",
+        "iconKind": "Question",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": [
+            "4",
+            "5"
+        ]
+    },
+    {
+        "iconDescription": "End",
+        "iconKind": "End",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": []
+    },
+    {
+        "iconDescription": "Lift the weight",
+        "iconKind": "Action",
+        "iconName": "5",
+        "iconNamesOfDependentIcons": [
+            "3"
+        ]
+    }
+]

@@ -65,7 +65,10 @@ startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [Records.Posit
 startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
   | x1 == x2  = (x1, y1) : (if iconClash then [(x1 + iconWidth, y1), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
   | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
-  | otherwise = [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+  | otherwise =
+    if y1 < y2
+      then [(x1, y1), (x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+      else [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
   where
     iconClash = any (\positionedIcon ->
       x1 == Records.getPositionedIconPositionX positionedIcon &&
