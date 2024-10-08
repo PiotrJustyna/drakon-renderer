@@ -64,24 +64,52 @@ text content translateX translateY =
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
 
-startToFinishWaypoints :: (Double, Double) -> (Double, Double) -> [Records.PositionedIcon] -> [(Double, Double)]
+startToFinishWaypoints ::
+  (Double, Double) ->
+  (Double, Double) ->
+  [Records.PositionedIcon] ->
+  ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
-  | x1 == x2  = (x1, y1) : (if iconClash then [(x1 + iconWidth, y1), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
-  | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
+  | x1 == x2  =
+    let waypoints = (x1, y1) : (if iconClash then [(x1 + iconWidth, y1), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
+    in (waypoints, renderedConnection waypoints)
+  | x1 < x2   =
+    let waypoints = [(x1, y1), (x2, y1), (x2, y2)]
+    in (waypoints, renderedConnection waypoints)
   | otherwise =
     if y1 < y2
-      then [
-        (x1, y1),
-        (x1, y1 - iconHeight),
-        (x1 + iconWidth, y1 - iconHeight),
-        (x1 + iconWidth, y2 + iconHeight),
-        (x2, y2 + iconHeight)]
-      else [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+      then
+        let waypoints = [(x1, y1), (x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight)]
+        in
+          (waypoints,
+          (renderedConnection waypoints) <>
+          (Diagrams.Prelude.rotateBy (1/4) $ Diagrams.Prelude.triangle 0.1)
+          Diagrams.Prelude.#
+          -- 0.087:   from Pythegorean theorem
+          -- 0.0165:  from line width?
+          Diagrams.Prelude.translate (Diagrams.Prelude.r2 (x2 + (0.087) / 2.0 + 0.0165, y2 + iconHeight))
+          Diagrams.Prelude.#
+          Diagrams.Prelude.lc lineColour
+          Diagrams.Prelude.#
+          Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+          Diagrams.Prelude.#
+          Diagrams.Prelude.fc fillColour)
+      else
+        let waypoints = [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+        in (waypoints, renderedConnection waypoints)
   where
     iconClash = any (\positionedIcon ->
       x1 == Records.getPositionedIconPositionX positionedIcon &&
       y1 > Records.getPositionedIconPositionY positionedIcon &&
       y2 < Records.getPositionedIconPositionY positionedIcon) positionedIcons
+
+renderedConnection :: [(Double, Double)] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderedConnection coordinatesOfNewLine =
+  (Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
+  Diagrams.Prelude.#
+  Diagrams.Prelude.lc lineColour
+  Diagrams.Prelude.#
+  Diagrams.Prelude.lw Diagrams.Prelude.veryThin)
 
 renderSingleConnection ::
   Records.PositionedIcon ->
@@ -101,18 +129,9 @@ renderSingleConnection
   positionedIcons
   coordinatesOfTakenLines = (coordinatesOfNewLine:coordinatesOfTakenLines, renderedNewLine)
   where
-    coordinatesOfNewLine = startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
-    renderedNewLine = (Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
-      Diagrams.Prelude.#
-      Diagrams.Prelude.lc lineColour
-      Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.veryThin)
-      -- <>
-      -- (Diagrams.Prelude.rotateBy (1/4) $ Diagrams.Prelude.triangle 1)
-      -- Diagrams.Prelude.#
-      -- Diagrams.Prelude.translate (Diagrams.Prelude.r2 (x2, y2))
-      -- Diagrams.Prelude.#
-      -- Diagrams.Prelude.fc fillColour
+    coordinatesOfNewLine = fst waypoints
+    renderedNewLine = snd waypoints
+    waypoints = startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
 
 renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 renderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
