@@ -144,3 +144,9 @@ You can see into the bigger ideas I have for the project (past, present, future)
   * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
 
   * [GHC.Utils.Outputable](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Utils-Outputable.html)
+
+* if you struggle with `.git` permissions, try:
+
+  ```
+  sudo chown -R yourusername .git
+  ```

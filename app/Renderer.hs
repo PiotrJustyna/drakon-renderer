@@ -64,12 +64,12 @@ text content translateX translateY =
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z = if any (\(x2, y2) -> x1 == x2 && y1 == y2) z then z else (x1, y1):z
 
-startToFinishWaypoints ::
+connection ::
   (Double, Double) ->
   (Double, Double) ->
   [Records.PositionedIcon] ->
   ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
+connection (x1, y1) (x2, y2) positionedIcons
   | x1 == x2  =
     let waypoints = (x1, y1) : (if iconClash then [(x1 + iconWidth, y1), (x1 + iconWidth, y2 + iconHeight), (x1, y2 + iconHeight)] else []) ++ [(x2, y2)]
     in (waypoints, renderedConnection waypoints)
@@ -82,12 +82,12 @@ startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
         let waypoints = [(x1, y1), (x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight)]
         in
           (waypoints,
-          (renderedConnection waypoints) <>
-          (Diagrams.Prelude.rotateBy (1/4) $ Diagrams.Prelude.triangle 0.1)
+          renderedConnection waypoints <>
+          Diagrams.Prelude.rotateBy (1/4) (Diagrams.Prelude.triangle 0.1)
           Diagrams.Prelude.#
           -- 0.087:   from Pythegorean theorem
           -- 0.0165:  from line width?
-          Diagrams.Prelude.translate (Diagrams.Prelude.r2 (x2 + (0.087) / 2.0 + 0.0165, y2 + iconHeight))
+          Diagrams.Prelude.translate (Diagrams.Prelude.r2 (x2 + 0.087 / 2.0 + 0.0165, y2 + iconHeight))
           Diagrams.Prelude.#
           Diagrams.Prelude.lc lineColour
           Diagrams.Prelude.#
@@ -105,11 +105,11 @@ startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
 
 renderedConnection :: [(Double, Double)] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
 renderedConnection coordinatesOfNewLine =
-  (Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
+  Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
   Diagrams.Prelude.#
   Diagrams.Prelude.lc lineColour
   Diagrams.Prelude.#
-  Diagrams.Prelude.lw Diagrams.Prelude.veryThin)
+  Diagrams.Prelude.lw Diagrams.Prelude.veryThin
 
 renderSingleConnection ::
   Records.PositionedIcon ->
@@ -129,9 +129,9 @@ renderSingleConnection
   positionedIcons
   coordinatesOfTakenLines = (coordinatesOfNewLine:coordinatesOfTakenLines, renderedNewLine)
   where
-    coordinatesOfNewLine = fst waypoints
-    renderedNewLine = snd waypoints
-    waypoints = startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
+    coordinatesOfNewLine = fst connectionInfo
+    renderedNewLine = snd connectionInfo
+    connectionInfo = connection (x1, y1) (x2, y2) positionedIcons
 
 renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 renderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
