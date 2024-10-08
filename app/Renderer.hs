@@ -26,6 +26,9 @@ iconHeight = 0.5
 lineColour :: Diagrams.Prelude.Colour Double
 lineColour = Data.Colour.SRGB.sRGB (34.0/255.0) (69.0/255.0) (57.0/255.0)
 
+fillColour :: Diagrams.Prelude.Colour Double
+fillColour = lineColour
+
 titleIconColour :: Diagrams.Prelude.Colour Double
 titleIconColour = Data.Colour.SRGB.sRGB (69.0/255.0) (173.0/255.0) (127.0/255.0)
 
@@ -67,7 +70,12 @@ startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
   | x1 < x2   = [(x1, y1), (x2, y1), (x2, y2)]
   | otherwise =
     if y1 < y2
-      then [(x1, y1), (x1, y1 - iconHeight), (x1 + iconWidth, y1 - iconHeight), (x1 + iconWidth, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+      then [
+        (x1, y1),
+        (x1, y1 - iconHeight),
+        (x1 + iconWidth, y1 - iconHeight),
+        (x1 + iconWidth, y2 + iconHeight),
+        (x2, y2 + iconHeight)]
       else [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
   where
     iconClash = any (\positionedIcon ->
@@ -94,11 +102,17 @@ renderSingleConnection
   coordinatesOfTakenLines = (coordinatesOfNewLine:coordinatesOfTakenLines, renderedNewLine)
   where
     coordinatesOfNewLine = startToFinishWaypoints (x1, y1) (x2, y2) positionedIcons
-    renderedNewLine = Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
+    renderedNewLine = (Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
       Diagrams.Prelude.#
       Diagrams.Prelude.lc lineColour
       Diagrams.Prelude.#
-      Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+      Diagrams.Prelude.lw Diagrams.Prelude.veryThin)
+      -- <>
+      -- (Diagrams.Prelude.rotateBy (1/4) $ Diagrams.Prelude.triangle 1)
+      -- Diagrams.Prelude.#
+      -- Diagrams.Prelude.translate (Diagrams.Prelude.r2 (x2, y2))
+      -- Diagrams.Prelude.#
+      -- Diagrams.Prelude.fc fillColour
 
 renderConnections :: Records.PositionedIcon -> [Records.PositionedIcon] -> [Records.PositionedIcon] -> [[(Double, Double)]] -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
 renderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
