@@ -125,6 +125,8 @@ You can see into the bigger ideas I have for the project (past, present, future)
 
 ## resources
 
+*[drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf)
+
 * [drakon wiki](https://en.m.wikipedia.org/wiki/DRAKON)
 
 * [drakon](https://drakonhub.com/read/docs)
