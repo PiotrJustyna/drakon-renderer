@@ -10,6 +10,11 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 * `Question` - branching step with two possible outcomes:
   * yes
   * no
+* Headline
+* Address
+* Cap
+* Primitive
+* Silhouette
 
 [source 1 - wikipedia](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
 
@@ -125,7 +130,7 @@ You can see into the bigger ideas I have for the project (past, present, future)
 
 ## resources
 
-*[drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf)
+* [drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf)
 
 * [drakon wiki](https://en.m.wikipedia.org/wiki/DRAKON)
 
