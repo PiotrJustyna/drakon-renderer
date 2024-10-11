@@ -34,24 +34,35 @@ firstPath' parent newX allIcons allPositionedIcons =
   case Records.allDependents' parent allIcons of
     [] -> []
     dependents -> case firstUnpositionedDependent dependents allPositionedIcons of
-      Nothing -> []
-      Just d -> positionedDependentIcon d : firstPath' (positionedDependentIcon d) newX allIcons allPositionedIcons
+      (_, Nothing) -> []
+      (index, Just d) ->
+        (positionedDependentIcon d index) : firstPath' (positionedDependentIcon d index) (updatedNewX index) allIcons allPositionedIcons
   where
     y = Records.getPositionedIconPositionY parent
-    positionedDependentIcon icon = Records.toPositionedIcon icon newX (y - iconHeight)
+    updatedNewX index = newX + (index * (iconWidth + (spaceBetweenIconsX * 0.5)))
+    positionedDependentIcon icon index = Records.toPositionedIcon icon (updatedNewX index) (y - iconHeight)
 
-firstUnpositionedDependent :: [Records.Icon] -> [Records.PositionedIcon] -> Maybe Records.Icon
+firstUnpositionedDependent :: [Records.Icon] -> [Records.PositionedIcon] -> (Double, Maybe Records.Icon)
 firstUnpositionedDependent dependents allPositionedIcons =
   foldl (\acc x -> case acc of
-    Nothing -> (if doesNotContainName (Records.getIconName x) allPositionedIcons then Just x else acc)
-    _ -> acc) Nothing dependents
+    (index, Nothing) ->
+      (if doesNotContainName (Records.getIconName x) allPositionedIcons
+        then (index, Just x)
+        else (index + 1.0, Nothing))
+    _ -> acc) (0.0, Nothing) dependents
 
 nextColumn :: [Records.PositionedIcon] -> [Records.Icon] -> Double -> [Records.PositionedIcon]
 nextColumn positionedIcons icons newX = case firstToContainUnpositionedDependents positionedIcons of
   Nothing -> []
   Just parent ->
-    let newDependents = firstPath' parent newX icons positionedIcons
+    let newDependents = case Records.allDependents' parent icons of
+                              [] -> []
+                              dependents -> case firstUnpositionedDependent dependents positionedIcons of
+                                (_, Nothing) -> []
+                                (_, Just d) -> positionedDependentIcon d parent : firstPath' (positionedDependentIcon d parent) newX icons positionedIcons
     in newDependents ++ nextColumn (positionedIcons ++ newDependents) icons (newX + iconWidth + spaceBetweenIconsX)
+  where
+    positionedDependentIcon icon parent = Records.toPositionedIcon icon newX ((Records.getPositionedIconPositionY parent) - iconHeight)
 
 firstToContainUnpositionedDependents :: [Records.PositionedIcon] -> Maybe Records.PositionedIcon
 firstToContainUnpositionedDependents positionedIcons =
