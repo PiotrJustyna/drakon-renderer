@@ -94,9 +94,13 @@ connection (x1, y1) (x2, y2) positionedIcons
           Diagrams.Prelude.lw Diagrams.Prelude.veryThin
           Diagrams.Prelude.#
           Diagrams.Prelude.fc fillColour)
-      else
-        let waypoints = [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
-        in (waypoints, renderedConnection waypoints)
+      else if y1 == y2
+        then
+          let waypoints = [(x1, y1), (x1, y1 - iconHeight), (x1 - iconWidth, y1 - iconHeight), (x1 - iconWidth, y2 + iconHeight), (x2, y2 + iconHeight)]
+          in (waypoints, renderedConnection waypoints)
+        else
+          let waypoints = [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
+          in (waypoints, renderedConnection waypoints)
   where
     iconClash = any (\positionedIcon ->
       x1 == Records.getPositionedIconPositionX positionedIcon &&
