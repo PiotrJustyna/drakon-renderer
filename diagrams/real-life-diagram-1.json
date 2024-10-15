@@ -21,6 +21,14 @@
         "iconName": "3",
         "iconNamesOfDependentIcons": [
             "4",
+            "v1"
+        ]
+    },
+    {
+        "iconDescription": "V1",
+        "iconKind": "ValentPoint",
+        "iconName": "v1",
+        "iconNamesOfDependentIcons": [
             "6"
         ]
     },
@@ -37,8 +45,16 @@
         "iconKind": "Question",
         "iconName": "6",
         "iconNamesOfDependentIcons": [
-            "8",
+            "v2",
             "7"
+        ]
+    },
+    {
+        "iconDescription": "V2",
+        "iconKind": "ValentPoint",
+        "iconName": "v2",
+        "iconNamesOfDependentIcons": [
+            "8"
         ]
     },
     {
@@ -103,7 +119,39 @@
         "iconKind": "Question",
         "iconName": "14",
         "iconNamesOfDependentIcons": [
-            "15",
+            "v3",
+            "v5"
+        ]
+    },
+    {
+        "iconDescription": "V3",
+        "iconKind": "ValentPoint",
+        "iconName": "v3",
+        "iconNamesOfDependentIcons": [
+            "v4"
+        ]
+    },
+    {
+        "iconDescription": "V4",
+        "iconKind": "ValentPoint",
+        "iconName": "v4",
+        "iconNamesOfDependentIcons": [
+            "15"
+        ]
+    },
+    {
+        "iconDescription": "V5",
+        "iconKind": "ValentPoint",
+        "iconName": "v5",
+        "iconNamesOfDependentIcons": [
+            "v6"
+        ]
+    },
+    {
+        "iconDescription": "V6",
+        "iconKind": "ValentPoint",
+        "iconName": "v6",
+        "iconNamesOfDependentIcons": [
             "16"
         ]
     },

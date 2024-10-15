@@ -196,6 +196,7 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
                                         , Records.iconPositionY = y
                                         } =
   case kind of
+    DataTypes.ValentPoint -> (coordinates, text description 0.0 0.0 <> valentPointShape)
     DataTypes.Title -> (coordinates, text description 0.0 0.0 <> titleShape)
     DataTypes.End -> (coordinates, text description 0.0 0.0 <> endShape)
     DataTypes.Action -> (coordinates, text description 0.0 0.0 <> actionShape)
@@ -213,6 +214,11 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
     description = Records.getIconDescription positionedIcon
     titleShape =
       Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
+        Diagrams.Prelude.# Diagrams.Prelude.fc titleIconColour
+        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+    valentPointShape =
+      Diagrams.Prelude.circle 0.1
         Diagrams.Prelude.# Diagrams.Prelude.fc titleIconColour
         Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
         Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
