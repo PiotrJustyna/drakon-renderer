@@ -20,7 +20,7 @@ RUN \
   && \
   cabal update \
   && \
-  cabal install hlint \
+  cabal install hlint hindent \
   && \
   echo "PROMPT='%F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
 
