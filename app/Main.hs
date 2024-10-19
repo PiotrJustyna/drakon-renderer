@@ -7,6 +7,7 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
+import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified LayoutEngine
@@ -127,6 +128,18 @@ validation validationPredicates icons =
     []
     validationPredicates
 
+mapOfParents :: [Records.Icon] -> Data.Map.Map String [String]
+mapOfParents =
+  foldl
+    (\acc1 icon ->
+      let parentName = Records.getIconName icon
+          dependentNames = Records.getIconNamesOfDependentIcons icon
+      in foldl
+          (\acc2 dependentName -> Data.Map.insertWith (++) dependentName [parentName] acc2)
+          acc1
+          dependentNames)
+    Data.Map.empty
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -144,6 +157,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
+          print $ mapOfParents icons
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
