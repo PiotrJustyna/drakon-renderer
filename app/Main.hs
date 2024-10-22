@@ -128,17 +128,29 @@ validation validationPredicates icons =
     []
     validationPredicates
 
+mapOfDependents :: [Records.Icon] -> Data.Map.Map String [String]
+mapOfDependents =
+  foldl
+    (\acc icon ->
+       let parentName = Records.getIconName icon
+           dependentNames = Records.getIconNamesOfDependentIcons icon
+        in Data.Map.insertWith (++) parentName dependentNames acc)
+    Data.Map.empty
+
 mapOfParents :: [Records.Icon] -> Data.Map.Map String [String]
 mapOfParents =
   foldl
     (\acc1 icon ->
-      let parentName = Records.getIconName icon
-          dependentNames = Records.getIconNamesOfDependentIcons icon
-      in foldl
-          (\acc2 dependentName -> Data.Map.insertWith (++) dependentName [parentName] acc2)
-          acc1
-          dependentNames)
+       let parentName = Records.getIconName icon
+           dependentNames = Records.getIconNamesOfDependentIcons icon
+        in foldl
+             (\acc2 dependentName -> Data.Map.insertWith (++) dependentName [parentName] acc2)
+             acc1
+             dependentNames)
     Data.Map.empty
+
+multipleValues :: Data.Map.Map String [String] -> Data.Map.Map String [String]
+multipleValues = Data.Map.filter (\values -> length values > 1)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -157,7 +169,14 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          print $ mapOfParents icons
+          let parents = mapOfParents icons
+          let dependents = mapOfDependents icons
+
+          putStrLn "divergence points:"
+          print $ multipleValues dependents
+
+          putStrLn "convergence points:"
+          print $ multipleValues parents
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
