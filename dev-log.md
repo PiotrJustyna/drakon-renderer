@@ -1,3 +1,15 @@
+# 2024-10-22
+
+Real life drakon diagrams, together with the drakon whitepaper (see [here](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf)) made me realize that the layout algorithm, while improving, is not there yet. I realized that diagrams should be equipped with valent points in order to follow drakon rules better so I'm focusing my energy now on this issue: https://github.com/PiotrJustyna/drakon-renderer/issues/89
+
+* draphs should consist of valent points which may or may not host user-provided icons
+
+* that should simplify the layout algorithm and the algorithm connecting rendered icons
+
+* in more distant future I will have to rethink how icons/positioned icons/valent points are represented as data types in order to make the project more faithful to the originally proposed drakon rules
+
+We also have a discord channel now: https://discord.gg/eaJ7e4jF
+
 # 2024-10-04
 
 It feels like I made substantial progress in recent days when it comes to layout algorithm. I have just finished implementing yet another version of it and I'm pretty happy with it's current shape. Plan for immediate future is to continue with real life drakon diagrams and also to clean up connections between positioned icons.
