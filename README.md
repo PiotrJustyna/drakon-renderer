@@ -129,6 +129,12 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 You can see into the bigger ideas I have for the project (past, present, future) here: [dev-log.md](./dev-log.md).
 
+## community
+
+* [youtube](https://www.youtube.com/playlist?list=PL9-WsOrOzOxSqWNqzhzyBGZsN0sOxEF6Q)
+
+* [discord](https://discord.gg/eaJ7e4jF)
+
 ## resources
 
 * [drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf)
