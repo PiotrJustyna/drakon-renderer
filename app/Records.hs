@@ -70,6 +70,16 @@ getIconNamesOfDependentIcons Icon { iconName = _
                                   , iconKind = _
                                   } = x
 
+getDependentIcons :: Icon -> [Icon] -> [Icon]
+getDependentIcons Icon { iconName = _
+                       , iconDescription = _
+                       , iconNamesOfDependentIcons = namesOfDependentIcons
+                       , iconKind = _
+                       } allIcons =
+  case namesOfDependentIcons of
+    [] -> []
+    xs -> filter (\singleIcon -> getIconName singleIcon `elem` xs) allIcons
+
 getIconNamesOfDependentIconsWithBlacklist :: Icon -> [Icon] -> [String]
 getIconNamesOfDependentIconsWithBlacklist Icon { iconName = _
                                                , iconDescription = _
