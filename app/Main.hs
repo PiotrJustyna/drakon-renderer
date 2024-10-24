@@ -149,8 +149,8 @@ mapOfParents =
              dependentNames)
     Data.Map.empty
 
-multipleValues :: Data.Map.Map String [String] -> Data.Map.Map String [String]
-multipleValues = Data.Map.filter (\values -> length values > 1)
+multipleValues :: Data.Map.Map String [String] -> [String]
+multipleValues x = Data.Map.foldrWithKey (\k _ acc -> k : acc) [] (Data.Map.filter (\values -> length values > 1) x)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -171,12 +171,14 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Just icons -> do
           let parents = mapOfParents icons
           let dependents = mapOfDependents icons
-
           putStrLn "divergence points:"
           print $ multipleValues dependents
-
           putStrLn "convergence points:"
           print $ multipleValues parents
+          -- putStrLn "paths starting at icon 3:"
+          -- case Data.List.find (\x -> "3" == Records.getIconName x) icons of
+          --   Just icon3 -> print $ dupa' [icon3] icons
+          --   Nothing -> print "icon 3 could not be found"
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
