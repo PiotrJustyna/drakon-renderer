@@ -80,6 +80,14 @@ getDependentIcons Icon { iconName = _
     [] -> []
     xs -> filter (\singleIcon -> getIconName singleIcon `elem` xs) allIcons
 
+getDependentIconsWithBlacklist :: Icon -> [Icon] -> [Icon] -> [Icon]
+getDependentIconsWithBlacklist parent allIcons blacklist =
+  if parent `elem` blacklist
+    then []
+    else (case getIconNamesOfDependentIcons parent of
+            [] -> []
+            xs -> filter (\singleIcon -> getIconName singleIcon `elem` xs) allIcons)
+
 getIconNamesOfDependentIconsWithBlacklist :: Icon -> [Icon] -> [String]
 getIconNamesOfDependentIconsWithBlacklist Icon { iconName = _
                                                , iconDescription = _

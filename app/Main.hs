@@ -7,6 +7,7 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
+import qualified Data.List
 import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
@@ -150,7 +151,12 @@ mapOfParents =
     Data.Map.empty
 
 multipleValues :: Data.Map.Map String [String] -> [String]
-multipleValues x = Data.Map.foldrWithKey (\k _ acc -> k : acc) [] (Data.Map.filter (\values -> length values > 1) x)
+multipleValues x =
+  Data.Map.foldrWithKey (\k _ acc -> k : acc) [] (Data.Map.filter (\values -> length values > 1) x)
+
+combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
+combine parents [] = [parents]
+combine parents dependents = foldl (\acc dependent -> acc ++ [dependent : parents]) [] dependents
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -175,10 +181,46 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           print $ multipleValues dependents
           putStrLn "convergence points:"
           print $ multipleValues parents
-          -- putStrLn "paths starting at icon 3:"
-          -- case Data.List.find (\x -> "3" == Records.getIconName x) icons of
-          --   Just icon3 -> print $ dupa' [icon3] icons
-          --   Nothing -> print "icon 3 could not be found"
+          putStrLn "paths starting at icon 3:"
+          case Data.List.find (\x -> "3" == Records.getIconName x) icons of
+            Just icon3 -> do
+              case Data.List.find (\x -> "6" == Records.getIconName x) icons of
+                Just icon6 -> do
+                  -- head
+                  let icon3Name = Records.getIconName icon3
+                  putStrLn "head:"
+                  print icon3Name
+                  let line1 =
+                        foldl
+                          (\acc singleRow ->
+                             combine
+                               singleRow
+                               (Records.getDependentIconsWithBlacklist
+                                  (head singleRow)
+                                  icons
+                                  [icon6])
+                               ++ acc)
+                          []
+                          [[icon3]]
+                  putStrLn "line 1:"
+                  print line1
+                  -- line 2
+                  let line2 =
+                        foldl
+                          (\acc singleRow ->
+                             combine
+                               singleRow
+                               (Records.getDependentIconsWithBlacklist
+                                  (head singleRow)
+                                  icons
+                                  [icon6])
+                               ++ acc)
+                          []
+                          line1
+                  putStrLn "line 2:"
+                  print line2
+                Nothing -> putStrLn "icon 6 could not be found"
+            Nothing -> putStrLn "icon 3 could not be found"
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
