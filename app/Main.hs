@@ -158,6 +158,20 @@ combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
 combine parents [] = [parents]
 combine parents dependents = foldl (\acc dependent -> acc ++ [dependent : parents]) [] dependents
 
+-- "paths" are represented like this (simplified):
+-- [
+--     [Icon6, Icon3],
+--     [Icon6, Icon4, Icon3]
+-- ]
+-- and they represent all paths starting at a given divergence icon
+-- and ending at a given convergence icon.
+abc :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
+abc paths allIcons convergenceIcons =
+  foldl
+    (\acc singleRow -> combine singleRow (Records.getDependentIconsWithBlacklist (head singleRow) allIcons convergenceIcons) ++ acc)
+    []
+    paths
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -190,33 +204,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                   let icon3Name = Records.getIconName icon3
                   putStrLn "head:"
                   print icon3Name
-                  let line1 =
-                        foldl
-                          (\acc singleRow ->
-                             combine
-                               singleRow
-                               (Records.getDependentIconsWithBlacklist
-                                  (head singleRow)
-                                  icons
-                                  [icon6])
-                               ++ acc)
-                          []
-                          [[icon3]]
+                  let line1 = abc [[icon3]] icons [icon6]
                   putStrLn "line 1:"
                   print line1
                   -- line 2
-                  let line2 =
-                        foldl
-                          (\acc singleRow ->
-                             combine
-                               singleRow
-                               (Records.getDependentIconsWithBlacklist
-                                  (head singleRow)
-                                  icons
-                                  [icon6])
-                               ++ acc)
-                          []
-                          line1
+                  let line2 = abc line1 icons [icon6]
                   putStrLn "line 2:"
                   print line2
                 Nothing -> putStrLn "icon 6 could not be found"
