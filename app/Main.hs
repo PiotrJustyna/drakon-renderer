@@ -150,13 +150,25 @@ mapOfParents =
              dependentNames)
     Data.Map.empty
 
-multipleValues :: Data.Map.Map String [String] -> [String]
-multipleValues x =
-  Data.Map.foldrWithKey (\k _ acc -> k : acc) [] (Data.Map.filter (\values -> length values > 1) x)
+multipleValues :: Data.Map.Map String [String] -> [Records.Icon] -> [Records.Icon]
+multipleValues x allIcons =
+  let multipleValuesPerKey =
+        Data.Map.foldrWithKey
+          (\k _ acc -> k : acc)
+          []
+          (Data.Map.filter (\values -> length values > 1) x)
+   in filter (\x -> Records.getIconName x `elem` multipleValuesPerKey) allIcons
 
 combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-combine parents [] = [parents]
-combine parents dependents = foldl (\acc dependent -> acc ++ [dependent : parents]) [] dependents
+combine parents = foldl (\acc dependent -> acc ++ [dependent : parents]) []
+
+pathsEqual :: [[Records.Icon]] -> [[Records.Icon]] -> Bool
+pathsEqual x1 x2 =
+  length x1 == length x2
+    && foldl
+         (\acc (x1', x2') -> length x1' == length x2' && null x1' || head x1' == head x2' && acc)
+         True
+         (zip x1 x2)
 
 -- "paths" are represented like this (simplified):
 -- [
@@ -165,12 +177,65 @@ combine parents dependents = foldl (\acc dependent -> acc ++ [dependent : parent
 -- ]
 -- and they represent all paths starting at a given divergence icon
 -- and ending at a given convergence icon.
-abc :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-abc paths allIcons convergenceIcons =
-  foldl
-    (\acc singleRow -> combine singleRow (Records.getDependentIconsWithBlacklist (head singleRow) allIcons convergenceIcons) ++ acc)
-    []
-    paths
+-- d-c paths - my name for divergence icon -> convergence icon paths
+-- all paths connecting
+dcPaths :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
+dcPaths paths allIcons convergenceIcons =
+  let newPaths =
+        foldl
+          (\acc singleRow ->
+             acc
+               ++ case Records.getDependentIconsWithBlacklist
+                         (head singleRow)
+                         allIcons
+                         convergenceIcons of
+                    [] -> [singleRow]
+                    dependents -> combine singleRow dependents)
+          []
+          paths
+   in if pathsEqual paths newPaths
+        then paths
+        else dcPaths newPaths allIcons convergenceIcons
+
+-- 1. valent points should have unique names
+--    need a path identifier
+--    need to introduce illegal id symbols (#?)
+delta :: [Records.Icon] -> [Records.Icon] -> [Records.Icon]
+delta x1 x2 =
+  if l1 < l2
+    then ((head x1) : valentPoints) ++ newTail
+    else x1
+  where
+    l1 = length x1
+    l2 = length x2
+    oldTail = (tail x1)
+    newTail =
+      (Records.updateDependent
+         (head oldTail)
+         (Records.getIconName (head x1))
+         ((Records.getIconName (last x1)) ++ "#1"))
+        : (tail oldTail)
+    valentPoints =
+      foldr
+        (\deltaIndex acc ->
+           acc
+             ++ [ Records.valentPoint
+                    ((Records.getIconName (last x1)) ++ "#" ++ (show deltaIndex))
+                    (case acc of
+                       [] -> Records.getIconName (head x1)
+                       otherwise -> Records.getIconName (head acc))
+                ])
+        []
+        [1 .. (l2 - l1)]
+
+dcPathWithValentPoints :: [[Records.Icon]] -> [[Records.Icon]]
+dcPathWithValentPoints inputPaths =
+  foldl (\acc x -> (delta x (head acc)) : acc) [(head sortedPaths)] (tail sortedPaths)
+  where
+    sortedPaths =
+      Data.List.sortBy
+        (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
+        inputPaths
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -189,30 +254,20 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let parents = mapOfParents icons
-          let dependents = mapOfDependents icons
-          putStrLn "divergence points:"
-          print $ multipleValues dependents
-          putStrLn "convergence points:"
-          print $ multipleValues parents
-          putStrLn "paths starting at icon 3:"
-          case Data.List.find (\x -> "3" == Records.getIconName x) icons of
-            Just icon3 -> do
-              case Data.List.find (\x -> "6" == Records.getIconName x) icons of
-                Just icon6 -> do
-                  -- head
-                  let icon3Name = Records.getIconName icon3
-                  putStrLn "head:"
-                  print icon3Name
-                  let line1 = abc [[icon3]] icons [icon6]
-                  putStrLn "line 1:"
-                  print line1
-                  -- line 2
-                  let line2 = abc line1 icons [icon6]
-                  putStrLn "line 2:"
-                  print line2
-                Nothing -> putStrLn "icon 6 could not be found"
-            Nothing -> putStrLn "icon 3 could not be found"
+          -- let parents = mapOfParents icons
+          -- let dependents = mapOfDependents icons
+          -- let divergenceIcons = multipleValues dependents icons
+          -- let convergenceIcons = multipleValues parents icons
+          -- putStrLn "divergence icons:"
+          -- print divergenceIcons
+          -- putStrLn "convergence icons:"
+          -- print convergenceIcons
+          -- let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
+          -- putStrLn "paths:"
+          -- print paths
+          -- let pathsWithValentPoints = dcPathWithValentPoints paths
+          -- putStrLn "paths with valent points:"
+          -- print pathsWithValentPoints
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]

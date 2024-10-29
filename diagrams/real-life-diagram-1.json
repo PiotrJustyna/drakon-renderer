@@ -21,16 +21,40 @@
         "iconName": "3",
         "iconNamesOfDependentIcons": [
             "4",
+            "3#1"
+        ]
+    },
+    {
+        "iconDescription": "perfuse the brain - 1",
+        "iconKind": "Action",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": [
+            "4'"
+        ]
+    },
+    {
+        "iconDescription": "perfuse the brain - 2",
+        "iconKind": "Action",
+        "iconName": "4'",
+        "iconNamesOfDependentIcons": [
             "6"
         ]
     },
     {
-        "iconDescription": "perfuse the brain",
-        "iconKind": "Action",
-        "iconName": "4",
+        "iconName": "3#2",
+        "iconDescription": "3#2",
         "iconNamesOfDependentIcons": [
             "6"
-        ]
+        ],
+        "iconKind": "ValentPoint"
+    },
+    {
+        "iconName": "3#1",
+        "iconDescription": "3#1",
+        "iconNamesOfDependentIcons": [
+            "3#2"
+        ],
+        "iconKind": "ValentPoint"
     },
     {
         "iconDescription": "remove brain",

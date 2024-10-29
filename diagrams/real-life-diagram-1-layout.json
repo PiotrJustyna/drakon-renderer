@@ -30,7 +30,7 @@
             "iconName": "3",
             "iconNamesOfDependentIcons": [
                 "4",
-                "6"
+                "3#1"
             ]
         },
         "iconPositionX": 0,
@@ -38,15 +38,27 @@
     },
     {
         "icon": {
-            "iconDescription": "perfuse the brain",
+            "iconDescription": "perfuse the brain - 1",
             "iconKind": "Action",
             "iconName": "4",
+            "iconNamesOfDependentIcons": [
+                "4'"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "perfuse the brain - 2",
+            "iconKind": "Action",
+            "iconName": "4'",
             "iconNamesOfDependentIcons": [
                 "6"
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -3
+        "iconPositionY": -4
     },
     {
         "icon": {
@@ -59,7 +71,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -4
+        "iconPositionY": -5
     },
     {
         "icon": {
@@ -71,7 +83,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -5
+        "iconPositionY": -6
     },
     {
         "icon": {
@@ -83,7 +95,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -6
+        "iconPositionY": -7
     },
     {
         "icon": {
@@ -95,7 +107,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -7
+        "iconPositionY": -8
     },
     {
         "icon": {
@@ -107,7 +119,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -8
+        "iconPositionY": -9
     },
     {
         "icon": {
@@ -119,7 +131,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -9
+        "iconPositionY": -10
     },
     {
         "icon": {
@@ -129,7 +141,7 @@
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
-        "iconPositionY": -10
+        "iconPositionY": -11
     },
     {
         "icon": {
@@ -142,7 +154,7 @@
             ]
         },
         "iconPositionX": 2,
-        "iconPositionY": -5
+        "iconPositionY": -6
     },
     {
         "icon": {
@@ -154,7 +166,7 @@
             ]
         },
         "iconPositionX": 4,
-        "iconPositionY": -6
+        "iconPositionY": -7
     },
     {
         "icon": {
@@ -167,7 +179,7 @@
             ]
         },
         "iconPositionX": 4,
-        "iconPositionY": -7
+        "iconPositionY": -8
     },
     {
         "icon": {
@@ -179,7 +191,7 @@
             ]
         },
         "iconPositionX": 4,
-        "iconPositionY": -8
+        "iconPositionY": -9
     },
     {
         "icon": {
@@ -191,6 +203,30 @@
             ]
         },
         "iconPositionX": 6,
-        "iconPositionY": -8
+        "iconPositionY": -9
+    },
+    {
+        "icon": {
+            "iconDescription": "3#1",
+            "iconKind": "ValentPoint",
+            "iconName": "3#1",
+            "iconNamesOfDependentIcons": [
+                "3#2"
+            ]
+        },
+        "iconPositionX": 8,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "3#2",
+            "iconKind": "ValentPoint",
+            "iconName": "3#2",
+            "iconNamesOfDependentIcons": [
+                "6"
+            ]
+        },
+        "iconPositionX": 8,
+        "iconPositionY": -4
     }
 ]
