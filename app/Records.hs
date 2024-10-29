@@ -109,6 +109,37 @@ getIconKind :: Icon -> DataTypes.IconKind
 getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = x} =
   x
 
+updateDependent :: Icon -> String -> String -> Icon
+updateDependent Icon { iconName = name
+                     , iconDescription = description
+                     , iconNamesOfDependentIcons = dependents
+                     , iconKind = kind
+                     } oldDependentName newDependentName =
+  Icon
+    { iconName = name
+    , iconDescription = description
+    , iconNamesOfDependentIcons =
+        foldl
+          (\acc x ->
+             acc
+               ++ [ if x == oldDependentName
+                      then newDependentName
+                      else x
+                  ])
+          []
+          dependents
+    , iconKind = kind
+    }
+
+valentPoint :: String -> String -> Icon
+valentPoint name dependent =
+  Icon
+    { iconName = name
+    , iconDescription = name
+    , iconNamesOfDependentIcons = [dependent]
+    , iconKind = DataTypes.ValentPoint
+    }
+
 instance Data.Aeson.ToJSON Icon where
   toJSON (Icon name description namesOfDependentIcons kind) =
     Data.Aeson.object
