@@ -2,6 +2,10 @@
 
 Reasonably portable drakon diagrams renderer. Development, compilation and execution are intended to take place in containers.
 
+**Important:**
+
+this is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams. Current focus is to render primitive diagrams according to drakon rules.
+
 ## terminology
 
 * `Title` - first step of a diagram
