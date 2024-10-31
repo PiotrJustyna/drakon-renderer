@@ -237,6 +237,20 @@ dcPathWithValentPoints inputPaths =
         (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
         inputPaths
 
+onlyValentPoints :: [[Records.Icon]] -> [Records.Icon]
+onlyValentPoints =
+  foldl
+    (\acc1 singlePath ->
+       acc1
+         ++ foldl
+              (\acc2 singleIcon ->
+                 case Records.getIconKind singleIcon of
+                   DataTypes.ValentPoint -> singleIcon : acc2
+                   _ -> acc2)
+              []
+              singlePath)
+    []
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -254,29 +268,33 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          -- let parents = mapOfParents icons
-          -- let dependents = mapOfDependents icons
-          -- let divergenceIcons = multipleValues dependents icons
-          -- let convergenceIcons = multipleValues parents icons
+          let parents = mapOfParents icons
+          let dependents = mapOfDependents icons
+          let divergenceIcons = multipleValues dependents icons
+          let convergenceIcons = multipleValues parents icons
+          let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
+          let pathsWithValentPoints = dcPathWithValentPoints paths
+          let valentPoints = onlyValentPoints pathsWithValentPoints
           -- putStrLn "divergence icons:"
           -- print divergenceIcons
           -- putStrLn "convergence icons:"
           -- print convergenceIcons
-          -- let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
           -- putStrLn "paths:"
           -- print paths
-          -- let pathsWithValentPoints = dcPathWithValentPoints paths
           -- putStrLn "paths with valent points:"
           -- print pathsWithValentPoints
+          putStrLn "only valent points:"
+          print valentPoints
+          let iconsWithValentPoints = icons ++ valentPoints
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
-                  icons
+                  iconsWithValentPoints
           case validationErrors of
             [] -> do
-              case Records.titleIcon icons of
+              case Records.titleIcon iconsWithValentPoints of
                 Just titleIcon -> do
-                  let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
+                  let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon iconsWithValentPoints
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
                   Data.ByteString.Lazy.hPutStr
                     handle
