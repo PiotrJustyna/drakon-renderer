@@ -30,7 +30,7 @@
             "iconName": "3",
             "iconNamesOfDependentIcons": [
                 "4",
-                "6"
+                "3#1"
             ]
         },
         "iconPositionX": 0,
@@ -204,5 +204,29 @@
         },
         "iconPositionX": 6,
         "iconPositionY": -9
+    },
+    {
+        "icon": {
+            "iconDescription": "3#1",
+            "iconKind": "ValentPoint",
+            "iconName": "3#1",
+            "iconNamesOfDependentIcons": [
+                "3#2"
+            ]
+        },
+        "iconPositionX": 8,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "3#2",
+            "iconKind": "ValentPoint",
+            "iconName": "3#2",
+            "iconNamesOfDependentIcons": [
+                "6"
+            ]
+        },
+        "iconPositionX": 8,
+        "iconPositionY": -4
     }
 ]

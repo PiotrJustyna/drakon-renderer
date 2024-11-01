@@ -209,10 +209,11 @@ delta x1 x2 =
     l1 = length x1
     l2 = length x2
     oldTail = (tail x1)
-    newTailHead = Records.updateDependent
-      (head oldTail)
-      (Records.getIconName (head x1))
-      ((Records.getIconName (last x1)) ++ "#1")
+    newTailHead =
+      Records.updateDependent
+        (head oldTail)
+        (Records.getIconName (head x1))
+        ((Records.getIconName (last x1)) ++ "#1")
     valentPoints =
       foldr
         (\deltaIndex acc ->
@@ -227,30 +228,19 @@ delta x1 x2 =
         [1 .. (l2 - l1)]
 
 valentPointsAndModifiedIcons :: [[Records.Icon]] -> ([Records.Icon], [Records.Icon])
-valentPointsAndModifiedIcons inputPaths =
-  deltaResults
+valentPointsAndModifiedIcons inputPaths = deltaResults
   where
-    deltaResults = foldl (\acc x ->
-      let deltaResult = delta x (head sortedPaths)
-      in ((fst deltaResult) ++ (fst acc), (snd deltaResult) ++ (snd acc))) ([], []) (tail sortedPaths)
+    deltaResults =
+      foldl
+        (\acc x ->
+           let deltaResult = delta x (head sortedPaths)
+            in ((fst deltaResult) ++ (fst acc), (snd deltaResult) ++ (snd acc)))
+        ([], [])
+        (tail sortedPaths)
     sortedPaths =
       Data.List.sortBy
         (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
         inputPaths
-
-onlyValentPoints :: [[Records.Icon]] -> [Records.Icon]
-onlyValentPoints =
-  foldl
-    (\acc1 singlePath ->
-       acc1
-         ++ foldl
-              (\acc2 singleIcon ->
-                 case Records.getIconKind singleIcon of
-                   DataTypes.ValentPoint -> singleIcon : acc2
-                   _ -> acc2)
-              []
-              singlePath)
-    []
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
@@ -274,19 +264,36 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           let divergenceIcons = multipleValues dependents icons
           let convergenceIcons = multipleValues parents icons
           let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
-          let pathsWithValentPoints = valentPointsAndModifiedIcons paths
-          -- let valentPoints = onlyValentPoints pathsWithValentPoints
+          let alterations = valentPointsAndModifiedIcons paths
           -- putStrLn "divergence icons:"
           -- print divergenceIcons
           -- putStrLn "convergence icons:"
           -- print convergenceIcons
           -- putStrLn "paths:"
           -- print paths
-          putStrLn "paths with valent points:"
-          print pathsWithValentPoints
-          -- putStrLn "only valent points:"
-          -- print valentPoints
-          let iconsWithValentPoints = icons-- ++ valentPoints
+          putStrLn "alterations:"
+          print alterations
+          let updatedIcons =
+                foldl
+                  (\acc1 originalIcon ->
+                     case (foldl
+                             (\acc2 modifiedIcon ->
+                                if (null acc2)
+                                     && (Records.getIconName originalIcon)
+                                          == (Records.getIconName modifiedIcon)
+                                  then modifiedIcon : acc2
+                                  else acc2)
+                             []
+                             (snd alterations)) of
+                       [] -> acc1 ++ [originalIcon]
+                       altered -> acc1 ++ altered)
+                  []
+                  icons
+          -- putStrLn "updated icons:"
+          -- print updatedIcons
+          let iconsWithValentPoints = updatedIcons ++ (fst alterations)
+          putStrLn "icons with valent points:"
+          print iconsWithValentPoints
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
@@ -295,7 +302,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
             [] -> do
               case Records.titleIcon iconsWithValentPoints of
                 Just titleIcon -> do
-                  let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon iconsWithValentPoints
+                  let refreshedPositionedIcons =
+                        LayoutEngine.firstPaths titleIcon iconsWithValentPoints
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
                   Data.ByteString.Lazy.hPutStr
                     handle
