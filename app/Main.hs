@@ -203,8 +203,8 @@ dcPaths paths allIcons convergenceIcons =
 delta :: [Records.Icon] -> [Records.Icon] -> ([Records.Icon], [Records.Icon])
 delta x1 x2 =
   if l1 < l2
-    then (((head x1) : valentPoints) ++ newTail, [newTailHead])
-    else (x1, [])
+    then (valentPoints, [newTailHead])
+    else ([], [])
   where
     l1 = length x1
     l2 = length x2
@@ -213,8 +213,6 @@ delta x1 x2 =
       (head oldTail)
       (Records.getIconName (head x1))
       ((Records.getIconName (last x1)) ++ "#1")
-    newTail = newTailHead
-        : (tail oldTail)
     valentPoints =
       foldr
         (\deltaIndex acc ->
@@ -228,13 +226,13 @@ delta x1 x2 =
         []
         [1 .. (l2 - l1)]
 
-dcPathWithValentPoints :: [[Records.Icon]] -> ([[Records.Icon]], [Records.Icon])
-dcPathWithValentPoints inputPaths =
-  foldl () [] (deltaResults)
+valentPointsAndModifiedIcons :: [[Records.Icon]] -> ([Records.Icon], [Records.Icon])
+valentPointsAndModifiedIcons inputPaths =
+  deltaResults
   where
     deltaResults = foldl (\acc x ->
-      let deltaResult = delta x (head (fst acc))
-      in ((fst deltaResult) : (fst acc), (snd deltaResult) ++ (snd acc))) ([(head sortedPaths)], []) (tail sortedPaths)
+      let deltaResult = delta x (head sortedPaths)
+      in ((fst deltaResult) ++ (fst acc), (snd deltaResult) ++ (snd acc))) ([], []) (tail sortedPaths)
     sortedPaths =
       Data.List.sortBy
         (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
@@ -276,7 +274,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           let divergenceIcons = multipleValues dependents icons
           let convergenceIcons = multipleValues parents icons
           let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
-          let pathsWithValentPoints = dcPathWithValentPoints paths
+          let pathsWithValentPoints = valentPointsAndModifiedIcons paths
           -- let valentPoints = onlyValentPoints pathsWithValentPoints
           -- putStrLn "divergence icons:"
           -- print divergenceIcons
