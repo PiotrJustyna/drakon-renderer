@@ -200,20 +200,20 @@ dcPaths paths allIcons convergenceIcons =
 -- 1. valent points should have unique names
 --    need a path identifier
 --    need to introduce illegal id symbols (#?)
-delta :: [Records.Icon] -> [Records.Icon] -> [Records.Icon]
+delta :: [Records.Icon] -> [Records.Icon] -> ([Records.Icon], [Records.Icon])
 delta x1 x2 =
   if l1 < l2
-    then ((head x1) : valentPoints) ++ newTail
-    else x1
+    then (((head x1) : valentPoints) ++ newTail, [newTailHead])
+    else (x1, [])
   where
     l1 = length x1
     l2 = length x2
     oldTail = (tail x1)
-    newTail =
-      (Records.updateDependent
-         (head oldTail)
-         (Records.getIconName (head x1))
-         ((Records.getIconName (last x1)) ++ "#1"))
+    newTailHead = Records.updateDependent
+      (head oldTail)
+      (Records.getIconName (head x1))
+      ((Records.getIconName (last x1)) ++ "#1")
+    newTail = newTailHead
         : (tail oldTail)
     valentPoints =
       foldr
@@ -228,9 +228,11 @@ delta x1 x2 =
         []
         [1 .. (l2 - l1)]
 
-dcPathWithValentPoints :: [[Records.Icon]] -> [[Records.Icon]]
+dcPathWithValentPoints :: [[Records.Icon]] -> ([[Records.Icon]], [Records.Icon])
 dcPathWithValentPoints inputPaths =
-  foldl (\acc x -> (delta x (head acc)) : acc) [(head sortedPaths)] (tail sortedPaths)
+  foldl (\acc x ->
+    let deltaResult = delta x (head (fst acc))
+    in ((fst deltaResult) : (fst acc), (snd deltaResult) ++ (snd acc))) ([(head sortedPaths)], []) (tail sortedPaths)
   where
     sortedPaths =
       Data.List.sortBy
@@ -274,18 +276,18 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           let convergenceIcons = multipleValues parents icons
           let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
           let pathsWithValentPoints = dcPathWithValentPoints paths
-          let valentPoints = onlyValentPoints pathsWithValentPoints
+          -- let valentPoints = onlyValentPoints pathsWithValentPoints
           -- putStrLn "divergence icons:"
           -- print divergenceIcons
           -- putStrLn "convergence icons:"
           -- print convergenceIcons
           -- putStrLn "paths:"
           -- print paths
-          -- putStrLn "paths with valent points:"
-          -- print pathsWithValentPoints
-          putStrLn "only valent points:"
-          print valentPoints
-          let iconsWithValentPoints = icons ++ valentPoints
+          putStrLn "paths with valent points:"
+          print pathsWithValentPoints
+          -- putStrLn "only valent points:"
+          -- print valentPoints
+          let iconsWithValentPoints = icons-- ++ valentPoints
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
