@@ -230,10 +230,11 @@ delta x1 x2 =
 
 dcPathWithValentPoints :: [[Records.Icon]] -> ([[Records.Icon]], [Records.Icon])
 dcPathWithValentPoints inputPaths =
-  foldl (\acc x ->
-    let deltaResult = delta x (head (fst acc))
-    in ((fst deltaResult) : (fst acc), (snd deltaResult) ++ (snd acc))) ([(head sortedPaths)], []) (tail sortedPaths)
+  foldl () [] (deltaResults)
   where
+    deltaResults = foldl (\acc x ->
+      let deltaResult = delta x (head (fst acc))
+      in ((fst deltaResult) : (fst acc), (snd deltaResult) ++ (snd acc))) ([(head sortedPaths)], []) (tail sortedPaths)
     sortedPaths =
       Data.List.sortBy
         (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
