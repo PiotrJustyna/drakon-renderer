@@ -251,8 +251,8 @@ onlyValentPoints =
               singlePath)
     []
 
-abc :: [[Records.Icon]] -> [[Records.Icon]]
-abc inputPaths =
+balancedPaths :: [[Records.Icon]] -> [[Records.Icon]]
+balancedPaths inputPaths =
   foldl
     (\acc1 rowIndex ->
        (foldl
@@ -272,19 +272,40 @@ abc inputPaths =
     ([] :: [[Records.Icon]])
     [0 .. 12]
 
-showAbc :: [[Records.Icon]] -> String
-showAbc inputPaths =
+showBalancedPathsHeader :: [[Records.Icon]] -> String
+showBalancedPathsHeader inputPaths =
+  let header =
+        foldl
+          (\acc i ->
+             case i of
+               0 -> "\n| path " ++ show (i + 1) ++ " |"
+               otherwise -> acc ++ " path " ++ show (i + 1) ++ " |")
+          ""
+          [0 .. ((length inputPaths) - 1)]
+      headerLineBreak =
+        foldl
+          (\acc i ->
+             case i of
+               0 -> "\n| --- |"
+               otherwise -> acc ++ " --- |")
+          ""
+          [0 .. ((length inputPaths) - 1)]
+   in header ++ headerLineBreak
+
+showBalancedPaths :: [[Records.Icon]] -> String
+showBalancedPaths inputPaths =
   foldl
     (\acc1 rowIndex ->
-      acc1 ++
-      (foldl
-        (\acc2 columnIndex ->
-          let singlePath = inputPaths !! columnIndex
-          in case columnIndex of
-            0 -> "\n| " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |"
-            otherwise -> acc2 ++ " " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |")
-        acc1
-        [0 .. ((length inputPaths) - 1)]))
+       acc1
+         ++ (foldl
+               (\acc2 columnIndex ->
+                  let singlePath = inputPaths !! columnIndex
+                   in case columnIndex of
+                        0 -> "\n| " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |"
+                        otherwise ->
+                          acc2 ++ " " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |")
+               acc1
+               [0 .. ((length inputPaths) - 1)]))
     ""
     [0 .. 12]
 
@@ -305,27 +326,10 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
         Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let parents = mapOfParents icons
-          let dependents = mapOfDependents icons
-          let divergenceIcons = multipleValues dependents icons
-          let convergenceIcons = multipleValues parents icons
           let paths = dcPaths [[head icons]] icons [last icons]
-          let abcResult = abc paths
-          let printableAbcResult = showAbc abcResult
-          -- let pathsWithValentPoints = dcPathWithValentPoints paths
-          -- let valentPoints = onlyValentPoints pathsWithValentPoints
-          -- putStrLn "divergence icons:"
-          -- print divergenceIcons
-          -- putStrLn "convergence icons:"
-          -- print convergenceIcons
-          -- putStrLn "paths:"
-          -- print paths
-          -- putStrLn "paths with valent points:"
-          -- print pathsWithValentPoints
-          -- putStrLn "only valent points:"
-          -- print valentPoints
-          putStrLn "printable abc result:"
-          putStrLn printableAbcResult
+          let bPaths = balancedPaths paths
+          let printableBPaths = (showBalancedPathsHeader bPaths) ++ (showBalancedPaths bPaths)
+          putStrLn printableBPaths
           let iconsWithValentPoints = icons
           let validationErrors =
                 validation
