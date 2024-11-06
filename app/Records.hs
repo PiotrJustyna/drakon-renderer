@@ -131,6 +131,15 @@ updateDependent Icon { iconName = name
     , iconKind = kind
     }
 
+tempValentPoint :: String -> Icon
+tempValentPoint name =
+  Icon
+    { iconName = name
+    , iconDescription = name
+    , iconNamesOfDependentIcons = []
+    , iconKind = DataTypes.ValentPoint
+    }
+
 valentPoint :: String -> String -> Icon
 valentPoint name dependent =
   Icon
