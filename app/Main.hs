@@ -194,7 +194,7 @@ dcPaths paths allIcons convergenceIcons =
           []
           paths
    in if pathsEqual paths newPaths
-        then paths
+        then map reverse paths
         else dcPaths newPaths allIcons convergenceIcons
 
 -- 1. valent points should have unique names
@@ -251,6 +251,43 @@ onlyValentPoints =
               singlePath)
     []
 
+abc :: [[Records.Icon]] -> [[Records.Icon]]
+abc inputPaths =
+  foldl
+    (\acc1 rowIndex ->
+       (foldl
+          (\acc2 columnIndex ->
+             let inputPath = inputPaths !! columnIndex
+                 newPath =
+                   case acc1 of
+                     [] -> []
+                     otherwise -> acc1 !! columnIndex
+                 newIcon =
+                   if rowIndex >= length inputPath
+                     then Records.tempValentPoint ":x:"
+                     else inputPath !! rowIndex
+              in acc2 ++ [newPath ++ [newIcon]])
+          ([] :: [[Records.Icon]])
+          [0 .. ((length inputPaths) - 1)]))
+    ([] :: [[Records.Icon]])
+    [0 .. 12]
+
+showAbc :: [[Records.Icon]] -> String
+showAbc inputPaths =
+  foldl
+    (\acc1 rowIndex ->
+      acc1 ++
+      (foldl
+        (\acc2 columnIndex ->
+          let singlePath = inputPaths !! columnIndex
+          in case columnIndex of
+            0 -> "\n| " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |"
+            otherwise -> acc2 ++ " " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |")
+        acc1
+        [0 .. ((length inputPaths) - 1)]))
+    ""
+    [0 .. 12]
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize textInputPath
@@ -272,9 +309,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           let dependents = mapOfDependents icons
           let divergenceIcons = multipleValues dependents icons
           let convergenceIcons = multipleValues parents icons
-          let paths = dcPaths [[head divergenceIcons]] icons (convergenceIcons)
-          let pathsWithValentPoints = dcPathWithValentPoints paths
-          let valentPoints = onlyValentPoints pathsWithValentPoints
+          let paths = dcPaths [[head icons]] icons [last icons]
+          let abcResult = abc paths
+          let printableAbcResult = showAbc abcResult
+          -- let pathsWithValentPoints = dcPathWithValentPoints paths
+          -- let valentPoints = onlyValentPoints pathsWithValentPoints
           -- putStrLn "divergence icons:"
           -- print divergenceIcons
           -- putStrLn "convergence icons:"
@@ -283,9 +322,11 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           -- print paths
           -- putStrLn "paths with valent points:"
           -- print pathsWithValentPoints
-          putStrLn "only valent points:"
-          print valentPoints
-          let iconsWithValentPoints = icons ++ valentPoints
+          -- putStrLn "only valent points:"
+          -- print valentPoints
+          putStrLn "printable abc result:"
+          putStrLn printableAbcResult
+          let iconsWithValentPoints = icons
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
@@ -294,7 +335,8 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
             [] -> do
               case Records.titleIcon iconsWithValentPoints of
                 Just titleIcon -> do
-                  let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon iconsWithValentPoints
+                  let refreshedPositionedIcons =
+                        LayoutEngine.firstPaths titleIcon iconsWithValentPoints
                   handle <- System.IO.openFile textOutputPath System.IO.WriteMode
                   Data.ByteString.Lazy.hPutStr
                     handle
