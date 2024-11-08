@@ -30,12 +30,12 @@ drakonRendererArguments =
              <> Options.Applicative.help "Path to input *.json drakon diagram file.")
     <*> Options.Applicative.strOption
           (Options.Applicative.long "layoutOutputPath"
-             <> Options.Applicative.short 't'
+             <> Options.Applicative.short 'l'
              <> Options.Applicative.metavar "PATH"
              <> Options.Applicative.help "Path to output *.json drakon diagram file.")
     <*> Options.Applicative.strOption
           (Options.Applicative.long "balancedPathsOutputPath"
-             <> Options.Applicative.short 't'
+             <> Options.Applicative.short 'b'
              <> Options.Applicative.metavar "PATH"
              <> Options.Applicative.help "Path to output *.md file containing visual representation of diagram's balanced paths.")
     <*> Options.Applicative.strOption
