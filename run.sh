@@ -1,6 +1,7 @@
 cabal run drakon-renderer -- \
-    --textInputPath "./diagrams/real-life-diagram-1.json" \
-    --textOutputPath "./diagrams/real-life-diagram-1-layout.json" \
+    --inputPath "./diagrams/real-life-diagram-1.json" \
+    --layoutOutputPath "./diagrams/real-life-diagram-1-layout.json" \
+    --balancedPathsOutputPath "./diagrams/real-life-diagram-1-balanced-paths.md" \
     --svgOutputPath "./diagrams/real-life-diagram-1.svg"
 
 # cabal run drakon-renderer -- \
