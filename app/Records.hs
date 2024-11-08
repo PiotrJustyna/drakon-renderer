@@ -14,8 +14,9 @@ import qualified Options.Applicative
 --- All the information the renderer needs to run.
 ---------------------------------------------------------------------------------------------------
 data DrakonRendererArguments = DrakonRendererArguments
-  { textInputPath :: String
-  , textOutputPath :: String
+  { inputPath :: String
+  , layoutOutputPath :: String
+  , balancedPathsOutputPath :: String
   , svgOutputPath :: String
   }
 
@@ -23,15 +24,20 @@ drakonRendererArguments :: Options.Applicative.Parser DrakonRendererArguments
 drakonRendererArguments =
   DrakonRendererArguments
     <$> Options.Applicative.strOption
-          (Options.Applicative.long "textInputPath"
+          (Options.Applicative.long "inputPath"
              <> Options.Applicative.short 'i'
              <> Options.Applicative.metavar "PATH"
              <> Options.Applicative.help "Path to input *.json drakon diagram file.")
     <*> Options.Applicative.strOption
-          (Options.Applicative.long "textOutputPath"
+          (Options.Applicative.long "layoutOutputPath"
              <> Options.Applicative.short 't'
              <> Options.Applicative.metavar "PATH"
              <> Options.Applicative.help "Path to output *.json drakon diagram file.")
+    <*> Options.Applicative.strOption
+          (Options.Applicative.long "balancedPathsOutputPath"
+             <> Options.Applicative.short 't'
+             <> Options.Applicative.metavar "PATH"
+             <> Options.Applicative.help "Path to output *.md file containing visual representation of diagram's balanced paths.")
     <*> Options.Applicative.strOption
           (Options.Applicative.long "svgOutputPath"
              <> Options.Applicative.short 's'

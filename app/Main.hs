@@ -310,12 +310,12 @@ showBalancedPaths inputPaths =
     [0 .. 12]
 
 process :: Records.DrakonRendererArguments -> IO ()
-process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputPath) = do
-  fileSizeInBytes <- System.Directory.getFileSize textInputPath
+process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
+  fileSizeInBytes <- System.Directory.getFileSize inputPath
   if fileSizeInBytes > maxInputFileSizeInBytes
     then putStrLn
            $ "Problem with diagram file \""
-               ++ textInputPath
+               ++ inputPath
                ++ "\" ("
                ++ show fileSizeInBytes
                ++ " bytes). Max allowed input file size: "
@@ -323,13 +323,18 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                ++ " bytes."
     else do
       content <-
-        Control.Exception.catch (Data.ByteString.Lazy.readFile textInputPath) handleReadError
+        Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
           let paths = dcPaths [[head icons]] icons [last icons]
           let bPaths = balancedPaths paths
           let printableBPaths = (showBalancedPathsHeader bPaths) ++ (showBalancedPaths bPaths)
-          putStrLn printableBPaths
+          let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
+
+          handle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+          Data.ByteString.Lazy.hPutStr handle prettyMarkdown
+          System.IO.hClose handle
+
           let iconsWithValentPoints = icons
           let validationErrors =
                 validation
@@ -341,7 +346,7 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
                 Just titleIcon -> do
                   let refreshedPositionedIcons =
                         LayoutEngine.firstPaths titleIcon iconsWithValentPoints
-                  handle <- System.IO.openFile textOutputPath System.IO.WriteMode
+                  handle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
                   Data.ByteString.Lazy.hPutStr
                     handle
                     (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
@@ -365,6 +370,6 @@ process (Records.DrakonRendererArguments textInputPath textOutputPath svgOutputP
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn
             $ "Problem interpreting diagram file \""
-                ++ textInputPath
+                ++ inputPath
                 ++ "\". Details: "
                 ++ unpackedContent

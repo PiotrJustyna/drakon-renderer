@@ -20,12 +20,6 @@ this is work in progress and, while progress is being made every week, the rende
 * Primitive
 * Silhouette
 
-[source 1 - wikipedia](https://en.m.wikipedia.org/wiki/DRAKON#/media/File%3AIcons_of_Visual_Programming_Language_--DRAKON--.png)
-
-[source 2 - wikipedia](https://en.m.wikipedia.org/wiki/DRAKON)
-
-[source 3 - drakon.su](https://drakon.su/start)
-
 ## input syntax
 
 ```json
@@ -53,7 +47,29 @@ this is work in progress and, while progress is being made every week, the rende
 
 ## output
 
-* a serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
+### balanced paths
+
+Balanced paths - WIP at the moment but the plan is to make balanced paths the foundation of future layout engines. The idea is to trace all available paths from the title icon to the end icon and then alter them in such way that all paths end up with the same number of icons/valent points (exact implementation not set in stone yet).
+
+| path 1 | path 2 | path 3 | path 4 | path 5 | path 6 | path 7 | path 8 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| 4 | 4 | 4 | 4 | 6 | 6 | 6 | 6 |
+| 4' | 4' | 4' | 4' | 7 | 7 | 7 | 8 |
+| 6 | 6 | 6 | 6 | 8 | 13 | 13 | 9 |
+| 7 | 7 | 7 | 8 | 9 | 14 | 14 | 10 |
+| 8 | 13 | 13 | 9 | 10 | 15 | 16 | 11 |
+| 9 | 14 | 14 | 10 | 11 | 100 | 100 | 12 |
+| 10 | 15 | 16 | 11 | 12 | :x: | :x: | 100 |
+| 11 | 100 | 100 | 12 | 100 | :x: | :x: | :x: |
+| 12 | :x: | :x: | 100 | :x: | :x: | :x: | :x: |
+| 100 | :x: | :x: | :x: | :x: | :x: | :x: | :x: |
+
+### positioned icons
+
+Serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
 
 ```json
 [
@@ -88,7 +104,7 @@ this is work in progress and, while progress is being made every week, the rende
 
 * an svg diagram:
 
-![](./diagrams/real-life-diagram-1.svg)
+![real life diagram 1](./diagrams/real-life-diagram-1.svg)
 
 ## method
 
@@ -96,7 +112,7 @@ this is work in progress and, while progress is being made every week, the rende
 
 2. validate Icons (only one title icon per diagram, correct numbers of dependencies, etc.) - sample validation:
 
-    ```
+    ```bash
     Input validation did not succeed for following reasons:
     * Error: Icons identified with following names contain incorrect number of dependencies: "8", "3", "2". Hint: Make sure your icons have the expected number of dependencies. For reference: "Title" and "Action" icons should have 1 depdenency, "Question" icon should have 2 dependencies and "End" should have no dependencies.
     * Error: Diagram is required to have exactly one icon of kind "End". Hint: Make sure your input diagram contains an icon of kind "End" and that it is the only icon of that kind.
@@ -145,6 +161,8 @@ You can see into the bigger ideas I have for the project (past, present, future)
 
 * [drakon wiki](https://en.m.wikipedia.org/wiki/DRAKON)
 
+* [drakon.su](https://drakon.su/start)
+
 * [drakon](https://drakonhub.com/read/docs)
 
 * [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/doc/quickstart.html#introduction)
@@ -165,6 +183,6 @@ You can see into the bigger ideas I have for the project (past, present, future)
 
 * if you struggle with `.git` permissions, try:
 
-  ```
+  ```bash
   sudo chown -R yourusername .git
   ```
