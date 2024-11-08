@@ -49,7 +49,7 @@ this is work in progress and, while progress is being made every week, the rende
 
 ### balanced paths
 
-Balanced paths - WIP at the moment but the plan is to make balanced paths the foundation of future layout engines. The idea is to trace all available paths from the title icon to the end icon and then alter them in such way that all paths end up with the same number of icons/valent points (exact implementation not set in stone yet).
+Balanced paths - WIP currently, but the plan is to make balanced paths the foundation of future layout engines. The idea is to trace all available paths from the title icon to the end icon and then alter them in such a way that all paths end up with the same number of icons/valent points (exact implementation not set in stone yet).
 
 | path 1 | path 2 | path 3 | path 4 | path 5 | path 6 | path 7 | path 8 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -184,5 +184,6 @@ You can see into the bigger ideas I have for the project (past, present, future)
 * if you struggle with `.git` permissions, try:
 
   ```bash
+  # Note: Use this command with caution as it changes file ownership. Only run it if you understand the security implications.
   sudo chown -R yourusername .git
   ```
