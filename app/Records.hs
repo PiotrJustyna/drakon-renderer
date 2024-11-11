@@ -37,7 +37,8 @@ drakonRendererArguments =
           (Options.Applicative.long "balancedPathsOutputPath"
              <> Options.Applicative.short 'b'
              <> Options.Applicative.metavar "PATH"
-             <> Options.Applicative.help "Path to output *.md file containing visual representation of diagram's balanced paths.")
+             <> Options.Applicative.help
+                  "Path to output *.md file containing visual representation of diagram's balanced paths.")
     <*> Options.Applicative.strOption
           (Options.Applicative.long "svgOutputPath"
              <> Options.Applicative.short 's'
@@ -137,21 +138,12 @@ updateDependent Icon { iconName = name
     , iconKind = kind
     }
 
-tempValentPoint :: String -> Icon
-tempValentPoint name =
-  Icon
-    { iconName = name
-    , iconDescription = name
-    , iconNamesOfDependentIcons = []
-    , iconKind = DataTypes.ValentPoint
-    }
-
 valentPoint :: String -> String -> Icon
-valentPoint name dependent =
+valentPoint name description =
   Icon
     { iconName = name
-    , iconDescription = name
-    , iconNamesOfDependentIcons = [dependent]
+    , iconDescription = description
+    , iconNamesOfDependentIcons = []
     , iconKind = DataTypes.ValentPoint
     }
 

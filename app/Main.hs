@@ -7,8 +7,6 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
-import qualified Data.List
-import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified LayoutEngine
@@ -129,36 +127,6 @@ validation validationPredicates icons =
     []
     validationPredicates
 
-mapOfDependents :: [Records.Icon] -> Data.Map.Map String [String]
-mapOfDependents =
-  foldl
-    (\acc icon ->
-       let parentName = Records.getIconName icon
-           dependentNames = Records.getIconNamesOfDependentIcons icon
-        in Data.Map.insertWith (++) parentName dependentNames acc)
-    Data.Map.empty
-
-mapOfParents :: [Records.Icon] -> Data.Map.Map String [String]
-mapOfParents =
-  foldl
-    (\acc1 icon ->
-       let parentName = Records.getIconName icon
-           dependentNames = Records.getIconNamesOfDependentIcons icon
-        in foldl
-             (\acc2 dependentName -> Data.Map.insertWith (++) dependentName [parentName] acc2)
-             acc1
-             dependentNames)
-    Data.Map.empty
-
-multipleValues :: Data.Map.Map String [String] -> [Records.Icon] -> [Records.Icon]
-multipleValues x allIcons =
-  let multipleValuesPerKey =
-        Data.Map.foldrWithKey
-          (\k _ acc -> k : acc)
-          []
-          (Data.Map.filter (\values -> length values > 1) x)
-   in filter (\x -> Records.getIconName x `elem` multipleValuesPerKey) allIcons
-
 combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
 combine parents = foldl (\acc dependent -> acc ++ [dependent : parents]) []
 
@@ -197,80 +165,19 @@ dcPaths paths allIcons convergenceIcons =
         then map reverse paths
         else dcPaths newPaths allIcons convergenceIcons
 
--- 1. valent points should have unique names
---    need a path identifier
---    need to introduce illegal id symbols (#?)
-delta :: [Records.Icon] -> [Records.Icon] -> [Records.Icon]
-delta x1 x2 =
-  if l1 < l2
-    then ((head x1) : valentPoints) ++ newTail
-    else x1
-  where
-    l1 = length x1
-    l2 = length x2
-    oldTail = (tail x1)
-    newTail =
-      (Records.updateDependent
-         (head oldTail)
-         (Records.getIconName (head x1))
-         ((Records.getIconName (last x1)) ++ "#1"))
-        : (tail oldTail)
-    valentPoints =
-      foldr
-        (\deltaIndex acc ->
-           acc
-             ++ [ Records.valentPoint
-                    ((Records.getIconName (last x1)) ++ "#" ++ (show deltaIndex))
-                    (case acc of
-                       [] -> Records.getIconName (head x1)
-                       otherwise -> Records.getIconName (head acc))
-                ])
-        []
-        [1 .. (l2 - l1)]
-
-dcPathWithValentPoints :: [[Records.Icon]] -> [[Records.Icon]]
-dcPathWithValentPoints inputPaths =
-  foldl (\acc x -> (delta x (head acc)) : acc) [(head sortedPaths)] (tail sortedPaths)
-  where
-    sortedPaths =
-      Data.List.sortBy
-        (\singlePath1 singlePath2 -> flip compare (length singlePath1) (length singlePath2))
-        inputPaths
-
-onlyValentPoints :: [[Records.Icon]] -> [Records.Icon]
-onlyValentPoints =
+balancedPathsSingleRow :: Int -> [[Records.Icon]] -> [Records.Icon]
+balancedPathsSingleRow i =
   foldl
-    (\acc1 singlePath ->
-       acc1
-         ++ foldl
-              (\acc2 singleIcon ->
-                 case Records.getIconKind singleIcon of
-                   DataTypes.ValentPoint -> singleIcon : acc2
-                   _ -> acc2)
-              []
-              singlePath)
+    (\acc y ->
+       acc
+         ++ (if i >= length y
+               then [Records.valentPoint "0" ":x:"]
+               else [y !! i]))
     []
 
-balancedPaths :: [[Records.Icon]] -> [[Records.Icon]]
-balancedPaths inputPaths =
-  foldl
-    (\acc1 rowIndex ->
-       (foldl
-          (\acc2 columnIndex ->
-             let inputPath = inputPaths !! columnIndex
-                 newPath =
-                   case acc1 of
-                     [] -> []
-                     otherwise -> acc1 !! columnIndex
-                 newIcon =
-                   if rowIndex >= length inputPath
-                     then Records.tempValentPoint ":x:"
-                     else inputPath !! rowIndex
-              in acc2 ++ [newPath ++ [newIcon]])
-          ([] :: [[Records.Icon]])
-          [0 .. ((length inputPaths) - 1)]))
-    ([] :: [[Records.Icon]])
-    [0 .. 12]
+balancedPathsAllRows :: [[Records.Icon]] -> [[Records.Icon]]
+balancedPathsAllRows inputPaths =
+  foldl (\acc x -> acc ++ [balancedPathsSingleRow x inputPaths]) [] [0 .. 12]
 
 showBalancedPathsHeader :: [[Records.Icon]] -> String
 showBalancedPathsHeader inputPaths =
@@ -279,35 +186,28 @@ showBalancedPathsHeader inputPaths =
           (\acc i ->
              case i of
                0 -> "\n| path " ++ show (i + 1) ++ " |"
-               otherwise -> acc ++ " path " ++ show (i + 1) ++ " |")
+               _ -> acc ++ " path " ++ show (i + 1) ++ " |")
           ""
-          [0 .. ((length inputPaths) - 1)]
+          [0 .. (length (head inputPaths) - 1)]
       headerLineBreak =
         foldl
           (\acc i ->
              case i of
                0 -> "\n| --- |"
-               otherwise -> acc ++ " --- |")
+               _ -> acc ++ " --- |")
           ""
-          [0 .. ((length inputPaths) - 1)]
+          [0 .. (length (head inputPaths) - 1)]
    in header ++ headerLineBreak
 
-showBalancedPaths :: [[Records.Icon]] -> String
-showBalancedPaths inputPaths =
+showBalancedPathsSingleRow :: [Records.Icon] -> String
+showBalancedPathsSingleRow =
   foldl
-    (\acc1 rowIndex ->
-       acc1
-         ++ (foldl
-               (\acc2 columnIndex ->
-                  let singlePath = inputPaths !! columnIndex
-                   in case columnIndex of
-                        0 -> "\n| " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |"
-                        otherwise ->
-                          acc2 ++ " " ++ (Records.getIconName (singlePath !! rowIndex)) ++ " |")
-               acc1
-               [0 .. ((length inputPaths) - 1)]))
-    ""
-    [0 .. 12]
+    (\acc x ->
+       acc ++ " **" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
+    "\n|"
+
+showBalancedPaths :: [[Records.Icon]] -> String
+showBalancedPaths = foldl (\acc x -> acc ++ showBalancedPathsSingleRow x) ""
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -322,19 +222,18 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                ++ show maxInputFileSizeInBytes
                ++ " bytes."
     else do
-      content <-
-        Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
+      content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
           let paths = dcPaths [[head icons]] icons [last icons]
-          let bPaths = balancedPaths paths
-          let printableBPaths = (showBalancedPathsHeader bPaths) ++ (showBalancedPaths bPaths)
-          let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
-
-          handle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-          Data.ByteString.Lazy.hPutStr handle prettyMarkdown
-          System.IO.hClose handle
-
+          let bPaths = balancedPathsAllRows paths
+          print bPaths
+          let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
+          let prettyMarkdown =
+                Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
+          bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+          Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
+          System.IO.hClose bPathsOutputHandle
           let iconsWithValentPoints = icons
           let validationErrors =
                 validation
@@ -346,11 +245,11 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                 Just titleIcon -> do
                   let refreshedPositionedIcons =
                         LayoutEngine.firstPaths titleIcon iconsWithValentPoints
-                  handle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
+                  layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
                   Data.ByteString.Lazy.hPutStr
-                    handle
+                    layoutOutputhandle
                     (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
-                  System.IO.hClose handle
+                  System.IO.hClose layoutOutputhandle
                   let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
                   Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
                     $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
