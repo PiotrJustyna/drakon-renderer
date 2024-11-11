@@ -3,7 +3,7 @@ language: "en-US"
 early_access: true
 reviews:
   profile: "assertive"
-  request_changes_workflow: false
+  request_changes_workflow: true
   high_level_summary: false
   poem: false
   review_status: true
