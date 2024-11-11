@@ -15,6 +15,7 @@ import qualified Records
 import qualified Renderer
 import qualified System.Directory
 import qualified System.IO
+import qualified Data.Map
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -199,12 +200,20 @@ showBalancedPathsHeader inputPaths =
           [0 .. (length (head inputPaths) - 1)]
    in header ++ headerLineBreak
 
+abc :: [Records.Icon] -> Bool
+abc singleRow = Data.Map.size mapOfIcons > 1
+  where
+    mapOfIcons = foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
+
 showBalancedPathsSingleRow :: [Records.Icon] -> String
-showBalancedPathsSingleRow =
+showBalancedPathsSingleRow singleRow =
   foldl
     (\acc x ->
-       acc ++ " **" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
+       acc ++ iconPotentiallyShiftingMarker ++ "**" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
     "\n|"
+    singleRow
+  where
+    iconPotentiallyShiftingMarker = if abc singleRow then " :arrow_down: " else " "
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths = foldl (\acc x -> acc ++ showBalancedPathsSingleRow x) ""
@@ -227,7 +236,6 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
         Just icons -> do
           let paths = dcPaths [[head icons]] icons [last icons]
           let bPaths = balancedPathsAllRows paths
-          print bPaths
           let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
           let prettyMarkdown =
                 Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
