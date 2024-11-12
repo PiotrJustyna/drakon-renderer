@@ -200,20 +200,24 @@ showBalancedPathsHeader inputPaths =
           [0 .. (length (head inputPaths) - 1)]
    in header ++ headerLineBreak
 
-abc :: [Records.Icon] -> Bool
-abc singleRow = Data.Map.size mapOfIcons > 1
+hasMultipleUniqueIcons :: [Records.Icon] -> Bool
+hasMultipleUniqueIcons singleRow = Data.Map.size mapOfIcons > 1
   where
     mapOfIcons = foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
+
+shiftMarker :: String
+shiftMarker = ":arrow_down:"
+
+getRowMarker :: [Records.Icon] -> String
+getRowMarker icons = if hasMultipleUniqueIcons icons then shiftMarker else " "
 
 showBalancedPathsSingleRow :: [Records.Icon] -> String
 showBalancedPathsSingleRow singleRow =
   foldl
     (\acc x ->
-       acc ++ iconPotentiallyShiftingMarker ++ "**" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
+       acc ++ getRowMarker singleRow ++ "**" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
     "\n|"
     singleRow
-  where
-    iconPotentiallyShiftingMarker = if abc singleRow then " :arrow_down: " else " "
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths = foldl (\acc x -> acc ++ showBalancedPathsSingleRow x) ""
