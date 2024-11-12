@@ -7,6 +7,7 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
+import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified LayoutEngine
@@ -15,7 +16,6 @@ import qualified Records
 import qualified Renderer
 import qualified System.Directory
 import qualified System.IO
-import qualified Data.Map
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -203,24 +203,41 @@ showBalancedPathsHeader inputPaths =
 hasMultipleUniqueIcons :: [Records.Icon] -> Bool
 hasMultipleUniqueIcons singleRow = Data.Map.size mapOfIcons > 1
   where
-    mapOfIcons = foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
+    mapOfIcons =
+      foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
+
+iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Int -> Int -> Bool
+iconPresentFurtherDownAnotherPath inputPaths rowIndex columnIndex =
+  -- just an arbitrary rule for now:
+  rowIndex + columnIndex > 8
+  -- hasMultipleUniqueIcons $ inputPaths !! rowIndex
 
 shiftMarker :: String
-shiftMarker = ":arrow_down:"
+shiftMarker = " :arrow_down: "
 
-getRowMarker :: [Records.Icon] -> String
-getRowMarker icons = if hasMultipleUniqueIcons icons then shiftMarker else " "
+getIconMarker :: [[Records.Icon]] -> Int -> Int -> String
+getIconMarker inputPaths rowIndex columnIndex =
+  if iconPresentFurtherDownAnotherPath inputPaths rowIndex columnIndex
+    then shiftMarker
+    else " "
 
-showBalancedPathsSingleRow :: [Records.Icon] -> String
-showBalancedPathsSingleRow singleRow =
+showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
+showBalancedPathsSingleRow inputPaths rowIndex =
   foldl
-    (\acc x ->
-       acc ++ getRowMarker singleRow ++ "**" ++ Records.getIconName x ++ "** - " ++ Records.getIconDescription x ++ " |")
+    (\acc columnIndex ->
+       let icon = (inputPaths !! rowIndex) !! columnIndex
+           name = Records.getIconName icon
+           description = Records.getIconDescription icon
+        in acc ++ getIconMarker inputPaths rowIndex columnIndex ++ "**" ++ name ++ "** - " ++ description ++ " |")
     "\n|"
-    singleRow
+    [0 .. length (inputPaths !! rowIndex) - 1]
 
 showBalancedPaths :: [[Records.Icon]] -> String
-showBalancedPaths = foldl (\acc x -> acc ++ showBalancedPathsSingleRow x) ""
+showBalancedPaths inputPaths =
+  foldl
+    (\acc rowIndex -> acc ++ showBalancedPathsSingleRow inputPaths rowIndex)
+    ""
+    [0 .. length inputPaths - 1]
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
