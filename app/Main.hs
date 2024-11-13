@@ -208,17 +208,9 @@ hasMultipleUniqueIcons singleRow = Data.Map.size mapOfIcons > 1
 
 iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
 iconPresentFurtherDownAnotherPath inputPaths icon rowIndex =
-  (rowIndex < length inputPaths - 1) && (iconPresentInRowBelow || iconPresentInRemainingRowsBelow)
-  where
-    iconPresentInRowBelow =
-      foldl
-        (\acc x ->
-           if acc
-             then acc
-             else Records.getIconName x == Records.getIconName icon)
-        False
-        (inputPaths !! (rowIndex + 1))
-    iconPresentInRemainingRowsBelow = iconPresentFurtherDownAnotherPath inputPaths icon (rowIndex + 1)
+  let targetName = Records.getIconName icon
+      lowerRows = drop (rowIndex + 1) inputPaths
+  in any (any (\x -> Records.getIconName x == targetName)) lowerRows
 
 shiftMarker :: String
 shiftMarker = " :arrow_down: "
