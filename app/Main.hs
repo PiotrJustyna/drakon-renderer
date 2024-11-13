@@ -206,31 +206,44 @@ hasMultipleUniqueIcons singleRow = Data.Map.size mapOfIcons > 1
     mapOfIcons =
       foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
 
-iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Int -> Int -> Bool
-iconPresentFurtherDownAnotherPath inputPaths rowIndex columnIndex =
-  -- just an arbitrary rule for now:
-  rowIndex + columnIndex > 8
-  -- hasMultipleUniqueIcons $ inputPaths !! rowIndex
+iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
+iconPresentFurtherDownAnotherPath inputPaths icon rowIndex =
+  (rowIndex < length inputPaths - 1) && (iconPresentInRowBelow || iconPresentInRemainingRowsBelow)
+  where
+    iconPresentInRowBelow =
+      foldl
+        (\acc x ->
+           if acc
+             then acc
+             else Records.getIconName x == Records.getIconName icon)
+        False
+        (inputPaths !! (rowIndex + 1))
+    iconPresentInRemainingRowsBelow = iconPresentFurtherDownAnotherPath inputPaths icon (rowIndex + 1)
 
 shiftMarker :: String
 shiftMarker = " :arrow_down: "
 
-getIconMarker :: [[Records.Icon]] -> Int -> Int -> String
-getIconMarker inputPaths rowIndex columnIndex =
-  if iconPresentFurtherDownAnotherPath inputPaths rowIndex columnIndex
+getIconMarker :: [[Records.Icon]] -> Records.Icon -> Int -> String
+getIconMarker inputPaths icon rowIndex =
+  if iconPresentFurtherDownAnotherPath inputPaths icon rowIndex
     then shiftMarker
     else " "
 
 showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
 showBalancedPathsSingleRow inputPaths rowIndex =
   foldl
-    (\acc columnIndex ->
-       let icon = (inputPaths !! rowIndex) !! columnIndex
-           name = Records.getIconName icon
-           description = Records.getIconDescription icon
-        in acc ++ getIconMarker inputPaths rowIndex columnIndex ++ "**" ++ name ++ "** - " ++ description ++ " |")
+    (\acc icon ->
+      let name = Records.getIconName icon
+          description = Records.getIconDescription icon
+      in acc
+            ++ getIconMarker inputPaths icon rowIndex
+            ++ "**"
+            ++ name
+            ++ "** - "
+            ++ description
+            ++ " |")
     "\n|"
-    [0 .. length (inputPaths !! rowIndex) - 1]
+    (inputPaths !! rowIndex)
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
