@@ -260,14 +260,14 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let paths = dcPaths [[head icons]] icons [last icons]
-          let bPaths = balancedPathsAllRows paths
-          let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
-          let prettyMarkdown =
-                Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
-          bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-          Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
-          System.IO.hClose bPathsOutputHandle
+          -- let paths = dcPaths [[head icons]] icons [last icons]
+          -- let bPaths = balancedPathsAllRows paths
+          -- let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
+          -- let prettyMarkdown =
+          --       Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
+          -- bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+          -- Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
+          -- System.IO.hClose bPathsOutputHandle
           let iconsWithValentPoints = icons
           let validationErrors =
                 validation
