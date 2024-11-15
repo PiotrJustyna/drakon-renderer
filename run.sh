@@ -1,8 +1,14 @@
 cabal run drakon-renderer -- \
-    --inputPath "./diagrams/real-life-diagram-1.json" \
-    --layoutOutputPath "./diagrams/real-life-diagram-1-layout.json" \
-    --balancedPathsOutputPath "./diagrams/real-life-diagram-1-balanced-paths.md" \
-    --svgOutputPath "./diagrams/real-life-diagram-1.svg"
+    --inputPath "./diagrams/simple-diagram.json" \
+    --layoutOutputPath "./diagrams/simple-diagram-layout.json" \
+    --balancedPathsOutputPath "./diagrams/simple-diagram-balanced-paths.md" \
+    --svgOutputPath "./diagrams/simple-diagram.svg"
+
+# cabal run drakon-renderer -- \
+#     --inputPath "./diagrams/real-life-diagram-1.json" \
+#     --layoutOutputPath "./diagrams/real-life-diagram-1-layout.json" \
+#     --balancedPathsOutputPath "./diagrams/real-life-diagram-1-balanced-paths.md" \
+#     --svgOutputPath "./diagrams/real-life-diagram-1.svg"
 
 # cabal run drakon-renderer -- \
 #     --textInputPath "./diagrams/drakon-diagram.json" \
