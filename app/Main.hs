@@ -16,6 +16,7 @@ import qualified Records
 import qualified Renderer
 import qualified System.Directory
 import qualified System.IO
+import qualified Data.List
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -244,6 +245,15 @@ showBalancedPaths inputPaths =
     ""
     [0 .. length inputPaths - 1]
 
+abc :: [[Records.Icon]] -> [Bool]
+abc input =
+  foldl
+    (\acc r -> True : acc)
+    []
+    input
+  where
+    limit = last . Data.List.sort $ foldl (\acc r -> (length r) : acc) [] input
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize inputPath
@@ -260,7 +270,8 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          -- let paths = dcPaths [[head icons]] icons [last icons]
+          let paths = dcPaths [[head icons]] icons [last icons]
+          print $ abc paths
           -- let bPaths = balancedPathsAllRows paths
           -- let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
           -- let prettyMarkdown =
