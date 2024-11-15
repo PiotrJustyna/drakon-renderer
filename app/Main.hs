@@ -7,6 +7,7 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
+import qualified Data.List
 import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
@@ -16,7 +17,6 @@ import qualified Records
 import qualified Renderer
 import qualified System.Directory
 import qualified System.IO
-import qualified Data.List
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
@@ -211,7 +211,7 @@ iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Records.Icon -> Int -> 
 iconPresentFurtherDownAnotherPath inputPaths icon rowIndex =
   let targetName = Records.getIconName icon
       lowerRows = drop (rowIndex + 1) inputPaths
-  in any (any (\x -> Records.getIconName x == targetName)) lowerRows
+   in any (any (\x -> Records.getIconName x == targetName)) lowerRows
 
 shiftMarker :: String
 shiftMarker = " :arrow_down: "
@@ -226,15 +226,15 @@ showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
 showBalancedPathsSingleRow inputPaths rowIndex =
   foldl
     (\acc icon ->
-      let name = Records.getIconName icon
-          description = Records.getIconDescription icon
-      in acc
-            ++ getIconMarker inputPaths icon rowIndex
-            ++ "**"
-            ++ name
-            ++ "** - "
-            ++ description
-            ++ " |")
+       let name = Records.getIconName icon
+           description = Records.getIconDescription icon
+        in acc
+             ++ getIconMarker inputPaths icon rowIndex
+             ++ "**"
+             ++ name
+             ++ "** - "
+             ++ description
+             ++ " |")
     "\n|"
     (inputPaths !! rowIndex)
 
@@ -247,12 +247,17 @@ showBalancedPaths inputPaths =
 
 abc :: [[Records.Icon]] -> [Bool]
 abc input =
-  foldl
-    (\acc r -> True : acc)
-    []
-    input
+  foldl (\acc1 columnIndex -> acc1 ++ [hasMultipleUniqueIcons (slice columnIndex)]) [] [0 .. limit]
   where
-    limit = last . Data.List.sort $ foldl (\acc r -> (length r) : acc) [] input
+    limit = maximum (foldl (\acc r -> length r : acc) [] input) - 1
+    slice columnIndex =
+      foldl
+        (\acc2 row ->
+           if columnIndex < length row
+             then acc2 ++ [row !! columnIndex]
+             else acc2)
+        []
+        input
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
