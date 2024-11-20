@@ -313,6 +313,24 @@ sliceMap input =
     Data.Map.empty
     input
 
+-- to be: [[Records.Icon]] -> [Records.Icon]
+-- with recursive invocation
+balance :: [[Records.Icon]] -> [[Records.Icon]]
+balance [] = []
+balance input =
+  let rowMap = sliceMap input
+   in (if Data.Map.null rowMap
+         then input
+         else foldl
+                (\acc row ->
+                   let key = head row
+                       value = rowMap Data.Map.! head row
+                    in if key == value
+                         then acc ++ [key : tail row]
+                         else acc ++ [value : (key : tail row)])
+                []
+                input)
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize inputPath
@@ -332,8 +350,10 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
           let paths = dcPaths [[head icons]] icons [last icons]
           -- print "paths:"
           -- print paths
-          print "slice map:"
-          print $ sliceMap (skipFirst (skipFirst paths))
+          -- print "slice map:"
+          -- print $ sliceMap (skipFirst (skipFirst paths))
+          print "balance:"
+          print $ balance (skipFirst (skipFirst paths))
           -- print "insertAt:"
           -- print $ insertAt paths 1 2 (Records.valentPoint "0" ":x:")
           -- let bPaths = balancedPathsAllRows paths

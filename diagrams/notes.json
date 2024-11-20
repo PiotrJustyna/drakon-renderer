@@ -86,3 +86,38 @@
     (Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action}, Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action}),
     (Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End},Icon {iconName = "0", iconDescription = ":x:", iconNamesOfDependentIcons = [], iconKind = ValentPoint})
 ]
+
+---
+
+[
+    [
+        Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action},
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
+    ],
+    [
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
+    ]
+]
+
+---
+
+[
+    [
+        Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action},
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
+    ],
+    [
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}]]
+
+---
+
+[
+    [
+        Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action},
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
+    ],
+    [
+        Icon {iconName = "0", iconDescription = ":x:", iconNamesOfDependentIcons = [], iconKind = ValentPoint},
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
+    ]
+]
