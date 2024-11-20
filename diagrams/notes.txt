@@ -11,3 +11,40 @@
         Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End}
     ]
 ]
+
+---
+
+[
+    [Icon {iconName = "1", iconDescription = "title", iconNamesOfDependentIcons = ["2"], iconKind = Title}],
+    [Icon {iconName = "2", iconDescription = "question", iconNamesOfDependentIcons = ["3","4"], iconKind = Question}],
+    [
+        Icon {iconName = "0", iconDescription = ":x:", iconNamesOfDependentIcons = [], iconKind = ValentPoint},
+        Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action}
+    ]
+]
+
+---
+
+[
+    [
+        (Icon {iconName = "1", iconDescription = "title", iconNamesOfDependentIcons = ["2"], iconKind = Title},
+        Icon {iconName = "1", iconDescription = "title", iconNamesOfDependentIcons = ["2"], iconKind = Title})
+    ],
+    [
+        (Icon {iconName = "2", iconDescription = "question", iconNamesOfDependentIcons = ["3","4"], iconKind = Question},
+        Icon {iconName = "2", iconDescription = "question", iconNamesOfDependentIcons = ["3","4"], iconKind = Question})
+    ],
+    [
+        (Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End},
+        Icon {iconName = "0", iconDescription = ":x:", iconNamesOfDependentIcons = [], iconKind = ValentPoint})
+        ,
+        (Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action},
+        Icon {iconName = "3", iconDescription = "choice 1", iconNamesOfDependentIcons = ["4"], iconKind = Action})
+    ],
+    [
+        (Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End},
+        Icon {iconName = "4", iconDescription = "end", iconNamesOfDependentIcons = [], iconKind = End})
+    ]
+]
+
+-- TODO: apply the shifts to the original column slice
