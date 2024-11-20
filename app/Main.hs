@@ -245,54 +245,6 @@ showBalancedPaths inputPaths =
     ""
     [0 .. length inputPaths - 1]
 
-pathsBelow :: Int -> [[Records.Icon]] -> [[Records.Icon]]
-pathsBelow i = foldl (\acc singlePath -> acc ++ [drop i singlePath]) []
-
-iconPresentFurtherDownAnotherPath' :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
-iconPresentFurtherDownAnotherPath' input icon i =
-  let targetName = Records.getIconName icon
-   in any (any (\x -> Records.getIconName x == targetName)) (pathsBelow i input)
-
-insertAt :: [[a]] -> Int -> Int -> a -> [[a]]
-insertAt input r c v = lr ++ [lc ++ (v : (rc : rcs))] ++ rrs
-  where
-    (lr, rr:rrs) = Data.List.splitAt r input
-    (lc, rc:rcs) = Data.List.splitAt c rr
-
--- sliceMap :: [Records.Icon] -> Data.Map.Map String Records.Icon
--- sliceMap = foldl (\acc icon -> Data.Map.insert (Records.getIconName icon) icon acc) Data.Map.empty
--- slice :: Int -> [[Records.Icon]] -> [Records.Icon]
--- slice columnIndex =
---   foldl
---     (\acc row ->
---        if columnIndex < length row
---          then acc ++ [row !! columnIndex]
---          else acc)
---     []
--- balanceRow :: [[Records.Icon]] -> Int -> [(Records.Icon, Records.Icon)]
--- balanceRow input columnIndex = columnSliceMap
---   where
---     columnSlice = slice columnIndex input
---     columnSliceMap =
---       foldr
---         (\icon acc ->
---                 acc
---                   ++ if iconPresentFurtherDownAnotherPath' input icon (columnIndex + 1)
---                         then [(icon, Records.valentPoint "0" ":x:")]
---                         else [(icon, icon)])
---         []
---         (sliceMap columnSlice)
--- balance :: [[Records.Icon]] -> [[(Records.Icon, Records.Icon)]]
--- balance input = foldl (\acc columnIndex -> acc ++ [balanceRow input columnIndex]) [] [0 .. limit]
---   where
---     limit = 3 -- maximum (foldl (\acc r -> length r : acc) [] input) - 1
--- balance :: [[Records.Icon]] -> [[Records.Icon]]
--- balance [] = []
--- balance input = [slice 0 input]
--- sliceMap: old icon -> new icon
--- any icon present
--- deslice?
--- input -> (sliceMap, newInput - only )
 skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
 skipFirst = foldl (\acc row -> acc ++ [drop 1 row]) []
 
@@ -304,17 +256,17 @@ sliceMap [] = Data.Map.empty
 sliceMap input =
   foldl
     (\acc row ->
-       let icon = head row
-           newIcon =
-             if iconPresent icon (skipFirst input)
-               then Records.valentPoint "0" ":x:"
-               else icon
-        in Data.Map.insertWith const icon newIcon acc)
+       case row of
+         (icon:_) ->
+           let newIcon =
+                 if iconPresent icon (skipFirst input)
+                   then Records.valentPoint "0" ":x:"
+                   else icon
+            in Data.Map.insertWith const icon newIcon acc
+         [] -> acc)
     Data.Map.empty
     input
 
--- to be: [[Records.Icon]] -> [Records.Icon]
--- with recursive invocation
 balance :: [[Records.Icon]] -> [[Records.Icon]]
 balance [] = []
 balance input =
@@ -323,11 +275,13 @@ balance input =
          then input
          else foldl
                 (\acc row ->
-                   let key = head row
-                       value = rowMap Data.Map.! head row
-                    in if key == value
-                         then acc ++ [key : tail row]
-                         else acc ++ [value : (key : tail row)])
+                  case row of
+                    [] -> acc
+                    (key : rest) ->
+                      let value = rowMap Data.Map.! key
+                      in if key == value
+                          then acc ++ [key : rest]
+                          else acc ++ [value : (key : rest)])
                 []
                 input)
 
