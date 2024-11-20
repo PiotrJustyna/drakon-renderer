@@ -168,6 +168,9 @@ instance Data.Aeson.FromJSON Icon where
 instance Eq Icon where
   (==) (Icon name1 _ _ _) (Icon name2 _ _ _) = name1 == name2
 
+instance Ord Icon where
+  compare (Icon name1 _ _ _) (Icon name2 _ _ _) = compare name1 name2
+
 titleIcon :: [Icon] -> Maybe Icon
 titleIcon allIcons =
   case titleIcons of
