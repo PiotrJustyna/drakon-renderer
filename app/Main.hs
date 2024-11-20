@@ -245,19 +245,50 @@ showBalancedPaths inputPaths =
     ""
     [0 .. length inputPaths - 1]
 
-abc :: [[Records.Icon]] -> [Bool]
-abc input =
-  foldl (\acc1 columnIndex -> acc1 ++ [hasMultipleUniqueIcons (slice columnIndex)]) [] [0 .. limit]
+pathsBelow :: Int -> [[Records.Icon]] -> [[Records.Icon]]
+pathsBelow i = foldl (\acc singlePath -> acc ++ [drop i singlePath]) []
+
+iconPresentFurtherDownAnotherPath' :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
+iconPresentFurtherDownAnotherPath' input icon i =
+  let targetName = Records.getIconName icon
+   in any (any (\x -> Records.getIconName x == targetName)) (pathsBelow i input)
+
+insertAt :: [[Int]] -> Int -> Int -> Int -> [[Int]]
+insertAt input r c v = lr ++ [lc ++ (v : (rc : rcs))] ++ rrs
   where
-    limit = maximum (foldl (\acc r -> length r : acc) [] input) - 1
-    slice columnIndex =
-      foldl
-        (\acc2 row ->
-           if columnIndex < length row
-             then acc2 ++ [row !! columnIndex]
-             else acc2)
+    (lr, rr:rrs) = Data.List.splitAt r input
+    (lc, rc:rcs) = Data.List.splitAt c rr
+
+sliceMap :: [Records.Icon] -> Data.Map.Map String Records.Icon
+sliceMap = foldl (\acc icon -> Data.Map.insert (Records.getIconName icon) icon acc) Data.Map.empty
+
+slice :: Int -> [[Records.Icon]] -> [Records.Icon]
+slice columnIndex =
+  foldl
+    (\acc row ->
+       if columnIndex < length row
+         then acc ++ [row !! columnIndex]
+         else acc)
+    []
+
+balanceRow :: [[Records.Icon]] -> Int -> [(Records.Icon, Records.Icon)]
+balanceRow input columnIndex = columnSliceMap
+  where
+    columnSlice = slice columnIndex input
+    columnSliceMap =
+      foldr
+        (\icon acc ->
+                acc
+                  ++ if iconPresentFurtherDownAnotherPath' input icon (columnIndex + 1)
+                        then [(icon, Records.valentPoint "0" ":x:")]
+                        else [(icon, icon)])
         []
-        input
+        (sliceMap columnSlice)
+
+balance :: [[Records.Icon]] -> [[(Records.Icon, Records.Icon)]]
+balance input = foldl (\acc columnIndex -> acc ++ [balanceRow input columnIndex]) [] [0 .. limit]
+  where
+    limit = 3 -- maximum (foldl (\acc r -> length r : acc) [] input) - 1
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -276,7 +307,7 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
           let paths = dcPaths [[head icons]] icons [last icons]
-          print $ abc paths
+          print $ balance paths
           -- let bPaths = balancedPathsAllRows paths
           -- let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
           -- let prettyMarkdown =
