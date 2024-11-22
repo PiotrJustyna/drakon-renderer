@@ -25,7 +25,7 @@ this is work in progress and, while progress is being made every week, the rende
 ```json
 [
     {
-        "iconDescription": "hello world title",
+        "iconDescription": "title",
         "iconKind": "Title",
         "iconName": "1",
         "iconNamesOfDependentIcons": [
@@ -33,15 +33,28 @@ this is work in progress and, while progress is being made every week, the rende
         ]
     },
     {
-        "iconDescription": "hello world icon 2",
-        "iconKind": "Action",
+        "iconDescription": "question",
+        "iconKind": "Question",
         "iconName": "2",
         "iconNamesOfDependentIcons": [
             "3",
             "4"
         ]
     },
-    ...
+    {
+        "iconDescription": "choice 1",
+        "iconKind": "Action",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": [
+            "4"
+        ]
+    },
+    {
+        "iconDescription": "end",
+        "iconKind": "End",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": []
+    }
 ]
 ```
 
@@ -51,31 +64,26 @@ this is work in progress and, while progress is being made every week, the rende
 
 Balanced paths - WIP currently, but the plan is to make balanced paths the foundation of future layout engines. The idea is to trace all available paths from the title icon to the end icon and then alter them in such a way that all paths end up with the same number of icons/valent points (exact implementation not set in stone yet).
 
-| path 1 | path 2 | path 3 | path 4 | path 5 | path 6 | path 7 | path 8 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **1** - transport | **1** - transport | **1** - transport | **1** - transport | **1** - transport | **1** - transport | **1** - transport | **1** - transport |
-| **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation | **2** - Cryopreservation |
-| **3** - perfusion | **3** - perfusion | **3** - perfusion | **3** - perfusion | **3** - perfusion | **3** - perfusion | **3** - perfusion | **3** - perfusion |
-| **4** - perfuse the brain - 1 | **4** - perfuse the brain - 1 | **4** - perfuse the brain - 1 | **4** - perfuse the brain - 1 | **6** - remove brain | **6** - remove brain | **6** - remove brain | **6** - remove brain |
-| **4'** - perfuse the brain - 2 | **4'** - perfuse the brain - 2 | **4'** - perfuse the brain - 2 | **4'** - perfuse the brain - 2 | **7** - remove alternative | **7** - remove alternative | **7** - remove alternative | **8** - remove the brain |
-| **6** - remove brain | **6** - remove brain | **6** - remove brain | **6** - remove brain | **8** - remove the brain | **13** - embalm 2 | **13** - embalm 2 | **9** - place brain |
-| **7** - remove alternative | **7** - remove alternative | **7** - remove alternative | **8** - remove the brain | **9** - place brain | **14** - Czech transit | **14** - Czech transit | **10** - freeze brain |
-| **8** - remove the brain | **13** - embalm 2 | **13** - embalm 2 | **9** - place brain | **10** - freeze brain | **15** - transport Czech | **16** - transport Moscow | **11** - embalm 1 |
-| **9** - place brain | **14** - Czech transit | **14** - Czech transit | **10** - freeze brain | **11** - embalm 1 | **100** - The end | **100** - The end | **12** - transport Finland |
-| **10** - freeze brain | **15** - transport Czech | **16** - transport Moscow | **11** - embalm 1 | **12** - transport Finland | **0** - :x: | **0** - :x: | **100** - The end |
-| **11** - embalm 1 | **100** - The end | **100** - The end | **12** - transport Finland | **100** - The end | **0** - :x: | **0** - :x: | **0** - :x: |
-| **12** - transport Finland | **0** - :x: | **0** - :x: | **100** - The end | **0** - :x: | **0** - :x: | **0** - :x: | **0** - :x: |
-| **100** - The end | **0** - :x: | **0** - :x: | **0** - :x: | **0** - :x: | **0** - :x: | **0** - :x: | **0** - :x: |
+| path 1 | path 2 |
+| --- | --- |
+| **1** - title | **1** - title |
+| **2** - question | **2** - question |
+| **3** - choice 1 | **0** - :new: |
+| **4** - end | **4** - end |
+
+\*where the "0" icon describes an automatically injected valent point. This is WIP and is subject to change.
 
 ### positioned icons
 
 Serialized list of `PositionedIcon` which are regular `Icon` supplemented with their post-layout cartesian coordinates:
 
+WIP at the moment - layout engine does not leverage automatically injected valent points yet. Rendered results will look correct, but the engine needs to start accepting automatically injected valent points.
+
 ```json
 [
     {
         "icon": {
-            "iconDescription": "hello world title",
+            "iconDescription": "title",
             "iconKind": "Title",
             "iconName": "1",
             "iconNamesOfDependentIcons": [
@@ -87,8 +95,8 @@ Serialized list of `PositionedIcon` which are regular `Icon` supplemented with t
     },
     {
         "icon": {
-            "iconDescription": "hello world icon 2",
-            "iconKind": "Action",
+            "iconDescription": "question",
+            "iconKind": "Question",
             "iconName": "2",
             "iconNamesOfDependentIcons": [
                 "3",
@@ -98,13 +106,34 @@ Serialized list of `PositionedIcon` which are regular `Icon` supplemented with t
         "iconPositionX": 0,
         "iconPositionY": -1
     },
-    ...
+    {
+        "icon": {
+            "iconDescription": "choice 1",
+            "iconKind": "Action",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": [
+                "4"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "end",
+            "iconKind": "End",
+            "iconName": "4",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -3
+    }
 ]
 ```
 
 * an svg diagram:
 
-![real life diagram 1](./diagrams/real-life-diagram-1.svg)
+![real life diagram 1](./diagrams/simple-diagram.svg)
 
 ## method
 

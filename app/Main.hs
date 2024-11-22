@@ -190,7 +190,7 @@ showBalancedPathsHeader inputPaths =
                0 -> "\n| path " ++ show (i + 1) ++ " |"
                _ -> acc ++ " path " ++ show (i + 1) ++ " |")
           ""
-          [0 .. (length (head inputPaths) - 1)]
+          [0 .. (length inputPaths - 1)]
       headerLineBreak =
         foldl
           (\acc i ->
@@ -198,7 +198,7 @@ showBalancedPathsHeader inputPaths =
                0 -> "\n| --- |"
                _ -> acc ++ " --- |")
           ""
-          [0 .. (length (head inputPaths) - 1)]
+          [0 .. (length inputPaths - 1)]
    in header ++ headerLineBreak
 
 hasMultipleUniqueIcons :: [Records.Icon] -> Bool
@@ -222,31 +222,49 @@ getIconMarker inputPaths icon rowIndex =
     then shiftMarker
     else " "
 
-showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
-showBalancedPathsSingleRow inputPaths rowIndex =
-  foldl
-    (\acc icon ->
-       let name = Records.getIconName icon
-           description = Records.getIconDescription icon
-        in acc
-             ++ getIconMarker inputPaths icon rowIndex
-             ++ "**"
-             ++ name
-             ++ "** - "
-             ++ description
-             ++ " |")
-    "\n|"
-    (inputPaths !! rowIndex)
+-- showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
+-- showBalancedPathsSingleRow inputPaths rowIndex =
+--   foldl
+--     (\acc icon ->
+--        let name = Records.getIconName icon
+--            description = Records.getIconDescription icon
+--         in acc
+--              ++ getIconMarker inputPaths icon rowIndex
+--              ++ "**"
+--              ++ name
+--              ++ "** - "
+--              ++ description
+--              ++ " |")
+--     "\n|"
+--     (inputPaths !! rowIndex)
+
+-- showBalancedPaths :: [[Records.Icon]] -> String
+-- showBalancedPaths inputPaths =
+--   foldl
+--     (\acc rowIndex -> acc ++ showBalancedPathsSingleRow inputPaths rowIndex)
+--     ""
+--     [0 .. length inputPaths - 1]
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
   foldl
-    (\acc rowIndex -> acc ++ showBalancedPathsSingleRow inputPaths rowIndex)
+    (\columnAcc columnIndex ->
+      columnAcc ++ (foldl
+        (\rowAcc row ->
+          let icon = row !! columnIndex
+              name = Records.getIconName icon
+              description = Records.getIconDescription icon
+          in rowAcc ++ " **" ++ name ++ "** - " ++ description ++ " |")
+        "|"
+        inputPaths) ++ "\n")
     ""
-    [0 .. length inputPaths - 1]
+    [0 .. length (head inputPaths) - 1]
 
 skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
 skipFirst = foldl (\acc row -> acc ++ [drop 1 row]) []
+
+takeFirst :: [[Records.Icon]] -> [[Records.Icon]]
+takeFirst = foldl (\acc row -> acc ++ [take 1 row]) []
 
 iconPresent :: Records.Icon -> [[Records.Icon]] -> Bool
 iconPresent x = any (elem x)
@@ -260,30 +278,44 @@ sliceMap input =
          (icon:_) ->
            let newIcon =
                  if iconPresent icon (skipFirst input)
-                   then Records.valentPoint "0" ":x:"
+                   then Records.valentPoint "0" ":new:"
                    else icon
             in Data.Map.insertWith const icon newIcon acc
          [] -> acc)
     Data.Map.empty
     input
 
-balance :: [[Records.Icon]] -> [[Records.Icon]]
-balance [] = []
-balance input =
+isEmpty :: [[Records.Icon]] -> Bool
+isEmpty input = not $ any (\row -> length row > 0) input
+
+balanceFirstSlice :: [[Records.Icon]] -> [[Records.Icon]]
+balanceFirstSlice [] = []
+balanceFirstSlice input =
   let rowMap = sliceMap input
    in (if Data.Map.null rowMap
          then input
          else foldl
                 (\acc row ->
-                  case row of
-                    [] -> acc
-                    (key : rest) ->
-                      let value = rowMap Data.Map.! key
-                      in if key == value
-                          then acc ++ [key : rest]
-                          else acc ++ [value : (key : rest)])
+                   case row of
+                     [] -> acc
+                     (key:rest) ->
+                       let value = rowMap Data.Map.! key
+                        in if key == value
+                             then acc ++ [key : rest]
+                             else acc ++ [value : (key : rest)])
                 []
                 input)
+
+balance :: [[Records.Icon]] -> [[Records.Icon]]
+balance unbalanancedPaths =
+  case balanceFirstSlice unbalanancedPaths of
+    [] -> []
+    result ->
+      let firstBalancedSlice = takeFirst result
+          remainingPaths = skipFirst result
+      in case isEmpty remainingPaths of
+        True -> firstBalancedSlice
+        False -> zipWith (++) firstBalancedSlice (balance remainingPaths)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -302,21 +334,12 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
           let paths = dcPaths [[head icons]] icons [last icons]
-          -- print "paths:"
-          -- print paths
-          -- print "slice map:"
-          -- print $ sliceMap (skipFirst (skipFirst paths))
-          print "balance:"
-          print $ balance (skipFirst (skipFirst paths))
-          -- print "insertAt:"
-          -- print $ insertAt paths 1 2 (Records.valentPoint "0" ":x:")
-          -- let bPaths = balancedPathsAllRows paths
-          -- let printableBPaths = showBalancedPathsHeader bPaths ++ showBalancedPaths bPaths
-          -- let prettyMarkdown =
-          --       Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths ++ "\n"
-          -- bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-          -- Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
-          -- System.IO.hClose bPathsOutputHandle
+          let bPaths = balance paths
+          let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
+          let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
+          bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+          Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
+          System.IO.hClose bPathsOutputHandle
           let iconsWithValentPoints = icons
           let validationErrors =
                 validation
