@@ -167,20 +167,6 @@ dcPaths paths allIcons convergenceIcons =
         then map reverse paths
         else dcPaths newPaths allIcons convergenceIcons
 
-balancedPathsSingleRow :: Int -> [[Records.Icon]] -> [Records.Icon]
-balancedPathsSingleRow i =
-  foldl
-    (\acc y ->
-       acc
-         ++ (if i >= length y
-               then [Records.valentPoint "0" ":x:"]
-               else [y !! i]))
-    []
-
-balancedPathsAllRows :: [[Records.Icon]] -> [[Records.Icon]]
-balancedPathsAllRows inputPaths =
-  foldl (\acc x -> acc ++ [balancedPathsSingleRow x inputPaths]) [] [0 .. 12]
-
 showBalancedPathsHeader :: [[Records.Icon]] -> String
 showBalancedPathsHeader inputPaths =
   let header =
@@ -201,12 +187,6 @@ showBalancedPathsHeader inputPaths =
           [0 .. (length inputPaths - 1)]
    in header ++ headerLineBreak
 
-hasMultipleUniqueIcons :: [Records.Icon] -> Bool
-hasMultipleUniqueIcons singleRow = Data.Map.size mapOfIcons > 1
-  where
-    mapOfIcons =
-      foldl (\acc x -> Data.Map.insert (Records.getIconName x) "" acc) Data.Map.empty singleRow
-
 iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
 iconPresentFurtherDownAnotherPath inputPaths icon rowIndex =
   let targetName = Records.getIconName icon
@@ -222,43 +202,20 @@ getIconMarker inputPaths icon rowIndex =
     then shiftMarker
     else " "
 
--- showBalancedPathsSingleRow :: [[Records.Icon]] -> Int -> String
--- showBalancedPathsSingleRow inputPaths rowIndex =
---   foldl
---     (\acc icon ->
---        let name = Records.getIconName icon
---            description = Records.getIconDescription icon
---         in acc
---              ++ getIconMarker inputPaths icon rowIndex
---              ++ "**"
---              ++ name
---              ++ "** - "
---              ++ description
---              ++ " |")
---     "\n|"
---     (inputPaths !! rowIndex)
-
--- showBalancedPaths :: [[Records.Icon]] -> String
--- showBalancedPaths inputPaths =
---   foldl
---     (\acc rowIndex -> acc ++ showBalancedPathsSingleRow inputPaths rowIndex)
---     ""
---     [0 .. length inputPaths - 1]
-
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
-  foldl
-    (\columnAcc columnIndex ->
-      columnAcc ++ (foldl
-        (\rowAcc row ->
-          let icon = row !! columnIndex
-              name = Records.getIconName icon
-              description = Records.getIconDescription icon
-          in rowAcc ++ " **" ++ name ++ "** - " ++ description ++ " |")
-        "|"
-        inputPaths) ++ "\n")
-    ""
-    [0 .. length (head inputPaths) - 1]
+  let maxColumnIndex = length (head inputPaths) - 1
+      formatIcon row columnIndex =
+        case drop columnIndex row of
+          (icon:_) ->
+            let name = Records.getIconName icon
+                description = Records.getIconDescription icon
+             in " **" ++ name ++ "** - " ++ description ++ " |"
+          [] -> " --- |"
+   in concat
+        [ "|" ++ concat [formatIcon row columnIndex | row <- inputPaths] ++ "\n"
+        | columnIndex <- [0 .. maxColumnIndex]
+        ]
 
 skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
 skipFirst = foldl (\acc row -> acc ++ [drop 1 row]) []
@@ -285,9 +242,6 @@ sliceMap input =
     Data.Map.empty
     input
 
-isEmpty :: [[Records.Icon]] -> Bool
-isEmpty input = not $ any (\row -> length row > 0) input
-
 balanceFirstSlice :: [[Records.Icon]] -> [[Records.Icon]]
 balanceFirstSlice [] = []
 balanceFirstSlice input =
@@ -313,9 +267,9 @@ balance unbalanancedPaths =
     result ->
       let firstBalancedSlice = takeFirst result
           remainingPaths = skipFirst result
-      in case isEmpty remainingPaths of
-        True -> firstBalancedSlice
-        False -> zipWith (++) firstBalancedSlice (balance remainingPaths)
+       in case all null remainingPaths of
+            True -> firstBalancedSlice
+            False -> zipWith (++) firstBalancedSlice (balance remainingPaths)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -336,7 +290,8 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
           let paths = dcPaths [[head icons]] icons [last icons]
           let bPaths = balance paths
           let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
-          let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
+          let prettyMarkdown =
+                Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
           bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
           Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
           System.IO.hClose bPathsOutputHandle
