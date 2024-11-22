@@ -210,7 +210,8 @@ showBalancedPaths inputPaths =
           (icon:_) ->
             let name = Records.getIconName icon
                 description = Records.getIconDescription icon
-             in " **" ++ name ++ "** - " ++ description ++ " |"
+                dependents = show $ Records.getIconNamesOfDependentIcons icon
+             in " **" ++ name ++ "** - " ++ description ++ " " ++ dependents ++ " |"
           [] -> " --- |"
    in concat
         [ "|" ++ concat [formatIcon row columnIndex | row <- inputPaths] ++ "\n"
