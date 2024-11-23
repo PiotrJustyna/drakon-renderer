@@ -234,8 +234,9 @@ sliceMap input =
     (\acc row ->
        case row of
          (icon:_) ->
-           let newIcon =
-                 if iconPresent icon (skipFirst input)
+           let currentIconPressent = iconPresent icon (skipFirst input)
+               newIcon =
+                 if currentIconPressent
                    then Records.valentPoint "0" ":new:"
                    else icon
             in Data.Map.insertWith const icon newIcon acc

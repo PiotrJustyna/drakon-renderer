@@ -66,10 +66,10 @@ Balanced paths - WIP currently, but the plan is to make balanced paths the found
 
 | path 1 | path 2 |
 | --- | --- |
-| **1** - title | **1** - title |
-| **2** - question | **2** - question |
-| **3** - choice 1 | **0** - :new: |
-| **4** - end | **4** - end |
+| **1** - title ["2"] | **1** - title ["2"] |
+| **2** - question ["3","4"] | **2** - question ["3","4"] |
+| **3** - choice 1 ["4"] | **0** - :new: [] |
+| **4** - end [] | **4** - end [] |
 
 \*where the "0" icon describes an automatically injected valent point. This is WIP and is subject to change.
 
