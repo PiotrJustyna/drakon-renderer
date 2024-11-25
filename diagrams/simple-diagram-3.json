@@ -1,0 +1,82 @@
+[
+    {
+        "iconDescription": "title",
+        "iconKind": "Title",
+        "iconName": "1",
+        "iconNamesOfDependentIcons": [
+            "2"
+        ]
+    },
+    {
+        "iconDescription": "question 2",
+        "iconKind": "Question",
+        "iconName": "2",
+        "iconNamesOfDependentIcons": [
+            "3",
+            "7"
+        ]
+    },
+    {
+        "iconDescription": "action 3",
+        "iconKind": "Action",
+        "iconName": "3",
+        "iconNamesOfDependentIcons": [
+            "4"
+        ]
+    },
+    {
+        "iconDescription": "action 4",
+        "iconKind": "Action",
+        "iconName": "4",
+        "iconNamesOfDependentIcons": [
+            "5"
+        ]
+    },
+    {
+        "iconDescription": "action 5",
+        "iconKind": "Action",
+        "iconName": "5",
+        "iconNamesOfDependentIcons": [
+            "6"
+        ]
+    },
+    {
+        "iconDescription": "action 6",
+        "iconKind": "Action",
+        "iconName": "6",
+        "iconNamesOfDependentIcons": [
+            "10"
+        ]
+    },
+    {
+        "iconDescription": "question 7",
+        "iconKind": "Question",
+        "iconName": "7",
+        "iconNamesOfDependentIcons": [
+            "8",
+            "9"
+        ]
+    },
+    {
+        "iconDescription": "action 8",
+        "iconKind": "Action",
+        "iconName": "8",
+        "iconNamesOfDependentIcons": [
+            "10"
+        ]
+    },
+    {
+        "iconDescription": "action 9",
+        "iconKind": "Action",
+        "iconName": "9",
+        "iconNamesOfDependentIcons": [
+            "10"
+        ]
+    },
+    {
+        "iconDescription": "end",
+        "iconKind": "End",
+        "iconName": "10",
+        "iconNamesOfDependentIcons": []
+    }
+]
