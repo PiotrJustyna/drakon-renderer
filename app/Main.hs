@@ -269,9 +269,9 @@ balance unbalanancedPaths =
     result ->
       let firstBalancedSlice = takeFirst result
           remainingPaths = skipFirst result
-       in case all null remainingPaths of
-            True -> firstBalancedSlice
-            False -> zipWith (++) firstBalancedSlice (balance remainingPaths)
+       in if all null remainingPaths then
+              firstBalancedSlice
+          else zipWith (++) firstBalancedSlice (balance remainingPaths)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
