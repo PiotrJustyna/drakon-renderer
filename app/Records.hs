@@ -185,6 +185,20 @@ titleIcon allIcons =
              _ -> False)
         allIcons
 
+endIcon :: [Icon] -> Maybe Icon
+endIcon allIcons =
+  case endIcons of
+    [] -> Nothing
+    (x:_) -> Just x
+  where
+    endIcons =
+      filter
+        (\x ->
+           case getIconKind x of
+             DataTypes.End -> True
+             _ -> False)
+        allIcons
+
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] _ = []
 removeDuplicates (singleRow:remainingRows) uniqueIcons =

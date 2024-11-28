@@ -289,7 +289,13 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let paths = dcPaths [[head icons]] icons [last icons]
+          let titleIcon = case Records.titleIcon icons of
+                Nothing -> head icons
+                Just x -> x
+          let endIcon = case Records.endIcon icons of
+                Nothing -> last icons
+                Just x -> x
+          let paths = dcPaths [[titleIcon]] icons [endIcon]
           let bPaths = balance paths
           let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
           let prettyMarkdown =
