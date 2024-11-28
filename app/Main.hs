@@ -289,39 +289,37 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
       content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
         Just icons -> do
-          let titleIcon = case Records.titleIcon icons of
-                Nothing -> head icons
-                Just x -> x
-          let endIcon = case Records.endIcon icons of
-                Nothing -> last icons
-                Just x -> x
-          let paths = dcPaths [[titleIcon]] icons [endIcon]
-          let bPaths = balance paths
-          let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
-          let prettyMarkdown =
-                Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
-          bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-          Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
-          System.IO.hClose bPathsOutputHandle
-          let iconsWithValentPoints = icons
           let validationErrors =
                 validation
                   [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
-                  iconsWithValentPoints
+                  icons
           case validationErrors of
             [] -> do
-              case Records.titleIcon iconsWithValentPoints of
+              case Records.titleIcon icons of
                 Just titleIcon -> do
-                  let refreshedPositionedIcons =
-                        LayoutEngine.firstPaths titleIcon iconsWithValentPoints
-                  layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
-                  Data.ByteString.Lazy.hPutStr
-                    layoutOutputhandle
-                    (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
-                  System.IO.hClose layoutOutputhandle
-                  let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
-                  Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
-                    $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
+                  case Records.endIcon icons of
+                    Just endIcon -> do
+                      let paths = dcPaths [[titleIcon]] icons [endIcon]
+                      let bPaths = balance paths
+                      let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
+                      let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
+                      bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+                      Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
+                      System.IO.hClose bPathsOutputHandle
+
+                      let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
+                      layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
+                      Data.ByteString.Lazy.hPutStr
+                        layoutOutputhandle
+                        (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
+                      System.IO.hClose layoutOutputhandle
+
+                      let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
+                      Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
+                        $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
+                    Nothing ->
+                      putStrLn
+                        $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input."
                 Nothing ->
                   putStrLn
                     $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input."
