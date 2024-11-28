@@ -171,6 +171,8 @@ instance Eq Icon where
 instance Ord Icon where
   compare (Icon name1 _ _ _) (Icon name2 _ _ _) = compare name1 name2
 
+-- | Find the title icon in a list of icons.
+-- Returns Nothing if no title icon is found.
 titleIcon :: [Icon] -> Maybe Icon
 titleIcon =
   Data.List.find
@@ -179,6 +181,8 @@ titleIcon =
          DataTypes.Title -> True
          _ -> False)
 
+-- | Find the end icon in a list of icons.
+-- Returns Nothing if no end icon is found.
 endIcon :: [Icon] -> Maybe Icon
 endIcon =
   Data.List.find
