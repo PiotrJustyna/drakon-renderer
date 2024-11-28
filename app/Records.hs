@@ -172,32 +172,20 @@ instance Ord Icon where
   compare (Icon name1 _ _ _) (Icon name2 _ _ _) = compare name1 name2
 
 titleIcon :: [Icon] -> Maybe Icon
-titleIcon allIcons =
-  case titleIcons of
-    [] -> Nothing
-    (x:_) -> Just x
-  where
-    titleIcons =
-      filter
-        (\x ->
-           case getIconKind x of
-             DataTypes.Title -> True
-             _ -> False)
-        allIcons
+titleIcon =
+  Data.List.find
+    (\x ->
+       case getIconKind x of
+         DataTypes.Title -> True
+         _ -> False)
 
 endIcon :: [Icon] -> Maybe Icon
-endIcon allIcons =
-  case endIcons of
-    [] -> Nothing
-    (x:_) -> Just x
-  where
-    endIcons =
-      filter
-        (\x ->
-           case getIconKind x of
-             DataTypes.End -> True
-             _ -> False)
-        allIcons
+endIcon =
+  Data.List.find
+    (\x ->
+       case getIconKind x of
+         DataTypes.End -> True
+         _ -> False)
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] _ = []
