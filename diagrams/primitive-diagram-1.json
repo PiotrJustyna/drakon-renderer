@@ -35,6 +35,14 @@
         "iconKind": "Action",
         "iconName": "5",
         "iconNamesOfDependentIcons": [
+            "6"
+        ]
+    },
+    {
+        "iconDescription": "Action 6",
+        "iconKind": "Action",
+        "iconName": "6",
+        "iconNamesOfDependentIcons": [
             "3"
         ]
     }
