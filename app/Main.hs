@@ -269,9 +269,9 @@ balance unbalanancedPaths =
     result ->
       let firstBalancedSlice = takeFirst result
           remainingPaths = skipFirst result
-       in if all null remainingPaths then
-              firstBalancedSlice
-          else zipWith (++) firstBalancedSlice (balance remainingPaths)
+       in if all null remainingPaths
+            then firstBalancedSlice
+            else zipWith (++) firstBalancedSlice (balance remainingPaths)
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -301,22 +301,26 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                     Just endIcon -> do
                       let paths = dcPaths [[titleIcon]] icons [endIcon]
                       let bPaths = balance paths
-                      let printableBPaths = showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
-                      let prettyMarkdown = Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
-                      bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+                      let printableBPaths =
+                            showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
+                      let prettyMarkdown =
+                            Data.ByteString.Lazy.Char8.pack
+                              $ "# balanced paths\n" ++ printableBPaths
+                      bPathsOutputHandle <-
+                        System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
                       Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
                       System.IO.hClose bPathsOutputHandle
-
                       let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
                       layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
                       Data.ByteString.Lazy.hPutStr
                         layoutOutputhandle
                         (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
                       System.IO.hClose layoutOutputhandle
-
-                      let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
+                      let thisIsJustTemporary =
+                            Renderer.renderAllConnections refreshedPositionedIcons
                       Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
-                        $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
+                        $ Renderer.renderAllIcons refreshedPositionedIcons
+                            <> snd thisIsJustTemporary
                     Nothing ->
                       putStrLn
                         $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input."
