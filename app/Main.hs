@@ -295,38 +295,35 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   icons
           case validationErrors of
             [] -> do
-              case Records.titleIcon icons of
-                Just titleIcon -> do
-                  case Records.endIcon icons of
-                    Just endIcon -> do
-                      let paths = dcPaths [[titleIcon]] icons [endIcon]
-                      let bPaths = balance paths
-                      let printableBPaths =
-                            showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
-                      let prettyMarkdown =
-                            Data.ByteString.Lazy.Char8.pack
-                              $ "# balanced paths\n" ++ printableBPaths
-                      bPathsOutputHandle <-
-                        System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-                      Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
-                      System.IO.hClose bPathsOutputHandle
-                      let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
-                      layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
-                      Data.ByteString.Lazy.hPutStr
-                        layoutOutputhandle
-                        (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
-                      System.IO.hClose layoutOutputhandle
-                      let thisIsJustTemporary =
-                            Renderer.renderAllConnections refreshedPositionedIcons
-                      Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
-                        $ Renderer.renderAllIcons refreshedPositionedIcons
-                            <> snd thisIsJustTemporary
-                    Nothing ->
-                      putStrLn
-                        $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input."
-                Nothing ->
-                  putStrLn
-                    $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input."
+              titleIcon <-
+                maybe
+                  (fail
+                     $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input.")
+                  return
+                  (Records.titleIcon icons)
+              endIcon <-
+                maybe
+                  (fail $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input.")
+                  return
+                  (Records.endIcon icons)
+              let paths = dcPaths [[titleIcon]] icons [endIcon]
+              let bPaths = balance paths
+              let printableBPaths =
+                    showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
+              let prettyMarkdown =
+                    Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
+              bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
+              Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
+              System.IO.hClose bPathsOutputHandle
+              let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
+              layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
+              Data.ByteString.Lazy.hPutStr
+                layoutOutputhandle
+                (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
+              System.IO.hClose layoutOutputhandle
+              let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
+              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
+                $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
             _ -> do
               let failureReasons =
                     foldl
