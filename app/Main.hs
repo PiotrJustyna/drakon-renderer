@@ -149,6 +149,7 @@ pathsEqual x1 x2 =
 -- and ending at a given convergence icon.
 -- d-c paths - my name for divergence icon -> convergence icon paths
 -- all paths connecting
+-- TODO: convergenceIcons type should change to one Records.Icon
 dcPaths :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
 dcPaths paths allIcons convergenceIcons =
   let newPaths =
@@ -158,7 +159,8 @@ dcPaths paths allIcons convergenceIcons =
                ++ case Records.getDependentIconsWithBlacklist
                          (head singleRow)
                          allIcons
-                         convergenceIcons of
+                         convergenceIcons
+                         singleRow of
                     [] -> [singleRow]
                     dependents -> combine singleRow dependents)
           []
@@ -307,6 +309,8 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   return
                   (Records.endIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
+              putStrLn "dcPaths:"
+              print paths
               let bPaths = balance paths
               let printableBPaths =
                     showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
