@@ -149,7 +149,6 @@ pathsEqual x1 x2 =
 -- and ending at a given convergence icon.
 -- d-c paths - my name for divergence icon -> convergence icon paths
 -- all paths connecting
--- TODO: convergenceIcons type should change to one Records.Icon
 dcPaths :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
 dcPaths paths allIcons convergenceIcons =
   let newPaths =
