@@ -7,7 +7,6 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
-import qualified Data.List
 import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
@@ -254,7 +253,7 @@ balanceFirstSlice input =
          else foldl
                 (\acc row ->
                    case row of
-                     [] -> acc
+                     [] -> acc ++ [[]]
                      (key:rest) ->
                        let value = rowMap Data.Map.! key
                         in if key == value
@@ -308,9 +307,11 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   return
                   (Records.endIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
-              putStrLn "dcPaths:"
-              print paths
+
               let bPaths = balance paths
+              putStrLn "bpaths:"
+              print bPaths
+
               let printableBPaths =
                     showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
               let prettyMarkdown =
