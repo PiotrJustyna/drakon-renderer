@@ -204,7 +204,8 @@ getIconMarker inputPaths icon rowIndex =
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
-  let maxColumnIndex = length (head inputPaths) - 1
+  let maxColumnIndex =
+        maximum $ foldl (\acc inputPath -> ((length inputPath) - 1) : acc) [] inputPaths
       formatIcon row columnIndex =
         case drop columnIndex row of
           (icon:_) ->
@@ -212,7 +213,7 @@ showBalancedPaths inputPaths =
                 description = Records.getIconDescription icon
                 dependents = show $ Records.getIconNamesOfDependentIcons icon
              in " **" ++ name ++ "** - " ++ description ++ " " ++ dependents ++ " |"
-          [] -> " --- |"
+          [] -> " :negative_squared_cross_mark: |"
    in concat
         [ "|" ++ concat [formatIcon row columnIndex | row <- inputPaths] ++ "\n"
         | columnIndex <- [0 .. maxColumnIndex]
@@ -307,11 +308,7 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   return
                   (Records.endIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
-
               let bPaths = balance paths
-              putStrLn "bpaths:"
-              print bPaths
-
               let printableBPaths =
                     showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
               let prettyMarkdown =
