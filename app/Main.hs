@@ -205,7 +205,7 @@ getIconMarker inputPaths icon rowIndex =
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
   let maxColumnIndex =
-        maximum $ foldl (\acc inputPath -> ((length inputPath) - 1) : acc) [] inputPaths
+        maximum $ foldl (\acc inputPath -> (length inputPath - 1) : acc) [] inputPaths
       formatIcon row columnIndex =
         case drop columnIndex row of
           (icon:_) ->
@@ -245,34 +245,40 @@ sliceMap input =
     Data.Map.empty
     input
 
-balanceFirstSlice :: [[Records.Icon]] -> [[Records.Icon]]
-balanceFirstSlice [] = []
-balanceFirstSlice input =
+balanceFirstSlice :: [[Records.Icon]] -> Int -> ([[Records.Icon]], Int)
+balanceFirstSlice [] nextAvailableValentPointName = ([], nextAvailableValentPointName)
+balanceFirstSlice input nextAvailableValentPointName =
   let rowMap = sliceMap input
    in (if Data.Map.null rowMap
-         then input
+         then (input, nextAvailableValentPointName)
          else foldl
                 (\acc row ->
                    case row of
-                     [] -> acc ++ [[]]
+                     [] -> (fst acc ++ [[]], snd acc)
                      (key:rest) ->
                        let value = rowMap Data.Map.! key
+                           newName = "v" ++ (show (snd acc))
                         in if key == value
-                             then acc ++ [key : rest]
-                             else acc ++ [value : (key : rest)])
-                []
+                             then (fst acc ++ [key : rest], snd acc)
+                             else ( fst acc ++ [Records.updateName value newName : (key : rest)]
+                                  , snd acc + 1))
+                ([], nextAvailableValentPointName)
                 input)
 
-balance :: [[Records.Icon]] -> [[Records.Icon]]
-balance unbalanancedPaths =
-  case balanceFirstSlice unbalanancedPaths of
-    [] -> []
-    result ->
-      let firstBalancedSlice = takeFirst result
-          remainingPaths = skipFirst result
-       in if all null remainingPaths
-            then firstBalancedSlice
-            else zipWith (++) firstBalancedSlice (balance remainingPaths)
+balance :: [[Records.Icon]] -> Int -> [[Records.Icon]]
+balance unbalanancedPaths nextAvailableValentPointName =
+  let firstSliceInformation = balanceFirstSlice unbalanancedPaths nextAvailableValentPointName
+   in case fst firstSliceInformation of
+        [] -> []
+        result ->
+          let firstBalancedSlice = takeFirst result
+              remainingPaths = skipFirst result
+           in if all null remainingPaths
+                then firstBalancedSlice
+                else zipWith
+                       (++)
+                       firstBalancedSlice
+                       (balance remainingPaths (snd firstSliceInformation))
 
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
@@ -308,7 +314,7 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   return
                   (Records.endIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
-              let bPaths = balance paths
+              let bPaths = balance paths 1
               let printableBPaths =
                     showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
               let prettyMarkdown =

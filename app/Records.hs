@@ -118,6 +118,19 @@ getIconKind :: Icon -> DataTypes.IconKind
 getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = x} =
   x
 
+updateName :: Icon -> String -> Icon
+updateName Icon { iconName = oldName
+                , iconDescription = description
+                , iconNamesOfDependentIcons = dependents
+                , iconKind = kind
+                } newName =
+  Icon
+    { iconName = newName
+    , iconDescription = description
+    , iconNamesOfDependentIcons = dependents
+    , iconKind = kind
+    }
+
 updateDependent :: Icon -> String -> String -> Icon
 updateDependent Icon { iconName = name
                      , iconDescription = description
