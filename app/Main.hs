@@ -204,8 +204,7 @@ getIconMarker inputPaths icon rowIndex =
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
-  let maxColumnIndex =
-        maximum $ foldl (\acc inputPath -> (length inputPath - 1) : acc) [] inputPaths
+  let maxColumnIndex = maximum $ map (\inputPath -> length inputPath - 1) inputPaths
       formatIcon row columnIndex =
         case drop columnIndex row of
           (icon:_) ->
@@ -257,7 +256,7 @@ balanceFirstSlice input nextAvailableValentPointName =
                      [] -> (fst acc ++ [[]], snd acc)
                      (key:rest) ->
                        let value = rowMap Data.Map.! key
-                           newName = "v" ++ (show (snd acc))
+                           newName = "v" ++ show (snd acc)
                         in if key == value
                              then (fst acc ++ [key : rest], snd acc)
                              else ( fst acc ++ [Records.updateName value newName : (key : rest)]
@@ -266,8 +265,8 @@ balanceFirstSlice input nextAvailableValentPointName =
                 input)
 
 balance :: [[Records.Icon]] -> Int -> [[Records.Icon]]
-balance unbalanancedPaths nextAvailableValentPointName =
-  let firstSliceInformation = balanceFirstSlice unbalanancedPaths nextAvailableValentPointName
+balance unbalancedPaths nextAvailableValentPointName =
+  let firstSliceInformation = balanceFirstSlice unbalancedPaths nextAvailableValentPointName
    in case fst firstSliceInformation of
         [] -> []
         result ->
