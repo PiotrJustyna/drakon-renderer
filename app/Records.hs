@@ -119,17 +119,7 @@ getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons =
   x
 
 updateName :: Icon -> String -> Icon
-updateName Icon { iconName = oldName
-                , iconDescription = description
-                , iconNamesOfDependentIcons = dependents
-                , iconKind = kind
-                } newName =
-  Icon
-    { iconName = newName
-    , iconDescription = description
-    , iconNamesOfDependentIcons = dependents
-    , iconKind = kind
-    }
+updateName icon newName = icon { iconName = newName }
 
 updateDependent :: Icon -> String -> String -> Icon
 updateDependent Icon { iconName = name
