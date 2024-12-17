@@ -279,6 +279,37 @@ balance unbalancedPaths nextAvailableValentPointName =
                        firstBalancedSlice
                        (balance remainingPaths (snd firstSliceInformation))
 
+removeAllDependents :: [[Records.Icon]] -> [[Records.Icon]]
+removeAllDependents input =
+  foldr
+    (\row rowAccu ->
+       (foldr (\icon columnAccu -> Records.removeDependents icon : columnAccu) [] row) : rowAccu)
+    []
+    input
+
+abc :: [[Records.Icon]] -> [Records.Icon]
+abc paths =
+  Data.Map.elems $ foldl
+    (\map row ->
+       snd
+         (foldr
+            (\icon accu ->
+               let allIcons = fst accu
+                   map = snd accu
+                in case allIcons of
+                     [] ->
+                       ( icon : allIcons
+                       , Data.Map.insertWith const (Records.getIconName icon) icon map)
+                     _ ->
+                       let lastIcon = head allIcons
+                           newIcon = Records.addDependentName icon (Records.getIconName lastIcon)
+                        in ( newIcon : allIcons
+                           , Data.Map.insertWith const (Records.getIconName newIcon) newIcon map))
+            ([], map)
+            row))
+    Data.Map.empty
+    paths
+
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize inputPath
@@ -321,7 +352,10 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
               bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
               Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
               System.IO.hClose bPathsOutputHandle
-              let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon icons
+              let def = abc $ removeAllDependents bPaths
+              -- putStrLn "def"
+              -- print def
+              let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon def
               layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
               Data.ByteString.Lazy.hPutStr
                 layoutOutputhandle

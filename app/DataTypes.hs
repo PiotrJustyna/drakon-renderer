@@ -14,6 +14,22 @@ data IconKind
   | Address
   | ValentPoint
 
+instance Eq DataTypes.IconKind where
+  (==) Title Title = True
+  (==) Title _ = False
+  (==) End End = True
+  (==) End _ = False
+  (==) Action Action = True
+  (==) Action _ = False
+  (==) Question Question = True
+  (==) Question _ = False
+  (==) Headline Headline = True
+  (==) Headline _ = False
+  (==) Address Address = True
+  (==) Address _ = False
+  (==) ValentPoint ValentPoint = True
+  (==) ValentPoint _ = False
+
 instance Show IconKind where
   show Title = "Title"
   show End = "End"
