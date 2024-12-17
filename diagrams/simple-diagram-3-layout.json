@@ -17,7 +17,6 @@
             "iconKind": "Question",
             "iconName": "2",
             "iconNamesOfDependentIcons": [
-                "3",
                 "7"
             ]
         },
@@ -26,11 +25,11 @@
     },
     {
         "icon": {
-            "iconDescription": "action 3",
-            "iconKind": "Action",
-            "iconName": "3",
+            "iconDescription": "question 7",
+            "iconKind": "Question",
+            "iconName": "7",
             "iconNamesOfDependentIcons": [
-                "4"
+                "9"
             ]
         },
         "iconPositionX": 0,
@@ -38,11 +37,11 @@
     },
     {
         "icon": {
-            "iconDescription": "action 4",
+            "iconDescription": "action 9",
             "iconKind": "Action",
-            "iconName": "4",
+            "iconName": "9",
             "iconNamesOfDependentIcons": [
-                "5"
+                "v2"
             ]
         },
         "iconPositionX": 0,
@@ -50,11 +49,11 @@
     },
     {
         "icon": {
-            "iconDescription": "action 5",
-            "iconKind": "Action",
-            "iconName": "5",
+            "iconDescription": ":new:",
+            "iconKind": "ValentPoint",
+            "iconName": "v2",
             "iconNamesOfDependentIcons": [
-                "6"
+                "v4"
             ]
         },
         "iconPositionX": 0,
@@ -62,9 +61,9 @@
     },
     {
         "icon": {
-            "iconDescription": "action 6",
-            "iconKind": "Action",
-            "iconName": "6",
+            "iconDescription": ":new:",
+            "iconKind": "ValentPoint",
+            "iconName": "v4",
             "iconNamesOfDependentIcons": [
                 "10"
             ]
@@ -81,42 +80,5 @@
         },
         "iconPositionX": 0,
         "iconPositionY": -6
-    },
-    {
-        "icon": {
-            "iconDescription": "question 7",
-            "iconKind": "Question",
-            "iconName": "7",
-            "iconNamesOfDependentIcons": [
-                "8",
-                "9"
-            ]
-        },
-        "iconPositionX": 2,
-        "iconPositionY": -2
-    },
-    {
-        "icon": {
-            "iconDescription": "action 8",
-            "iconKind": "Action",
-            "iconName": "8",
-            "iconNamesOfDependentIcons": [
-                "10"
-            ]
-        },
-        "iconPositionX": 2,
-        "iconPositionY": -3
-    },
-    {
-        "icon": {
-            "iconDescription": "action 9",
-            "iconKind": "Action",
-            "iconName": "9",
-            "iconNamesOfDependentIcons": [
-                "10"
-            ]
-        },
-        "iconPositionX": 4,
-        "iconPositionY": -3
     }
 ]
