@@ -22,6 +22,9 @@ svgOptions =
 iconWidth :: Double
 iconWidth = 1.0
 
+spaceBetweenIconsX :: Double
+spaceBetweenIconsX = 1.0
+
 iconHeight :: Double
 iconHeight = 0.5
 
@@ -64,6 +67,11 @@ addIfNotContains (x1, y1) z =
     then z
     else (x1, y1) : z
 
+-- 2024-12-18 PJ:
+-- --------------
+-- TODO:
+-- * icons should no longer clash
+-- * waypoints should be simplified to accomodate valent points
 connection ::
      (Double, Double)
   -> (Double, Double)
@@ -74,8 +82,8 @@ connection (x1, y1) (x2, y2) positionedIcons
     let waypoints =
           (x1, y1)
             : (if iconClash
-                 then [ (x1 + iconWidth, y1)
-                      , (x1 + iconWidth, y2 + iconHeight)
+                 then [ (x1 + iconWidth + spaceBetweenIconsX, y1)
+                      , (x1 + iconWidth + spaceBetweenIconsX, y2 + iconHeight)
                       , (x1, y2 + iconHeight)
                       ]
                  else [])
@@ -89,8 +97,8 @@ connection (x1, y1) (x2, y2) positionedIcons
       then let waypoints =
                  [ (x1, y1)
                  , (x1, y1 - iconHeight)
-                 , (x1 + iconWidth, y1 - iconHeight)
-                 , (x1 + iconWidth, y2 + iconHeight)
+                 , (x1 + iconWidth + spaceBetweenIconsX, y1 - iconHeight)
+                 , (x1 + iconWidth + spaceBetweenIconsX, y2 + iconHeight)
                  , (x2, y2 + iconHeight)
                  ]
             in ( waypoints
@@ -108,8 +116,8 @@ connection (x1, y1) (x2, y2) positionedIcons
              then let waypoints =
                         [ (x1, y1)
                         , (x1, y1 - iconHeight)
-                        , (x1 - iconWidth, y1 - iconHeight)
-                        , (x1 - iconWidth, y2 + iconHeight)
+                        , (x1 - iconWidth - spaceBetweenIconsX, y1 - iconHeight)
+                        , (x1 - iconWidth - spaceBetweenIconsX, y2 + iconHeight)
                         , (x2, y2 + iconHeight)
                         ]
                    in (waypoints, renderedConnection waypoints)

@@ -1,7 +1,9 @@
 module LayoutEngine
   ( firstPaths
+  , newLayout
   ) where
 
+import qualified Data.Map
 import qualified Records
 
 iconWidth :: Double
@@ -106,3 +108,29 @@ containsUnpositionedDependents x allPositionedIcons =
 
 doesNotContainName :: String -> [Records.PositionedIcon] -> Bool
 doesNotContainName iconName = all (\x -> iconName /= Records.getPositionedIconName x)
+
+-- [[Records.Icon]] -> Data.Map String Records.PositionedIcon and then to Records.PositionedIcon
+newLayout :: [[Records.Icon]] -> [Records.PositionedIcon]
+newLayout qwe =
+  Data.Map.elems . fst
+    $ foldl
+        (\rowAccu row ->
+           let icons = fst rowAccu
+               columnIndex = snd rowAccu
+            in ( ((fst
+                     (foldl
+                        (\accu icon ->
+                           let accuMap = fst accu
+                               lastUsedYCoordinate = snd accu
+                               newYCoordinate = lastUsedYCoordinate - iconHeight
+                            in ( Data.Map.insertWith
+                                   (\newValue oldValue -> oldValue)
+                                   (Records.getIconName icon)
+                                   (Records.toPositionedIcon icon columnIndex newYCoordinate)
+                                   accuMap
+                               , newYCoordinate))
+                        (icons, 0.0)
+                        row)))
+               , columnIndex + iconWidth + spaceBetweenIconsX))
+        (Data.Map.empty, 0.0)
+        qwe
