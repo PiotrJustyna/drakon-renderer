@@ -9,7 +9,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": 0
+        "iconPositionY": -1
     },
     {
         "icon": {
@@ -22,7 +22,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -1
+        "iconPositionY": -2
     },
     {
         "icon": {
@@ -34,7 +34,7 @@
             ]
         },
         "iconPositionX": 0,
-        "iconPositionY": -2
+        "iconPositionY": -3
     },
     {
         "icon": {
@@ -44,6 +44,16 @@
             "iconNamesOfDependentIcons": []
         },
         "iconPositionX": 0,
+        "iconPositionY": -4
+    },
+    {
+        "icon": {
+            "iconDescription": ":new:",
+            "iconKind": "ValentPoint",
+            "iconName": "v1",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 2,
         "iconPositionY": -3
     }
 ]

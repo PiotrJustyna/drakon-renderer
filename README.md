@@ -6,6 +6,10 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 this is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams. Current focus is to render primitive diagrams according to drakon rules.
 
+|||||
+| --- | --- | --- | --- |
+| ![simple diagram 1](./diagrams/simple-diagram-1/simple-diagram-1.svg) | ![simple diagram 2](./diagrams/simple-diagram-2/simple-diagram-2.svg) | ![simple diagram 3](./diagrams/simple-diagram-3/simple-diagram-3.svg) | ![primitive diagram 1](./diagrams/primitive-diagram-1/primitive-diagram-1.svg) |
+
 ## terminology
 
 * `Title` - first step of a diagram
@@ -62,16 +66,16 @@ this is work in progress and, while progress is being made every week, the rende
 
 ### balanced paths
 
-Balanced paths - WIP currently, but the plan is to make balanced paths the foundation of future layout engines. The idea is to trace all available paths from the title icon to the end icon and then alter them in such a way that all paths end up with the same number of icons/valent points (exact implementation not set in stone yet).
+The idea is to trace all available paths from the title icon to the end icon and then alter them in such a way that all paths end up with the same number of icons and valent points (where possible - some paths will naturally have more elements).
 
 | path 1 | path 2 |
 | --- | --- |
 | **1** - title ["2"] | **1** - title ["2"] |
 | **2** - question ["3","4"] | **2** - question ["3","4"] |
-| **3** - choice 1 ["4"] | **0** - :new: [] |
+| **3** - choice 1 ["4"] | **v1** - :new: [] |
 | **4** - end [] | **4** - end [] |
 
-\*where the "0" icon describes an automatically injected valent point. This is WIP and is subject to change.
+\*where the "v1" icon describes an automatically injected valent point.
 
 ### positioned icons
 
@@ -133,7 +137,7 @@ WIP at the moment - layout engine does not leverage automatically injected valen
 
 * an svg diagram:
 
-![real life diagram 1](./diagrams/simple-diagram.svg)
+![real life diagram 1](./diagrams/simple-diagram-1/simple-diagram-1.svg)
 
 ## method
 
@@ -148,21 +152,29 @@ WIP at the moment - layout engine does not leverage automatically injected valen
     * Error: Diagram is required to have exactly one icon of kind "Title". Hint: Make sure your input diagram contains an icon of kind "Title" and that it is the only icon of that kind.
     ```
 
-3. if validation is successful, attempt to position the directed graph's nodes on a cartesian plane:
+3. if validation is successful, attempt to balance all paths leading from the title icon to the end icon (balance - align matching icons, make sure that paths are of equal length where applicable)
+
+4. save the balanced paths as an easy to troubleshoot markdown file where:
+
+    * input: `file.json`
+
+    * output: `file-balanced-paths.md`
+
+5. attempt to position the directed graph's nodes on a cartesian plane:
 
     * positive integer x coordinates only
 
     * negative integer y coordinates only
 
-4. serialize the product (`[PositionedIcon]`) to a file where:
+6. serialize the product (`[PositionedIcon]`) to a file where:
 
     * input: `file.json`
 
     * output: `file-drakon-layout.json`
 
-5. Render the collection of `PositionedIcon`s into the final svg diagram.
+7. Render the collection of `PositionedIcon`s into the final svg diagram.
 
-6. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
+8. Render the connections between the collection of `PositionedIcon`s into the final svg diagram.
 
 ## development environment
 
@@ -171,6 +183,7 @@ WIP at the moment - layout engine does not leverage automatically injected valen
 | `./start-development-environment.sh` or `.\start-development-environment.ps1` | starts a fully dockerized development environment |
 | `./build.sh` | builds and lints code - preferrably while development environment docker container is running, otherwise local installation of cabal and hlint is required) |
 | `./run.sh` | runs code - just like the build script, the preferred way to use it is while the development environment is running |
+| `./demo-run.sh` | runs the renderer with all diagrams contained in the repository |
 | `./format.sh` | formats all `*.hs` files located in the `./app` directory using [hindent](https://github.com/mihaimaruseac/hindent) |
 | `exit` | terminates development environment |
 
@@ -181,8 +194,6 @@ You can see into the bigger ideas I have for the project (past, present, future)
 ## community
 
 * [youtube](https://www.youtube.com/playlist?list=PL9-WsOrOzOxSqWNqzhzyBGZsN0sOxEF6Q)
-
-* [discord](https://discord.gg/eaJ7e4jF)
 
 ## resources
 

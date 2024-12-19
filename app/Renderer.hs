@@ -67,11 +67,6 @@ addIfNotContains (x1, y1) z =
     then z
     else (x1, y1) : z
 
--- 2024-12-18 PJ:
--- --------------
--- TODO:
--- * icons should no longer clash
--- * waypoints should be simplified to accomodate valent points
 connection ::
      (Double, Double)
   -> (Double, Double)
