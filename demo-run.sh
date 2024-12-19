@@ -21,9 +21,3 @@ cabal run drakon-renderer -- \
     --layoutOutputPath "./diagrams/primitive-diagram-1/primitive-diagram-1-layout.json" \
     --balancedPathsOutputPath "./diagrams/primitive-diagram-1/primitive-diagram-1-balanced-paths.md" \
     --svgOutputPath "./diagrams/primitive-diagram-1/primitive-diagram-1.svg"
-
-cabal run drakon-renderer -- \
-    --inputPath "./diagrams/drakon-diagram.json" \
-    --layoutOutputPath "./diagrams/drakon-diagram-layout.json" \
-    --balancedPathsOutputPath "./diagrams/drakon-diagram-balanced-paths.md" \
-    --svgOutputPath "./diagrams/drakon-diagram.svg"
