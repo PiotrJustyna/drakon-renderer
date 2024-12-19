@@ -7,7 +7,6 @@ import qualified Data.Aeson
 import qualified Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8
-import qualified Data.Map
 import qualified DataTypes
 import qualified Diagrams.Backend.SVG
 import qualified LayoutEngine
@@ -128,190 +127,6 @@ validation validationPredicates icons =
     []
     validationPredicates
 
-combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-combine parents = foldl (\acc dependent -> acc ++ [dependent : parents]) []
-
-pathsEqual :: [[Records.Icon]] -> [[Records.Icon]] -> Bool
-pathsEqual x1 x2 =
-  length x1 == length x2
-    && foldl
-         (\acc (x1', x2') -> length x1' == length x2' && null x1' || head x1' == head x2' && acc)
-         True
-         (zip x1 x2)
-
--- "paths" are represented like this (simplified):
--- [
---     [Icon6, Icon3],
---     [Icon6, Icon4, Icon3]
--- ]
--- and they represent all paths starting at a given divergence icon
--- and ending at a given convergence icon.
--- d-c paths - my name for divergence icon -> convergence icon paths
--- all paths connecting
-dcPaths :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-dcPaths paths allIcons convergenceIcons =
-  let newPaths =
-        foldl
-          (\acc singleRow ->
-             acc
-               ++ case Records.getDependentIconsWithBlacklist
-                         (head singleRow)
-                         allIcons
-                         convergenceIcons
-                         singleRow of
-                    [] -> [singleRow]
-                    dependents -> combine singleRow dependents)
-          []
-          paths
-   in if pathsEqual paths newPaths
-        then map reverse paths
-        else dcPaths newPaths allIcons convergenceIcons
-
-showBalancedPathsHeader :: [[Records.Icon]] -> String
-showBalancedPathsHeader inputPaths =
-  let header =
-        foldl
-          (\acc i ->
-             case i of
-               0 -> "\n| path " ++ show (i + 1) ++ " |"
-               _ -> acc ++ " path " ++ show (i + 1) ++ " |")
-          ""
-          [0 .. (length inputPaths - 1)]
-      headerLineBreak =
-        foldl
-          (\acc i ->
-             case i of
-               0 -> "\n| --- |"
-               _ -> acc ++ " --- |")
-          ""
-          [0 .. (length inputPaths - 1)]
-   in header ++ headerLineBreak
-
-iconPresentFurtherDownAnotherPath :: [[Records.Icon]] -> Records.Icon -> Int -> Bool
-iconPresentFurtherDownAnotherPath inputPaths icon rowIndex =
-  let targetName = Records.getIconName icon
-      lowerRows = drop (rowIndex + 1) inputPaths
-   in any (any (\x -> Records.getIconName x == targetName)) lowerRows
-
-shiftMarker :: String
-shiftMarker = " :arrow_down: "
-
-getIconMarker :: [[Records.Icon]] -> Records.Icon -> Int -> String
-getIconMarker inputPaths icon rowIndex =
-  if iconPresentFurtherDownAnotherPath inputPaths icon rowIndex
-    then shiftMarker
-    else " "
-
-showBalancedPaths :: [[Records.Icon]] -> String
-showBalancedPaths inputPaths =
-  let maxColumnIndex = maximum $ map (\inputPath -> length inputPath - 1) inputPaths
-      formatIcon row columnIndex =
-        case drop columnIndex row of
-          (icon:_) ->
-            let name = Records.getIconName icon
-                description = Records.getIconDescription icon
-                dependents = show $ Records.getIconNamesOfDependentIcons icon
-             in " **" ++ name ++ "** - " ++ description ++ " " ++ dependents ++ " |"
-          [] -> " :negative_squared_cross_mark: |"
-   in concat
-        [ "|" ++ concat [formatIcon row columnIndex | row <- inputPaths] ++ "\n"
-        | columnIndex <- [0 .. maxColumnIndex]
-        ]
-
-skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
-skipFirst = foldl (\acc row -> acc ++ [drop 1 row]) []
-
-takeFirst :: [[Records.Icon]] -> [[Records.Icon]]
-takeFirst = foldl (\acc row -> acc ++ [take 1 row]) []
-
-iconPresent :: Records.Icon -> [[Records.Icon]] -> Bool
-iconPresent x = any (elem x)
-
-sliceMap :: [[Records.Icon]] -> Data.Map.Map Records.Icon Records.Icon
-sliceMap [] = Data.Map.empty
-sliceMap input =
-  foldl
-    (\acc row ->
-       case row of
-         (icon:_) ->
-           let currentIconPresent = iconPresent icon (skipFirst input)
-               newIcon =
-                 if currentIconPresent
-                   then Records.valentPoint "0" ":new:"
-                   else icon
-            in Data.Map.insertWith const icon newIcon acc
-         [] -> acc)
-    Data.Map.empty
-    input
-
-balanceFirstSlice :: [[Records.Icon]] -> Int -> ([[Records.Icon]], Int)
-balanceFirstSlice [] nextAvailableValentPointName = ([], nextAvailableValentPointName)
-balanceFirstSlice input nextAvailableValentPointName =
-  let rowMap = sliceMap input
-   in (if Data.Map.null rowMap
-         then (input, nextAvailableValentPointName)
-         else foldl
-                (\acc row ->
-                   case row of
-                     [] -> (fst acc ++ [[]], snd acc)
-                     (key:rest) ->
-                       let value = rowMap Data.Map.! key
-                           newName = "v" ++ show (snd acc)
-                        in if key == value
-                             then (fst acc ++ [key : rest], snd acc)
-                             else ( fst acc ++ [Records.updateName value newName : (key : rest)]
-                                  , snd acc + 1))
-                ([], nextAvailableValentPointName)
-                input)
-
-balance :: [[Records.Icon]] -> Int -> [[Records.Icon]]
-balance unbalancedPaths nextAvailableValentPointName =
-  let firstSliceInformation = balanceFirstSlice unbalancedPaths nextAvailableValentPointName
-   in case fst firstSliceInformation of
-        [] -> []
-        result ->
-          let firstBalancedSlice = takeFirst result
-              remainingPaths = skipFirst result
-           in if all null remainingPaths
-                then firstBalancedSlice
-                else zipWith
-                       (++)
-                       firstBalancedSlice
-                       (balance remainingPaths (snd firstSliceInformation))
-
-removeAllDependents :: [[Records.Icon]] -> [[Records.Icon]]
-removeAllDependents input =
-  foldr
-    (\row rowAccu ->
-       (foldr (\icon columnAccu -> Records.removeDependents icon : columnAccu) [] row) : rowAccu)
-    []
-    input
-
-abc :: [[Records.Icon]] -> [Records.Icon]
-abc paths =
-  Data.Map.elems
-    $ foldl
-        (\map row ->
-           snd
-             (foldr
-                (\icon accu ->
-                   let allIcons = fst accu
-                       map = snd accu
-                    in case allIcons of
-                         [] ->
-                           ( icon : allIcons
-                           , Data.Map.insertWith const (Records.getIconName icon) icon map)
-                         _ ->
-                           let lastIcon = head allIcons
-                               newIcon =
-                                 Records.addDependentName icon (Records.getIconName lastIcon)
-                            in ( newIcon : allIcons
-                               , Data.Map.insertWith const (Records.getIconName newIcon) newIcon map))
-                ([], map)
-                row))
-        Data.Map.empty
-        paths
-
 process :: Records.DrakonRendererArguments -> IO ()
 process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
   fileSizeInBytes <- System.Directory.getFileSize inputPath
@@ -345,23 +160,18 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                   (fail $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input.")
                   return
                   (Records.endIcon icons)
-              let paths = dcPaths [[titleIcon]] icons [endIcon]
-              let bPaths = balance paths 1
+              let paths = LayoutEngine.dcPaths [[titleIcon]] icons [endIcon]
+              let bPaths = LayoutEngine.balance paths 1
               let printableBPaths =
-                    showBalancedPathsHeader bPaths ++ "\n" ++ showBalancedPaths bPaths
+                    LayoutEngine.showBalancedPathsHeader bPaths
+                      ++ "\n"
+                      ++ LayoutEngine.showBalancedPaths bPaths
               let prettyMarkdown =
                     Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
               bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
               Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
               System.IO.hClose bPathsOutputHandle
-              let qwe = LayoutEngine.newLayout bPaths
-              putStrLn "qwe:"
-              print qwe
-              let def = abc $ removeAllDependents bPaths
-              -- putStrLn "def"
-              -- print def
-              let refreshedPositionedIcons = LayoutEngine.newLayout bPaths
-              -- let refreshedPositionedIcons = LayoutEngine.firstPaths titleIcon def
+              let refreshedPositionedIcons = LayoutEngine.positionIcons bPaths
               layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
               Data.ByteString.Lazy.hPutStr
                 layoutOutputhandle
