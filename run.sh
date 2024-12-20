@@ -1,5 +1,5 @@
 cabal run drakon-renderer -- \
-    --inputPath "./diagrams/simple-diagram-3/simple-diagram-3.json" \
-    --layoutOutputPath "./diagrams/simple-diagram-3/simple-diagram-3-layout.json" \
-    --balancedPathsOutputPath "./diagrams/simple-diagram-3/simple-diagram-3-balanced-paths.md" \
-    --svgOutputPath "./diagrams/simple-diagram-3/simple-diagram-3.svg"
+    --inputPath "./diagrams/primitive-diagram-5/primitive-diagram-5.json" \
+    --layoutOutputPath "./diagrams/primitive-diagram-5/primitive-diagram-5-layout.json" \
+    --balancedPathsOutputPath "./diagrams/primitive-diagram-5/primitive-diagram-5-balanced-paths.md" \
+    --svgOutputPath "./diagrams/primitive-diagram-5/primitive-diagram-5.svg"

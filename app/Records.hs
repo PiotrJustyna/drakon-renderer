@@ -119,7 +119,7 @@ getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons =
   x
 
 updateName :: Icon -> String -> Icon
-updateName icon newName = icon {iconName = newName}
+updateName x newName = x {iconName = newName}
 
 addDependentName :: Icon -> String -> Icon
 addDependentName Icon { iconName = name
@@ -135,7 +135,7 @@ addDependentName Icon { iconName = name
     }
 
 removeDependents :: Icon -> Icon
-removeDependents icon = icon {iconNamesOfDependentIcons = []}
+removeDependents x = x {iconNamesOfDependentIcons = []}
 
 updateDependent :: Icon -> String -> String -> Icon
 updateDependent Icon { iconName = name

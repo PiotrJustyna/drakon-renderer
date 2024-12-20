@@ -6,9 +6,13 @@ Reasonably portable drakon diagrams renderer. Development, compilation and execu
 
 this is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams. Current focus is to render primitive diagrams according to drakon rules.
 
-|||||
-| --- | --- | --- | --- |
-| ![simple diagram 1](./diagrams/simple-diagram-1/simple-diagram-1.svg) | ![simple diagram 2](./diagrams/simple-diagram-2/simple-diagram-2.svg) | ![simple diagram 3](./diagrams/simple-diagram-3/simple-diagram-3.svg) | ![primitive diagram 1](./diagrams/primitive-diagram-1/primitive-diagram-1.svg) |
+| primitive diagram 1 | primitive diagram 2 | primitive diagram 3 |
+| --- | --- | --- |
+| ![primitive diagram 1](./diagrams/primitive-diagram-1/primitive-diagram-1.svg) | ![primitive diagram 2](./diagrams/primitive-diagram-2/primitive-diagram-2.svg) | ![primitive diagram 3](./diagrams/primitive-diagram-3/primitive-diagram-3.svg) |
+
+| primitive diagram 4 | primitive diagram 5 |
+| --- | --- |
+| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) ||
 
 ## terminology
 
@@ -137,7 +141,7 @@ WIP at the moment - layout engine does not leverage automatically injected valen
 
 * an svg diagram:
 
-![real life diagram 1](./diagrams/simple-diagram-1/simple-diagram-1.svg)
+![primitive diagram 2](./diagrams/primitive-diagram-2/primitive-diagram-2.svg)
 
 ## method
 

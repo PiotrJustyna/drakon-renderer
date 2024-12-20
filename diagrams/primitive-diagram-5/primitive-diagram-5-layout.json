@@ -1,0 +1,95 @@
+[
+    {
+        "icon": {
+            "iconDescription": "Work out - 2",
+            "iconKind": "Title",
+            "iconName": "1",
+            "iconNamesOfDependentIcons": [
+                "2"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -1
+    },
+    {
+        "icon": {
+            "iconDescription": "Warm up",
+            "iconKind": "Action",
+            "iconName": "2",
+            "iconNamesOfDependentIcons": [
+                "3"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -2
+    },
+    {
+        "icon": {
+            "iconDescription": "Repeat 10 times",
+            "iconKind": "ForStart",
+            "iconName": "3",
+            "iconNamesOfDependentIcons": [
+                "4"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -3
+    },
+    {
+        "icon": {
+            "iconDescription": "Lift the weight",
+            "iconKind": "Action",
+            "iconName": "4",
+            "iconNamesOfDependentIcons": [
+                "5"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -4
+    },
+    {
+        "icon": {
+            "iconDescription": "Tired?",
+            "iconKind": "Question",
+            "iconName": "5",
+            "iconNamesOfDependentIcons": [
+                "6",
+                "7"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -5
+    },
+    {
+        "icon": {
+            "iconDescription": "",
+            "iconKind": "ForEnd",
+            "iconName": "6",
+            "iconNamesOfDependentIcons": [
+                "7"
+            ]
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -6
+    },
+    {
+        "icon": {
+            "iconDescription": "End",
+            "iconKind": "End",
+            "iconName": "7",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 0,
+        "iconPositionY": -7
+    },
+    {
+        "icon": {
+            "iconDescription": ":new:",
+            "iconKind": "ValentPoint",
+            "iconName": "v1",
+            "iconNamesOfDependentIcons": []
+        },
+        "iconPositionX": 2,
+        "iconPositionY": -6
+    }
+]
