@@ -199,7 +199,6 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
                                         , Records.iconPositionY = y
                                         } =
   case kind of
-    DataTypes.ValentPoint -> (coordinates, text description 0.0 0.0 <> valentPointShape)
     DataTypes.Title -> (coordinates, text description 0.0 0.0 <> titleShape)
     DataTypes.End -> (coordinates, text description 0.0 0.0 <> endShape)
     DataTypes.Action -> (coordinates, text description 0.0 0.0 <> actionShape)
@@ -211,6 +210,9 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
           <> questionShape)
     DataTypes.Headline -> (coordinates, text description 0.0 0.0 <> headlineShape)
     DataTypes.Address -> (coordinates, text description 0.0 0.0 <> addressShape)
+    DataTypes.ForStart -> (coordinates, text description 0.0 0.0 <> forStartShape)
+    DataTypes.ForEnd -> (coordinates, text description 0.0 0.0 <> forEndShape)
+    DataTypes.ValentPoint -> (coordinates, text description 0.0 0.0 <> valentPointShape)
   where
     coordinates = Diagrams.Prelude.p2 (x, y)
     kind = Records.getIconKind positionedIcon
@@ -235,6 +237,40 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
         Diagrams.Prelude.# Diagrams.Prelude.fc actionIconColour
         Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
         Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+    forStartShape =
+      Diagrams.Prelude.fromOffsets
+        [ Diagrams.Prelude.V2 0.0 (iconHeight * 0.5)
+        , Diagrams.Prelude.V2 (iconHeight * 0.5) (iconHeight * 0.5)
+        , Diagrams.Prelude.V2 (iconWidth - (iconHeight * 0.5) - (iconHeight * 0.5)) 0.0
+        , Diagrams.Prelude.V2 (iconHeight * 0.5) (iconHeight * (-0.5))
+        , Diagrams.Prelude.V2 0.0 (iconHeight * (-0.5))
+        , Diagrams.Prelude.V2 (iconWidth * (-1.0)) 0.0
+        ]
+        Diagrams.Prelude.# Diagrams.Prelude.closeLine
+        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
+        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
+        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+        Diagrams.Prelude.# Diagrams.Prelude.translate
+                             (Diagrams.Prelude.r2
+                                (iconWidth * (-0.5), iconHeight * (-0.5)))
+    forEndShape =
+      Diagrams.Prelude.fromOffsets
+        [ Diagrams.Prelude.V2 (iconHeight * (-0.5)) (iconHeight * 0.5)
+        , Diagrams.Prelude.V2 0.0 (iconHeight * 0.5)
+        , Diagrams.Prelude.V2 iconWidth 0.0
+        , Diagrams.Prelude.V2 0.0 (iconHeight * (-0.5))
+        , Diagrams.Prelude.V2 (iconHeight * (-0.5)) (iconHeight * (-0.5))
+        , Diagrams.Prelude.V2 (iconWidth * (-0.5)) 0.0
+        ]
+        Diagrams.Prelude.# Diagrams.Prelude.closeLine
+        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
+        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
+        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
+        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+        Diagrams.Prelude.# Diagrams.Prelude.translate
+                             (Diagrams.Prelude.r2
+                                ((iconWidth * (-0.5) + (iconHeight * 0.5)), iconHeight * (-0.5)))
     questionShape =
       Diagrams.Prelude.fromOffsets
         [ Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5)

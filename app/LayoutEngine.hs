@@ -157,8 +157,12 @@ balance unbalancedPaths nextAvailableValentPointName =
 unconst :: a -> a -> a
 unconst _ x = x
 
-positionIconsInRow :: [Records.Icon] -> Double -> Data.Map.Map String Records.PositionedIcon -> Data.Map.Map String Records.PositionedIcon
-positionIconsInRow row newXCoordinate map =
+positionIconsInRow ::
+     [Records.Icon]
+  -> Double
+  -> Data.Map.Map String Records.PositionedIcon
+  -> Data.Map.Map String Records.PositionedIcon
+positionIconsInRow row newXCoordinate positionedIcons =
   fst
     (foldl
        (\acc icon ->
@@ -169,7 +173,7 @@ positionIconsInRow row newXCoordinate map =
                   (Records.toPositionedIcon icon newXCoordinate newYCoordinate)
                   (fst acc)
               , newYCoordinate))
-       (map, 0.0)
+       (positionedIcons, 0.0)
        row)
 
 positionIcons :: [[Records.Icon]] -> [Records.PositionedIcon]

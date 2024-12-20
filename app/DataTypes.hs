@@ -12,6 +12,8 @@ data IconKind
   | Question
   | Headline
   | Address
+  | ForStart
+  | ForEnd
   | ValentPoint
 
 instance Eq DataTypes.IconKind where
@@ -29,6 +31,10 @@ instance Eq DataTypes.IconKind where
   (==) Address _ = False
   (==) ValentPoint ValentPoint = True
   (==) ValentPoint _ = False
+  (==) ForStart ForStart = True
+  (==) ForStart _ = False
+  (==) ForEnd ForEnd = True
+  (==) ForEnd _ = False
 
 instance Show IconKind where
   show Title = "Title"
@@ -37,6 +43,8 @@ instance Show IconKind where
   show Question = "Question"
   show Headline = "Headline"
   show Address = "Address"
+  show ForStart = "ForStart"
+  show ForEnd = "ForEnd"
   show ValentPoint = "ValentPoint"
 
 instance Data.Aeson.ToJSON IconKind where
@@ -46,6 +54,8 @@ instance Data.Aeson.ToJSON IconKind where
   toJSON Question = Data.Aeson.String "Question"
   toJSON Headline = Data.Aeson.String "Headline"
   toJSON Address = Data.Aeson.String "Address"
+  toJSON ForStart = Data.Aeson.String "ForStart"
+  toJSON ForEnd = Data.Aeson.String "ForEnd"
   toJSON ValentPoint = Data.Aeson.String "ValentPoint"
 
 instance Data.Aeson.FromJSON IconKind where
@@ -58,5 +68,7 @@ instance Data.Aeson.FromJSON IconKind where
         "Question" -> pure Question
         "Headline" -> pure Headline
         "Address" -> pure Address
+        "ForStart" -> pure ForStart
+        "ForEnd" -> pure ForEnd
         "ValentPoint" -> pure ValentPoint
         unknown -> fail $ "unknown iconKind: " <> unknown
