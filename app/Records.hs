@@ -2,11 +2,11 @@
 
 module Records where
 
-import qualified Control.Applicative
-import qualified Data.Aeson
-import qualified Data.List
-import qualified DataTypes
-import qualified Options.Applicative
+import Control.Applicative (empty)
+import Data.Aeson (FromJSON, ToJSON, Value(Object), (.:), (.=), object, parseJSON, toJSON)
+import Data.List (find)
+import DataTypes (IconKind(..))
+import Options.Applicative (Parser, help, long, metavar, short, strOption)
 
 --- DrakonRendererArguments -> --------------------------------------------------------------------
 --- 2024-08-21 PJ: --------------------------------------------------------------------------------
@@ -20,30 +20,30 @@ data DrakonRendererArguments = DrakonRendererArguments
   , svgOutputPath :: String
   }
 
-drakonRendererArguments :: Options.Applicative.Parser DrakonRendererArguments
+drakonRendererArguments :: Parser DrakonRendererArguments
 drakonRendererArguments =
   DrakonRendererArguments
-    <$> Options.Applicative.strOption
-          (Options.Applicative.long "inputPath"
-             <> Options.Applicative.short 'i'
-             <> Options.Applicative.metavar "PATH"
-             <> Options.Applicative.help "Path to input *.json drakon diagram file.")
-    <*> Options.Applicative.strOption
-          (Options.Applicative.long "layoutOutputPath"
-             <> Options.Applicative.short 'l'
-             <> Options.Applicative.metavar "PATH"
-             <> Options.Applicative.help "Path to output *.json drakon diagram file.")
-    <*> Options.Applicative.strOption
-          (Options.Applicative.long "balancedPathsOutputPath"
-             <> Options.Applicative.short 'b'
-             <> Options.Applicative.metavar "PATH"
-             <> Options.Applicative.help
+    <$> strOption
+          (long "inputPath"
+             <> short 'i'
+             <> metavar "PATH"
+             <> help "Path to input *.json drakon diagram file.")
+    <*> strOption
+          (long "layoutOutputPath"
+             <> short 'l'
+             <> metavar "PATH"
+             <> help "Path to output *.json drakon diagram file.")
+    <*> strOption
+          (long "balancedPathsOutputPath"
+             <> short 'b'
+             <> metavar "PATH"
+             <> help
                   "Path to output *.md file containing visual representation of diagram's balanced paths.")
-    <*> Options.Applicative.strOption
-          (Options.Applicative.long "svgOutputPath"
-             <> Options.Applicative.short 's'
-             <> Options.Applicative.metavar "PATH"
-             <> Options.Applicative.help "Path to output *.svg drakon diagram file.")
+    <*> strOption
+          (long "svgOutputPath"
+             <> short 's'
+             <> metavar "PATH"
+             <> help "Path to output *.svg drakon diagram file.")
 
 --- <- DrakonRendererArguments --------------------------------------------------------------------
 --- Icon -> ---------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ data Icon = Icon
   { iconName :: String
   , iconDescription :: String
   , iconNamesOfDependentIcons :: [String]
-  , iconKind :: DataTypes.IconKind
+  , iconKind :: IconKind
   } deriving (Show)
 
 getIconName :: Icon -> String
@@ -114,7 +114,7 @@ getNumberOfDependentIcons Icon { iconName = _
                                , iconKind = _
                                } = length x
 
-getIconKind :: Icon -> DataTypes.IconKind
+getIconKind :: Icon -> IconKind
 getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = x} =
   x
 
@@ -165,26 +165,26 @@ valentPoint name description =
     { iconName = name
     , iconDescription = description
     , iconNamesOfDependentIcons = []
-    , iconKind = DataTypes.ValentPoint
+    , iconKind = ValentPoint
     }
 
-instance Data.Aeson.ToJSON Icon where
+instance ToJSON Icon where
   toJSON (Icon name description namesOfDependentIcons kind) =
-    Data.Aeson.object
-      [ "iconName" Data.Aeson..= name
-      , "iconDescription" Data.Aeson..= description
-      , "iconNamesOfDependentIcons" Data.Aeson..= namesOfDependentIcons
-      , "iconKind" Data.Aeson..= kind
+    object
+      [ "iconName" .= name
+      , "iconDescription" .= description
+      , "iconNamesOfDependentIcons" .= namesOfDependentIcons
+      , "iconKind" .= kind
       ]
 
-instance Data.Aeson.FromJSON Icon where
-  parseJSON (Data.Aeson.Object v) =
+instance FromJSON Icon where
+  parseJSON (Object v) =
     Icon
-      <$> v Data.Aeson..: "iconName"
-      <*> v Data.Aeson..: "iconDescription"
-      <*> v Data.Aeson..: "iconNamesOfDependentIcons"
-      <*> v Data.Aeson..: "iconKind"
-  parseJSON _ = Control.Applicative.empty
+      <$> v .: "iconName"
+      <*> v .: "iconDescription"
+      <*> v .: "iconNamesOfDependentIcons"
+      <*> v .: "iconKind"
+  parseJSON _ = empty
 
 instance Eq Icon where
   (==) (Icon name1 _ _ _) (Icon name2 _ _ _) = name1 == name2
@@ -196,20 +196,20 @@ instance Ord Icon where
 -- Returns Nothing if no title icon is found.
 titleIcon :: [Icon] -> Maybe Icon
 titleIcon =
-  Data.List.find
+  find
     (\x ->
        case getIconKind x of
-         DataTypes.Title -> True
+         Title -> True
          _ -> False)
 
 -- | Find the end icon in a list of icons.
 -- Returns Nothing if no end icon is found.
 endIcon :: [Icon] -> Maybe Icon
 endIcon =
-  Data.List.find
+  find
     (\x ->
        case getIconKind x of
-         DataTypes.End -> True
+         End -> True
          _ -> False)
 
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
@@ -230,7 +230,7 @@ allDependents' :: PositionedIcon -> [Icon] -> [Icon]
 allDependents' parent allIcons =
   foldl
     (\acc x ->
-       case Data.List.find (\singleIcon -> x == getIconName singleIcon) allIcons of
+       case find (\singleIcon -> x == getIconName singleIcon) allIcons of
          Nothing -> acc
          Just dependentIcon -> acc <> [dependentIcon])
     []
@@ -311,7 +311,7 @@ getDependentPositionedIcons PositionedIcon { icon = positionedIcon
 
 iconParentElem :: Icon -> [PositionedIcon] -> Maybe PositionedIcon
 iconParentElem childIcon =
-  Data.List.find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
+  find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
 
 lowestParentAndItsIcon :: [Icon] -> [PositionedIcon] -> Maybe (PositionedIcon, Icon)
 lowestParentAndItsIcon childrenIcons positionedIcons =
@@ -348,11 +348,7 @@ lowest =
 toPositionedIcon :: Icon -> Double -> Double -> PositionedIcon
 toPositionedIcon i x y = PositionedIcon {icon = i, iconPositionX = x, iconPositionY = y}
 
-instance Data.Aeson.ToJSON PositionedIcon where
+instance ToJSON PositionedIcon where
   toJSON (PositionedIcon positionFreeIcon positionX positionY) =
-    Data.Aeson.object
-      [ "icon" Data.Aeson..= positionFreeIcon
-      , "iconPositionX" Data.Aeson..= positionX
-      , "iconPositionY" Data.Aeson..= positionY
-      ]
+    object ["icon" .= positionFreeIcon, "iconPositionX" .= positionX, "iconPositionY" .= positionY]
 --- <- Positioned Icon ----------------------------------------------------------------------------

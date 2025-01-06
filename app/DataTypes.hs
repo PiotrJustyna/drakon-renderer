@@ -2,8 +2,8 @@
 
 module DataTypes where
 
-import qualified Data.Aeson
-import qualified Data.Text
+import Data.Aeson (FromJSON, ToJSON, Value(String), parseJSON, toJSON, withText)
+import Data.Text (unpack)
 
 data IconKind
   = Title
@@ -47,21 +47,21 @@ instance Show IconKind where
   show ForEnd = "ForEnd"
   show ValentPoint = "ValentPoint"
 
-instance Data.Aeson.ToJSON IconKind where
-  toJSON Title = Data.Aeson.String "Title"
-  toJSON End = Data.Aeson.String "End"
-  toJSON Action = Data.Aeson.String "Action"
-  toJSON Question = Data.Aeson.String "Question"
-  toJSON Headline = Data.Aeson.String "Headline"
-  toJSON Address = Data.Aeson.String "Address"
-  toJSON ForStart = Data.Aeson.String "ForStart"
-  toJSON ForEnd = Data.Aeson.String "ForEnd"
-  toJSON ValentPoint = Data.Aeson.String "ValentPoint"
+instance ToJSON IconKind where
+  toJSON Title = String "Title"
+  toJSON End = String "End"
+  toJSON Action = String "Action"
+  toJSON Question = String "Question"
+  toJSON Headline = String "Headline"
+  toJSON Address = String "Address"
+  toJSON ForStart = String "ForStart"
+  toJSON ForEnd = String "ForEnd"
+  toJSON ValentPoint = String "ValentPoint"
 
-instance Data.Aeson.FromJSON IconKind where
+instance FromJSON IconKind where
   parseJSON =
-    Data.Aeson.withText "iconKind" $ \t ->
-      case Data.Text.unpack t of
+    withText "iconKind" $ \t ->
+      case unpack t of
         "Title" -> pure Title
         "End" -> pure End
         "Action" -> pure Action
