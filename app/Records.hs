@@ -150,7 +150,7 @@ updateDependent Icon { iconName = name
         foldl
           (\acc x ->
              acc
-               ++ [ if x == oldDependentName
+               <> [ if x == oldDependentName
                       then newDependentName
                       else x
                   ])
@@ -215,7 +215,7 @@ endIcon =
 removeDuplicates :: [[Icon]] -> [Icon] -> [[Icon]]
 removeDuplicates [] _ = []
 removeDuplicates (singleRow:remainingRows) uniqueIcons =
-  removeDuplicates remainingRows (uniqueIcons ++ newUniqueIcons) ++ [newUniqueIcons]
+  removeDuplicates remainingRows (uniqueIcons <> newUniqueIcons) <> [newUniqueIcons]
   where
     newUniqueIcons =
       foldl
@@ -232,7 +232,7 @@ allDependents' parent allIcons =
     (\acc x ->
        case Data.List.find (\singleIcon -> x == getIconName singleIcon) allIcons of
          Nothing -> acc
-         Just dependentIcon -> acc ++ [dependentIcon])
+         Just dependentIcon -> acc <> [dependentIcon])
     []
     dependentNames
   where
@@ -247,7 +247,7 @@ allDependents subset allIcons =
 allDependentsOfAllDependents :: [Icon] -> [Icon] -> [Icon]
 allDependentsOfAllDependents dependents allIcons =
   foldl
-    (\acc singleDependent -> acc ++ allDependentsOfOneDependent singleDependent allIcons acc)
+    (\acc singleDependent -> acc <> allDependentsOfOneDependent singleDependent allIcons acc)
     []
     dependents
 

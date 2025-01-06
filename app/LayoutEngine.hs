@@ -19,7 +19,7 @@ spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
 
 combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
-combine parents = foldl (\acc dependent -> acc ++ [dependent : parents]) []
+combine parents = foldl (\acc dependent -> acc <> [dependent : parents]) []
 
 pathsEqual :: [[Records.Icon]] -> [[Records.Icon]] -> Bool
 pathsEqual x1 x2 =
@@ -44,7 +44,7 @@ dcPaths paths allIcons convergenceIcons =
         foldl
           (\acc singleRow ->
              acc
-               ++ case Records.getDependentIconsWithBlacklist
+               <> case Records.getDependentIconsWithBlacklist
                          (head singleRow)
                          allIcons
                          convergenceIcons
@@ -63,8 +63,8 @@ showBalancedPathsHeader inputPaths =
         foldl
           (\acc i ->
              case i of
-               0 -> "\n| path " ++ show (i + 1) ++ " |"
-               _ -> acc ++ " path " ++ show (i + 1) ++ " |")
+               0 -> "\n| path " <> show (i + 1) <> " |"
+               _ -> acc <> " path " <> show (i + 1) <> " |")
           ""
           [0 .. (length inputPaths - 1)]
       headerLineBreak =
@@ -72,10 +72,10 @@ showBalancedPathsHeader inputPaths =
           (\acc i ->
              case i of
                0 -> "\n| --- |"
-               _ -> acc ++ " --- |")
+               _ -> acc <> " --- |")
           ""
           [0 .. (length inputPaths - 1)]
-   in header ++ headerLineBreak
+   in header <> headerLineBreak
 
 showBalancedPaths :: [[Records.Icon]] -> String
 showBalancedPaths inputPaths =
@@ -86,18 +86,18 @@ showBalancedPaths inputPaths =
             let name = Records.getIconName icon
                 description = Records.getIconDescription icon
                 dependents = show $ Records.getIconNamesOfDependentIcons icon
-             in " **" ++ name ++ "** - " ++ description ++ " " ++ dependents ++ " |"
+             in " **" <> name <> "** - " <> description <> " " <> dependents <> " |"
           [] -> " :negative_squared_cross_mark: |"
    in concat
-        [ "|" ++ concat [formatIcon row columnIndex | row <- inputPaths] ++ "\n"
+        [ "|" <> concat [formatIcon row columnIndex | row <- inputPaths] <> "\n"
         | columnIndex <- [0 .. maxColumnIndex]
         ]
 
 skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
-skipFirst = foldl (\acc row -> acc ++ [drop 1 row]) []
+skipFirst = foldl (\acc row -> acc <> [drop 1 row]) []
 
 takeFirst :: [[Records.Icon]] -> [[Records.Icon]]
-takeFirst = foldl (\acc row -> acc ++ [take 1 row]) []
+takeFirst = foldl (\acc row -> acc <> [take 1 row]) []
 
 iconPresent :: Records.Icon -> [[Records.Icon]] -> Bool
 iconPresent x = any (elem x)
@@ -128,13 +128,13 @@ balanceFirstSlice input nextAvailableValentPointName =
          else foldl
                 (\acc row ->
                    case row of
-                     [] -> (fst acc ++ [[]], snd acc)
+                     [] -> (fst acc <> [[]], snd acc)
                      (key:rest) ->
                        let value = rowMap Data.Map.! key
-                           newName = "v" ++ show (snd acc)
+                           newName = "v" <> show (snd acc)
                         in if key == value
-                             then (fst acc ++ [key : rest], snd acc)
-                             else ( fst acc ++ [Records.updateName value newName : (key : rest)]
+                             then (fst acc <> [key : rest], snd acc)
+                             else ( fst acc <> [Records.updateName value newName : (key : rest)]
                                   , snd acc + 1))
                 ([], nextAvailableValentPointName)
                 input)
@@ -150,7 +150,7 @@ balance unbalancedPaths nextAvailableValentPointName =
            in if all null remainingPaths
                 then firstBalancedSlice
                 else zipWith
-                       (++)
+                       (<>)
                        firstBalancedSlice
                        (balance remainingPaths (snd firstSliceInformation))
 

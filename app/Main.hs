@@ -20,7 +20,7 @@ maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
 
 handleReadError :: Control.Exception.IOException -> IO Data.ByteString.Lazy.ByteString
-handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading file: " ++ show e
+handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading file: " <> show e
 
 main :: IO ()
 main = process =<< Options.Applicative.execParser options
@@ -48,11 +48,11 @@ oneTitleIconPresent icons =
     then Nothing
     else Just
            ( "Diagram is required to have exactly one icon of kind \""
-               ++ show DataTypes.Title
-               ++ "\"."
+               <> show DataTypes.Title
+               <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
-               ++ show DataTypes.Title
-               ++ "\" and that it is the only icon of that kind.")
+               <> show DataTypes.Title
+               <> "\" and that it is the only icon of that kind.")
 
 oneEndIconPresent :: [Records.Icon] -> Maybe (String, String)
 oneEndIconPresent icons =
@@ -67,11 +67,11 @@ oneEndIconPresent icons =
     then Nothing
     else Just
            ( "Diagram is required to have exactly one icon of kind \""
-               ++ show DataTypes.End
-               ++ "\"."
+               <> show DataTypes.End
+               <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
-               ++ show DataTypes.End
-               ++ "\" and that it is the only icon of that kind.")
+               <> show DataTypes.End
+               <> "\" and that it is the only icon of that kind.")
 
 -- 2024-09-06 PJ:
 -----------------
@@ -82,16 +82,16 @@ correctNumberOfDependencies icons =
     [] -> Nothing
     _ ->
       Just
-        ( take (length errorText - 2) errorText ++ "."
+        ( take (length errorText - 2) errorText <> "."
         , "Make sure your icons have the expected number of dependencies. For reference: \""
-            ++ show DataTypes.Title
-            ++ "\" and \""
-            ++ show DataTypes.Action
-            ++ "\" icons should have 1 depdenency, \""
-            ++ show DataTypes.Question
-            ++ "\" icon should have 2 dependencies and \""
-            ++ show DataTypes.End
-            ++ "\" should have no dependencies.")
+            <> show DataTypes.Title
+            <> "\" and \""
+            <> show DataTypes.Action
+            <> "\" icons should have 1 depdenency, \""
+            <> show DataTypes.Question
+            <> "\" icon should have 2 dependencies and \""
+            <> show DataTypes.End
+            <> "\" should have no dependencies.")
   where
     iconsWithIncorrectDependencies =
       foldl
@@ -113,7 +113,7 @@ correctNumberOfDependencies icons =
         icons
     errorText =
       foldl
-        (\acc x -> acc ++ "\"" ++ x ++ "\", ")
+        (\acc x -> acc <> "\"" <> x <> "\", ")
         "Icons identified with following names contain incorrect number of dependencies: "
         iconsWithIncorrectDependencies
 
@@ -133,12 +133,12 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
   if fileSizeInBytes > maxInputFileSizeInBytes
     then putStrLn
            $ "Problem with diagram file \""
-               ++ inputPath
-               ++ "\" ("
-               ++ show fileSizeInBytes
-               ++ " bytes). Max allowed input file size: "
-               ++ show maxInputFileSizeInBytes
-               ++ " bytes."
+               <> inputPath
+               <> "\" ("
+               <> show fileSizeInBytes
+               <> " bytes). Max allowed input file size: "
+               <> show maxInputFileSizeInBytes
+               <> " bytes."
     else do
       content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case Data.Aeson.decode content :: Maybe [Records.Icon] of
@@ -152,22 +152,22 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
               titleIcon <-
                 maybe
                   (fail
-                     $ "No icons of type \"" ++ show DataTypes.Title ++ "\" detected in the input.")
+                     $ "No icons of type \"" <> show DataTypes.Title <> "\" detected in the input.")
                   return
                   (Records.titleIcon icons)
               endIcon <-
                 maybe
-                  (fail $ "No icons of type \"" ++ show DataTypes.End ++ "\" detected in the input.")
+                  (fail $ "No icons of type \"" <> show DataTypes.End <> "\" detected in the input.")
                   return
                   (Records.endIcon icons)
               let paths = LayoutEngine.dcPaths [[titleIcon]] icons [endIcon]
               let bPaths = LayoutEngine.balance paths 1
               let printableBPaths =
                     LayoutEngine.showBalancedPathsHeader bPaths
-                      ++ "\n"
-                      ++ LayoutEngine.showBalancedPaths bPaths
+                      <> "\n"
+                      <> LayoutEngine.showBalancedPaths bPaths
               let prettyMarkdown =
-                    Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" ++ printableBPaths
+                    Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" <> printableBPaths
               bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
               Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
               System.IO.hClose bPathsOutputHandle
@@ -184,15 +184,15 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
               let failureReasons =
                     foldl
                       (\acc (validationError, hint) ->
-                         acc ++ "* Error: " ++ validationError ++ " Hint: " ++ hint ++ "\n")
+                         acc <> "* Error: " <> validationError <> " Hint: " <> hint <> "\n")
                       ""
                       validationErrors
               putStrLn
-                $ "Input validation did not succeed for following reasons:\n" ++ failureReasons
+                $ "Input validation did not succeed for following reasons:\n" <> failureReasons
         Nothing -> do
           let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
           putStrLn
             $ "Problem interpreting diagram file \""
-                ++ inputPath
-                ++ "\". Details: "
-                ++ unpackedContent
+                <> inputPath
+                <> "\". Details: "
+                <> unpackedContent

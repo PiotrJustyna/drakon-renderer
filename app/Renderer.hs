@@ -82,7 +82,7 @@ connection (x1, y1) (x2, y2) positionedIcons
                       , (x1, y2 + iconHeight)
                       ]
                  else [])
-            ++ [(x2, y2)]
+            <> [(x2, y2)]
      in (waypoints, renderedConnection waypoints)
   | x1 < x2 =
     let waypoints = [(x1, y1), (x2, y1), (x2, y2)]
@@ -270,7 +270,7 @@ renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
         Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
         Diagrams.Prelude.# Diagrams.Prelude.translate
                              (Diagrams.Prelude.r2
-                                ((iconWidth * (-0.5) + (iconHeight * 0.5)), iconHeight * (-0.5)))
+                                (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
     questionShape =
       Diagrams.Prelude.fromOffsets
         [ Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5)
