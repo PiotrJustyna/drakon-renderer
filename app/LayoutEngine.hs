@@ -6,8 +6,18 @@ module LayoutEngine
   , positionIcons
   ) where
 
-import qualified Data.Map
-import qualified Records
+import Data.Map (Map, (!), elems, empty, insertWith)
+import Records
+  ( Icon
+  , PositionedIcon
+  , getDependentIconsWithBlacklist
+  , getIconDescription
+  , getIconName
+  , getIconNamesOfDependentIcons
+  , toPositionedIcon
+  , updateName
+  , valentPoint
+  )
 
 iconWidth :: Double
 iconWidth = 1.0
@@ -18,10 +28,10 @@ iconHeight = 1.0
 spaceBetweenIconsX :: Double
 spaceBetweenIconsX = 1.0
 
-combine :: [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
+combine :: [Icon] -> [Icon] -> [[Icon]]
 combine parents = foldl (\acc dependent -> acc <> [dependent : parents]) []
 
-pathsEqual :: [[Records.Icon]] -> [[Records.Icon]] -> Bool
+pathsEqual :: [[Icon]] -> [[Icon]] -> Bool
 pathsEqual x1 x2 =
   length x1 == length x2
     && foldl
@@ -38,13 +48,13 @@ pathsEqual x1 x2 =
 -- and ending at a given convergence icon.
 -- d-c paths - my name for divergence icon -> convergence icon paths
 -- all paths connecting
-dcPaths :: [[Records.Icon]] -> [Records.Icon] -> [Records.Icon] -> [[Records.Icon]]
+dcPaths :: [[Icon]] -> [Icon] -> [Icon] -> [[Icon]]
 dcPaths paths allIcons convergenceIcons =
   let newPaths =
         foldl
           (\acc singleRow ->
              acc
-               <> case Records.getDependentIconsWithBlacklist
+               <> case getDependentIconsWithBlacklist
                          (head singleRow)
                          allIcons
                          convergenceIcons
@@ -57,7 +67,7 @@ dcPaths paths allIcons convergenceIcons =
         then map reverse paths
         else dcPaths newPaths allIcons convergenceIcons
 
-showBalancedPathsHeader :: [[Records.Icon]] -> String
+showBalancedPathsHeader :: [[Icon]] -> String
 showBalancedPathsHeader inputPaths =
   let header =
         foldl
@@ -77,15 +87,15 @@ showBalancedPathsHeader inputPaths =
           [0 .. (length inputPaths - 1)]
    in header <> headerLineBreak
 
-showBalancedPaths :: [[Records.Icon]] -> String
+showBalancedPaths :: [[Icon]] -> String
 showBalancedPaths inputPaths =
   let maxColumnIndex = maximum $ map (\inputPath -> length inputPath - 1) inputPaths
       formatIcon row columnIndex =
         case drop columnIndex row of
           (icon:_) ->
-            let name = Records.getIconName icon
-                description = Records.getIconDescription icon
-                dependents = show $ Records.getIconNamesOfDependentIcons icon
+            let name = getIconName icon
+                description = getIconDescription icon
+                dependents = show $ getIconNamesOfDependentIcons icon
              in " **" <> name <> "** - " <> description <> " " <> dependents <> " |"
           [] -> " :negative_squared_cross_mark: |"
    in concat
@@ -93,17 +103,17 @@ showBalancedPaths inputPaths =
         | columnIndex <- [0 .. maxColumnIndex]
         ]
 
-skipFirst :: [[Records.Icon]] -> [[Records.Icon]]
+skipFirst :: [[Icon]] -> [[Icon]]
 skipFirst = foldl (\acc row -> acc <> [drop 1 row]) []
 
-takeFirst :: [[Records.Icon]] -> [[Records.Icon]]
+takeFirst :: [[Icon]] -> [[Icon]]
 takeFirst = foldl (\acc row -> acc <> [take 1 row]) []
 
-iconPresent :: Records.Icon -> [[Records.Icon]] -> Bool
+iconPresent :: Icon -> [[Icon]] -> Bool
 iconPresent x = any (elem x)
 
-sliceMap :: [[Records.Icon]] -> Data.Map.Map Records.Icon Records.Icon
-sliceMap [] = Data.Map.empty
+sliceMap :: [[Icon]] -> Map Icon Icon
+sliceMap [] = empty
 sliceMap input =
   foldl
     (\acc row ->
@@ -112,34 +122,34 @@ sliceMap input =
            let currentIconPresent = iconPresent icon (skipFirst input)
                newIcon =
                  if currentIconPresent
-                   then Records.valentPoint "0" ":new:"
+                   then valentPoint "0" ":new:"
                    else icon
-            in Data.Map.insertWith const icon newIcon acc
+            in insertWith const icon newIcon acc
          [] -> acc)
-    Data.Map.empty
+    empty
     input
 
-balanceFirstSlice :: [[Records.Icon]] -> Int -> ([[Records.Icon]], Int)
+balanceFirstSlice :: [[Icon]] -> Int -> ([[Icon]], Int)
 balanceFirstSlice [] nextAvailableValentPointName = ([], nextAvailableValentPointName)
 balanceFirstSlice input nextAvailableValentPointName =
   let rowMap = sliceMap input
-   in (if Data.Map.null rowMap
+   in (if null rowMap
          then (input, nextAvailableValentPointName)
          else foldl
                 (\acc row ->
                    case row of
                      [] -> (fst acc <> [[]], snd acc)
                      (key:rest) ->
-                       let value = rowMap Data.Map.! key
+                       let value = rowMap ! key
                            newName = "v" <> show (snd acc)
                         in if key == value
                              then (fst acc <> [key : rest], snd acc)
-                             else ( fst acc <> [Records.updateName value newName : (key : rest)]
+                             else ( fst acc <> [updateName value newName : (key : rest)]
                                   , snd acc + 1))
                 ([], nextAvailableValentPointName)
                 input)
 
-balance :: [[Records.Icon]] -> Int -> [[Records.Icon]]
+balance :: [[Icon]] -> Int -> [[Icon]]
 balance unbalancedPaths nextAvailableValentPointName =
   let firstSliceInformation = balanceFirstSlice unbalancedPaths nextAvailableValentPointName
    in case fst firstSliceInformation of
@@ -157,32 +167,28 @@ balance unbalancedPaths nextAvailableValentPointName =
 unconst :: a -> a -> a
 unconst _ x = x
 
-positionIconsInRow ::
-     [Records.Icon]
-  -> Double
-  -> Data.Map.Map String Records.PositionedIcon
-  -> Data.Map.Map String Records.PositionedIcon
+positionIconsInRow :: [Icon] -> Double -> Map String PositionedIcon -> Map String PositionedIcon
 positionIconsInRow row newXCoordinate positionedIcons =
   fst
     (foldl
        (\acc icon ->
           let newYCoordinate = snd acc - iconHeight
-           in ( Data.Map.insertWith
+           in ( insertWith
                   unconst
-                  (Records.getIconName icon)
-                  (Records.toPositionedIcon icon newXCoordinate newYCoordinate)
+                  (getIconName icon)
+                  (toPositionedIcon icon newXCoordinate newYCoordinate)
                   (fst acc)
               , newYCoordinate))
        (positionedIcons, 0.0)
        row)
 
-positionIcons :: [[Records.Icon]] -> [Records.PositionedIcon]
+positionIcons :: [[Icon]] -> [PositionedIcon]
 positionIcons paths =
-  Data.Map.elems . fst
+  elems . fst
     $ foldl
         (\rowAccu row ->
            let newXCoordinate = snd rowAccu
             in ( positionIconsInRow row newXCoordinate (fst rowAccu)
                , newXCoordinate + iconWidth + spaceBetweenIconsX))
-        (Data.Map.empty, 0.0)
+        (empty, 0.0)
         paths
