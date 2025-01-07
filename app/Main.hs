@@ -2,81 +2,84 @@
 
 module Main where
 
-import qualified Control.Exception
-import qualified Data.Aeson
-import qualified Data.Aeson.Encode.Pretty
-import qualified Data.ByteString.Lazy
-import qualified Data.ByteString.Lazy.Char8
-import qualified DataTypes
-import qualified Diagrams.Backend.SVG
-import qualified LayoutEngine
-import qualified Options.Applicative
-import qualified Records
-import qualified Renderer
-import qualified System.Directory
-import qualified System.IO
+import Control.Exception (IOException, catch)
+import Data.Aeson (decode)
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.ByteString.Lazy (ByteString, hPutStr, readFile)
+import Data.ByteString.Lazy.Char8 (pack, unpack)
+import DataTypes (IconKind(..))
+import Diagrams.Backend.SVG (renderSVG')
+import LayoutEngine (balance, dcPaths, positionIcons, showBalancedPaths, showBalancedPathsHeader)
+import Options.Applicative ((<**>), execParser, fullDesc, header, helper, info, progDesc)
+import Records
+  ( DrakonRendererArguments(DrakonRendererArguments)
+  , Icon
+  , drakonRendererArguments
+  , findEndIcon
+  , findTitleIcon
+  , getIconKind
+  , getIconName
+  , getNumberOfDependentIcons
+  )
+import Renderer (renderAllConnections, renderAllIcons, svgOptions)
+import System.Directory (getFileSize)
+import System.IO (IOMode(WriteMode), hClose, openFile)
 
 maxInputFileSizeInBytes :: Integer
 maxInputFileSizeInBytes = 102400
 
-handleReadError :: Control.Exception.IOException -> IO Data.ByteString.Lazy.ByteString
-handleReadError e = return . Data.ByteString.Lazy.Char8.pack $ "Error reading file: " <> show e
+handleReadError :: IOException -> IO ByteString
+handleReadError e = return . pack $ "Error reading file: " <> show e
 
 main :: IO ()
-main = process =<< Options.Applicative.execParser options
+main = process =<< execParser options
   where
     options =
-      Options.Applicative.info
-        (Records.drakonRendererArguments Options.Applicative.<**> Options.Applicative.helper)
-        (Options.Applicative.fullDesc
-           <> Options.Applicative.progDesc "drakon renderer"
-           <> Options.Applicative.header "drakon renderer")
+      info
+        (drakonRendererArguments <**> helper)
+        (fullDesc <> progDesc "drakon renderer" <> header "drakon renderer")
 
 correctNumberOfQuestionDependencies :: Int
 correctNumberOfQuestionDependencies = 2
 
-oneTitleIconPresent :: [Records.Icon] -> Maybe (String, String)
+oneTitleIconPresent :: [Icon] -> Maybe (String, String)
 oneTitleIconPresent icons =
   if (1 :: Int)
        == foldl
             (\acc x ->
-               case Records.getIconKind x of
-                 DataTypes.Title -> acc + 1
+               case getIconKind x of
+                 Title -> acc + 1
                  _ -> acc)
             0
             icons
     then Nothing
     else Just
-           ( "Diagram is required to have exactly one icon of kind \""
-               <> show DataTypes.Title
-               <> "\"."
+           ( "Diagram is required to have exactly one icon of kind \"" <> show Title <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
-               <> show DataTypes.Title
+               <> show Title
                <> "\" and that it is the only icon of that kind.")
 
-oneEndIconPresent :: [Records.Icon] -> Maybe (String, String)
+oneEndIconPresent :: [Icon] -> Maybe (String, String)
 oneEndIconPresent icons =
   if (1 :: Int)
        == foldl
             (\acc x ->
-               case Records.getIconKind x of
-                 DataTypes.End -> acc + 1
+               case getIconKind x of
+                 End -> acc + 1
                  _ -> acc)
             0
             icons
     then Nothing
     else Just
-           ( "Diagram is required to have exactly one icon of kind \""
-               <> show DataTypes.End
-               <> "\"."
+           ( "Diagram is required to have exactly one icon of kind \"" <> show End <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
-               <> show DataTypes.End
+               <> show End
                <> "\" and that it is the only icon of that kind.")
 
 -- 2024-09-06 PJ:
 -----------------
 -- TODO: adjust for the new kinds of icons (headline + address).
-correctNumberOfDependencies :: [Records.Icon] -> Maybe (String, String)
+correctNumberOfDependencies :: [Icon] -> Maybe (String, String)
 correctNumberOfDependencies icons =
   case iconsWithIncorrectDependencies of
     [] -> Nothing
@@ -84,30 +87,30 @@ correctNumberOfDependencies icons =
       Just
         ( take (length errorText - 2) errorText <> "."
         , "Make sure your icons have the expected number of dependencies. For reference: \""
-            <> show DataTypes.Title
+            <> show Title
             <> "\" and \""
-            <> show DataTypes.Action
+            <> show Action
             <> "\" icons should have 1 depdenency, \""
-            <> show DataTypes.Question
+            <> show Question
             <> "\" icon should have 2 dependencies and \""
-            <> show DataTypes.End
+            <> show End
             <> "\" should have no dependencies.")
   where
     iconsWithIncorrectDependencies =
       foldl
         (\acc x ->
-           case Records.getIconKind x of
-             DataTypes.Question ->
-               if correctNumberOfQuestionDependencies /= Records.getNumberOfDependentIcons x
-                 then Records.getIconName x : acc
+           case getIconKind x of
+             Question ->
+               if correctNumberOfQuestionDependencies /= getNumberOfDependentIcons x
+                 then getIconName x : acc
                  else acc
-             DataTypes.End ->
-               if 0 /= Records.getNumberOfDependentIcons x
-                 then Records.getIconName x : acc
+             End ->
+               if 0 /= getNumberOfDependentIcons x
+                 then getIconName x : acc
                  else acc
              _ ->
-               if 1 /= Records.getNumberOfDependentIcons x
-                 then Records.getIconName x : acc
+               if 1 /= getNumberOfDependentIcons x
+                 then getIconName x : acc
                  else acc)
         []
         icons
@@ -117,7 +120,7 @@ correctNumberOfDependencies icons =
         "Icons identified with following names contain incorrect number of dependencies: "
         iconsWithIncorrectDependencies
 
-validation :: [[Records.Icon] -> Maybe (String, String)] -> [Records.Icon] -> [(String, String)]
+validation :: [[Icon] -> Maybe (String, String)] -> [Icon] -> [(String, String)]
 validation validationPredicates icons =
   foldl
     (\acc predicate ->
@@ -127,9 +130,9 @@ validation validationPredicates icons =
     []
     validationPredicates
 
-process :: Records.DrakonRendererArguments -> IO ()
-process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
-  fileSizeInBytes <- System.Directory.getFileSize inputPath
+process :: DrakonRendererArguments -> IO ()
+process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputPath svgOutputPath) = do
+  fileSizeInBytes <- getFileSize inputPath
   if fileSizeInBytes > maxInputFileSizeInBytes
     then putStrLn
            $ "Problem with diagram file \""
@@ -140,8 +143,8 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
                <> show maxInputFileSizeInBytes
                <> " bytes."
     else do
-      content <- Control.Exception.catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
-      case Data.Aeson.decode content :: Maybe [Records.Icon] of
+      content <- catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
+      case decode content :: Maybe [Icon] of
         Just icons -> do
           let validationErrors =
                 validation
@@ -151,35 +154,29 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
             [] -> do
               titleIcon <-
                 maybe
-                  (fail
-                     $ "No icons of type \"" <> show DataTypes.Title <> "\" detected in the input.")
+                  (fail $ "No icons of type \"" <> show Title <> "\" detected in the input.")
                   return
-                  (Records.titleIcon icons)
+                  (findTitleIcon icons)
               endIcon <-
                 maybe
-                  (fail $ "No icons of type \"" <> show DataTypes.End <> "\" detected in the input.")
+                  (fail $ "No icons of type \"" <> show End <> "\" detected in the input.")
                   return
-                  (Records.endIcon icons)
-              let paths = LayoutEngine.dcPaths [[titleIcon]] icons [endIcon]
-              let bPaths = LayoutEngine.balance paths 1
+                  (findEndIcon icons)
+              let paths = dcPaths [[titleIcon]] icons [endIcon]
+              let bPaths = balance paths 1
               let printableBPaths =
-                    LayoutEngine.showBalancedPathsHeader bPaths
-                      <> "\n"
-                      <> LayoutEngine.showBalancedPaths bPaths
-              let prettyMarkdown =
-                    Data.ByteString.Lazy.Char8.pack $ "# balanced paths\n" <> printableBPaths
-              bPathsOutputHandle <- System.IO.openFile balancedPathsOutputPath System.IO.WriteMode
-              Data.ByteString.Lazy.hPutStr bPathsOutputHandle prettyMarkdown
-              System.IO.hClose bPathsOutputHandle
-              let refreshedPositionedIcons = LayoutEngine.positionIcons bPaths
-              layoutOutputhandle <- System.IO.openFile layoutOutputPath System.IO.WriteMode
-              Data.ByteString.Lazy.hPutStr
-                layoutOutputhandle
-                (Data.Aeson.Encode.Pretty.encodePretty refreshedPositionedIcons)
-              System.IO.hClose layoutOutputhandle
-              let thisIsJustTemporary = Renderer.renderAllConnections refreshedPositionedIcons
-              Diagrams.Backend.SVG.renderSVG' svgOutputPath Renderer.svgOptions
-                $ Renderer.renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
+                    showBalancedPathsHeader bPaths <> "\n" <> showBalancedPaths bPaths
+              let prettyMarkdown = pack $ "# balanced paths\n" <> printableBPaths
+              bPathsOutputHandle <- openFile balancedPathsOutputPath WriteMode
+              hPutStr bPathsOutputHandle prettyMarkdown
+              hClose bPathsOutputHandle
+              let refreshedPositionedIcons = positionIcons bPaths
+              layoutOutputhandle <- openFile layoutOutputPath WriteMode
+              hPutStr layoutOutputhandle (encodePretty refreshedPositionedIcons)
+              hClose layoutOutputhandle
+              let thisIsJustTemporary = renderAllConnections refreshedPositionedIcons
+              renderSVG' svgOutputPath svgOptions
+                $ renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
             _ -> do
               let failureReasons =
                     foldl
@@ -190,7 +187,7 @@ process (Records.DrakonRendererArguments inputPath layoutOutputPath balancedPath
               putStrLn
                 $ "Input validation did not succeed for following reasons:\n" <> failureReasons
         Nothing -> do
-          let unpackedContent = Data.ByteString.Lazy.Char8.unpack content
+          let unpackedContent = unpack content
           putStrLn
             $ "Problem interpreting diagram file \""
                 <> inputPath
