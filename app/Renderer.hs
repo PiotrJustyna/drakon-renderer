@@ -1,22 +1,69 @@
 module Renderer where
 
-import qualified Data.Bifunctor
-import qualified Data.Colour.SRGB
-import qualified Data.Text
-import qualified DataTypes
-import qualified Diagrams.Backend.SVG
-import qualified Diagrams.Prelude
-import qualified Records
+import Data.Bifunctor (second)
+import Data.Colour.SRGB (sRGB)
+import Data.Text (empty)
+import DataTypes (IconKind(..))
+import Diagrams.Backend.SVG
+  ( B
+  , Options(SVGOptions)
+  , SVG
+  , _generateDoctype
+  , _idPrefix
+  , _size
+  , _svgAttributes
+  , _svgDefinitions
+  )
+import Diagrams.Prelude
+  ( Colour
+  , Diagram
+  , Point
+  , V2(..)
+  , (#)
+  , circle
+  , closeLine
+  , fc
+  , font
+  , fontSize
+  , fromOffsets
+  , fromVertices
+  , lc
+  , light
+  , local
+  , lw
+  , mkSizeSpec
+  , p2
+  , position
+  , r2
+  , rect
+  , rotateBy
+  , roundedRect
+  , strokeLoop
+  , text
+  , translate
+  , triangle
+  , veryThin
+  )
+import Records
+  ( PositionedIcon(PositionedIcon)
+  , getDependentPositionedIcons
+  , getIconDescription
+  , getIconKind
+  , getPositionedIconPositionX
+  , getPositionedIconPositionY
+  , icon
+  , iconPositionX
+  , iconPositionY
+  )
 
-svgOptions :: Num n => Diagrams.Prelude.Options Diagrams.Backend.SVG.SVG Diagrams.Prelude.V2 n
+svgOptions :: Num n => Options SVG V2 n
 svgOptions =
-  Diagrams.Backend.SVG.SVGOptions
-    { Diagrams.Backend.SVG._size =
-        Diagrams.Prelude.mkSizeSpec $ Diagrams.Prelude.V2 (Just 1000) (Just 1000)
-    , Diagrams.Backend.SVG._idPrefix = Data.Text.empty
-    , Diagrams.Backend.SVG._svgDefinitions = Nothing
-    , Diagrams.Backend.SVG._svgAttributes = []
-    , Diagrams.Backend.SVG._generateDoctype = True
+  SVGOptions
+    { _size = mkSizeSpec $ V2 (Just 1000) (Just 1000)
+    , _idPrefix = empty
+    , _svgDefinitions = Nothing
+    , _svgAttributes = []
+    , _generateDoctype = True
     }
 
 iconWidth :: Double
@@ -28,38 +75,38 @@ spaceBetweenIconsX = 1.0
 iconHeight :: Double
 iconHeight = 0.5
 
-lineColour :: Diagrams.Prelude.Colour Double
-lineColour = Data.Colour.SRGB.sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
+lineColour :: Colour Double
+lineColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
 
-fillColour :: Diagrams.Prelude.Colour Double
+fillColour :: Colour Double
 fillColour = lineColour
 
-titleIconColour :: Diagrams.Prelude.Colour Double
-titleIconColour = Data.Colour.SRGB.sRGB (69.0 / 255.0) (173.0 / 255.0) (127.0 / 255.0)
+titleIconColour :: Colour Double
+titleIconColour = sRGB (69.0 / 255.0) (173.0 / 255.0) (127.0 / 255.0)
 
-endIconColour :: Diagrams.Prelude.Colour Double
+endIconColour :: Colour Double
 endIconColour = titleIconColour
 
-actionIconColour :: Diagrams.Prelude.Colour Double
+actionIconColour :: Colour Double
 actionIconColour = titleIconColour
 
-questionIconColour :: Diagrams.Prelude.Colour Double
+questionIconColour :: Colour Double
 questionIconColour = titleIconColour
 
-fontColour :: Diagrams.Prelude.Colour Double
-fontColour = Data.Colour.SRGB.sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
+fontColour :: Colour Double
+fontColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
 
-fontSize :: Double
-fontSize = 0.075
+defaultFontSize :: Double
+defaultFontSize = 0.075
 
-text :: String -> Double -> Double -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-text content translateX translateY =
-  Diagrams.Prelude.text content
-    Diagrams.Prelude.# Diagrams.Prelude.fontSize (Diagrams.Prelude.local fontSize)
-    Diagrams.Prelude.# Diagrams.Prelude.light
-    Diagrams.Prelude.# Diagrams.Prelude.font "helvetica"
-    Diagrams.Prelude.# Diagrams.Prelude.fc fontColour
-    Diagrams.Prelude.# Diagrams.Prelude.translate (Diagrams.Prelude.r2 (translateX, translateY))
+renderText :: String -> Double -> Double -> Diagram B
+renderText content translateX translateY =
+  text content
+    # fontSize (local defaultFontSize)
+    # light
+    # font "helvetica"
+    # fc fontColour
+    # translate (r2 (translateX, translateY))
 
 addIfNotContains :: (Double, Double) -> [(Double, Double)] -> [(Double, Double)]
 addIfNotContains (x1, y1) z =
@@ -68,10 +115,7 @@ addIfNotContains (x1, y1) z =
     else (x1, y1) : z
 
 connection ::
-     (Double, Double)
-  -> (Double, Double)
-  -> [Records.PositionedIcon]
-  -> ([(Double, Double)], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+     (Double, Double) -> (Double, Double) -> [PositionedIcon] -> ([(Double, Double)], Diagram B)
 connection (x1, y1) (x2, y2) positionedIcons
   | x1 == x2 =
     let waypoints =
@@ -98,15 +142,14 @@ connection (x1, y1) (x2, y2) positionedIcons
                  ]
             in ( waypoints
                , renderedConnection waypoints
-                   <> Diagrams.Prelude.rotateBy (1 / 4) (Diagrams.Prelude.triangle 0.1)
-                        Diagrams.Prelude.#
+                   <> rotateBy (1 / 4) (triangle 0.1)
+                        #
           -- 0.087:   from Pythegorean theorem
           -- 0.0165:  from line width?
-                         Diagrams.Prelude.translate
-                           (Diagrams.Prelude.r2 (x2 + 0.087 / 2.0 + 0.0165, y2 + iconHeight))
-                        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-                        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-                        Diagrams.Prelude.# Diagrams.Prelude.fc fillColour)
+                         translate (r2 (x2 + 0.087 / 2.0 + 0.0165, y2 + iconHeight))
+                        # lc lineColour
+                        # lw veryThin
+                        # fc fillColour)
       else if y1 == y2
              then let waypoints =
                         [ (x1, y1)
@@ -122,30 +165,25 @@ connection (x1, y1) (x2, y2) positionedIcons
     iconClash =
       any
         (\positionedIcon ->
-           x1 == Records.getPositionedIconPositionX positionedIcon
-             && y1 > Records.getPositionedIconPositionY positionedIcon
-             && y2 < Records.getPositionedIconPositionY positionedIcon)
+           x1 == getPositionedIconPositionX positionedIcon
+             && y1 > getPositionedIconPositionY positionedIcon
+             && y2 < getPositionedIconPositionY positionedIcon)
         positionedIcons
 
-renderedConnection :: [(Double, Double)] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
+renderedConnection :: [(Double, Double)] -> Diagram B
 renderedConnection coordinatesOfNewLine =
-  Diagrams.Prelude.fromVertices (map Diagrams.Prelude.p2 coordinatesOfNewLine)
-    Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-    Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+  fromVertices (map p2 coordinatesOfNewLine) # lc lineColour # lw veryThin
 
 renderSingleConnection ::
-     Records.PositionedIcon
-  -> Records.PositionedIcon
-  -> [Records.PositionedIcon]
+     PositionedIcon
+  -> PositionedIcon
+  -> [PositionedIcon]
   -> [[(Double, Double)]]
-  -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-renderSingleConnection Records.PositionedIcon { Records.icon = _
-                                              , Records.iconPositionX = x1
-                                              , Records.iconPositionY = y1
-                                              } Records.PositionedIcon { Records.icon = _
-                                                                       , Records.iconPositionX = x2
-                                                                       , Records.iconPositionY = y2
-                                                                       } positionedIcons coordinatesOfTakenLines =
+  -> ([[(Double, Double)]], Diagram B)
+renderSingleConnection PositionedIcon {icon = _, iconPositionX = x1, iconPositionY = y1} PositionedIcon { icon = _
+                                                                                                        , iconPositionX = x2
+                                                                                                        , iconPositionY = y2
+                                                                                                        } positionedIcons coordinatesOfTakenLines =
   (coordinatesOfNewLine : coordinatesOfTakenLines, renderedNewLine)
   where
     coordinatesOfNewLine = fst connectionInfo
@@ -153,166 +191,135 @@ renderSingleConnection Records.PositionedIcon { Records.icon = _
     connectionInfo = connection (x1, y1) (x2, y2) positionedIcons
 
 renderConnections ::
-     Records.PositionedIcon
-  -> [Records.PositionedIcon]
-  -> [Records.PositionedIcon]
+     PositionedIcon
+  -> [PositionedIcon]
+  -> [PositionedIcon]
   -> [[(Double, Double)]]
-  -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+  -> ([[(Double, Double)]], Diagram B)
 renderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
 renderConnections parent (d:ds) allPositionedIcons coordinatesOfTakenLines =
-  Data.Bifunctor.second (snd dResult <>) dsResult
+  second (snd dResult <>) dsResult
   where
     dResult = renderSingleConnection parent d allPositionedIcons coordinatesOfTakenLines
     dsResult = renderConnections parent ds allPositionedIcons (fst dResult)
 
 renderAllConnections' ::
-     [Records.PositionedIcon]
-  -> [Records.PositionedIcon]
+     [PositionedIcon]
+  -> [PositionedIcon]
   -> [[(Double, Double)]]
-  -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+  -> ([[(Double, Double)]], Diagram B)
 renderAllConnections' [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
-renderAllConnections' (p:ps) allParents coordinatesOfTakenLines =
-  Data.Bifunctor.second (snd pResult <>) psResult
+renderAllConnections' (p:ps) allParents coordinatesOfTakenLines = second (snd pResult <>) psResult
   where
     pResult =
       renderConnections
         p
-        (Records.getDependentPositionedIcons p allParents)
+        (getDependentPositionedIcons p allParents)
         allParents
         coordinatesOfTakenLines
     psResult = renderAllConnections' ps allParents (fst pResult)
 
-renderAllConnections ::
-     [Records.PositionedIcon]
-  -> ([[(Double, Double)]], Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
+renderAllConnections :: [PositionedIcon] -> ([[(Double, Double)]], Diagram B)
 renderAllConnections parents = renderAllConnections' parents parents []
 
-renderAllIcons :: [Records.PositionedIcon] -> Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B
-renderAllIcons positionedIcons = Diagrams.Prelude.position $ map renderSingleIcon positionedIcons
+renderAllIcons :: [PositionedIcon] -> Diagram B
+renderAllIcons positionedIcons = position $ map renderSingleIcon positionedIcons
 
-renderSingleIcon ::
-     Records.PositionedIcon
-  -> ( Diagrams.Prelude.Point Diagrams.Prelude.V2 Double
-     , Diagrams.Prelude.Diagram Diagrams.Backend.SVG.B)
-renderSingleIcon Records.PositionedIcon { Records.icon = positionedIcon
-                                        , Records.iconPositionX = x
-                                        , Records.iconPositionY = y
-                                        } =
+renderSingleIcon :: PositionedIcon -> (Point V2 Double, Diagram B)
+renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconPositionY = y} =
   case kind of
-    DataTypes.Title -> (coordinates, text description 0.0 0.0 <> titleShape)
-    DataTypes.End -> (coordinates, text description 0.0 0.0 <> endShape)
-    DataTypes.Action -> (coordinates, text description 0.0 0.0 <> actionShape)
-    DataTypes.Question ->
+    Title -> (coordinates, renderText description 0.0 0.0 <> titleShape)
+    End -> (coordinates, renderText description 0.0 0.0 <> endShape)
+    Action -> (coordinates, renderText description 0.0 0.0 <> actionShape)
+    Question ->
       ( coordinates
-      , text description 0.0 0.0
-          <> text "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
-          <> text "no" (iconWidth * 0.55) (iconHeight * 0.15)
+      , renderText description 0.0 0.0
+          <> renderText "yes" (iconWidth * (-0.1)) (iconHeight * (-0.7))
+          <> renderText "no" (iconWidth * 0.55) (iconHeight * 0.15)
           <> questionShape)
-    DataTypes.Headline -> (coordinates, text description 0.0 0.0 <> headlineShape)
-    DataTypes.Address -> (coordinates, text description 0.0 0.0 <> addressShape)
-    DataTypes.ForStart -> (coordinates, text description 0.0 0.0 <> forStartShape)
-    DataTypes.ForEnd -> (coordinates, text description 0.0 0.0 <> forEndShape)
-    DataTypes.ValentPoint -> (coordinates, text description 0.0 0.0 <> valentPointShape)
+    Headline -> (coordinates, renderText description 0.0 0.0 <> headlineShape)
+    Address -> (coordinates, renderText description 0.0 0.0 <> addressShape)
+    ForStart -> (coordinates, renderText description 0.0 0.0 <> forStartShape)
+    ForEnd -> (coordinates, renderText description 0.0 0.0 <> forEndShape)
+    ValentPoint -> (coordinates, renderText description 0.0 0.0 <> valentPointShape)
   where
-    coordinates = Diagrams.Prelude.p2 (x, y)
-    kind = Records.getIconKind positionedIcon
-    description = Records.getIconDescription positionedIcon
+    coordinates = p2 (x, y)
+    kind = getIconKind positionedIcon
+    description = getIconDescription positionedIcon
     titleShape =
-      Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
-        Diagrams.Prelude.# Diagrams.Prelude.fc titleIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-    valentPointShape =
-      Diagrams.Prelude.circle 0.1
-        Diagrams.Prelude.# Diagrams.Prelude.fc titleIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-    endShape =
-      Diagrams.Prelude.roundedRect iconWidth iconHeight 0.5
-        Diagrams.Prelude.# Diagrams.Prelude.fc endIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-    actionShape =
-      Diagrams.Prelude.rect iconWidth iconHeight
-        Diagrams.Prelude.# Diagrams.Prelude.fc actionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
+      roundedRect iconWidth iconHeight 0.5 # fc titleIconColour # lc lineColour # lw veryThin
+    valentPointShape = circle 0.1 # fc titleIconColour # lc lineColour # lw veryThin
+    endShape = roundedRect iconWidth iconHeight 0.5 # fc endIconColour # lc lineColour # lw veryThin
+    actionShape = rect iconWidth iconHeight # fc actionIconColour # lc lineColour # lw veryThin
     forStartShape =
-      Diagrams.Prelude.fromOffsets
-        [ Diagrams.Prelude.V2 0.0 (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 (iconHeight * 0.5) (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 (iconWidth - (iconHeight * 0.5) - (iconHeight * 0.5)) 0.0
-        , Diagrams.Prelude.V2 (iconHeight * 0.5) (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 0.0 (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 (iconWidth * (-1.0)) 0.0
+      fromOffsets
+        [ V2 0.0 (iconHeight * 0.5)
+        , V2 (iconHeight * 0.5) (iconHeight * 0.5)
+        , V2 (iconWidth - (iconHeight * 0.5) - (iconHeight * 0.5)) 0.0
+        , V2 (iconHeight * 0.5) (iconHeight * (-0.5))
+        , V2 0.0 (iconHeight * (-0.5))
+        , V2 (iconWidth * (-1.0)) 0.0
         ]
-        Diagrams.Prelude.# Diagrams.Prelude.closeLine
-        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
-        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-        Diagrams.Prelude.# Diagrams.Prelude.translate
-                             (Diagrams.Prelude.r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
     forEndShape =
-      Diagrams.Prelude.fromOffsets
-        [ Diagrams.Prelude.V2 (iconHeight * (-0.5)) (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 0.0 (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 iconWidth 0.0
-        , Diagrams.Prelude.V2 0.0 (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 (iconHeight * (-0.5)) (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 (iconWidth * (-0.5)) 0.0
+      fromOffsets
+        [ V2 (iconHeight * (-0.5)) (iconHeight * 0.5)
+        , V2 0.0 (iconHeight * 0.5)
+        , V2 iconWidth 0.0
+        , V2 0.0 (iconHeight * (-0.5))
+        , V2 (iconHeight * (-0.5)) (iconHeight * (-0.5))
+        , V2 (iconWidth * (-0.5)) 0.0
         ]
-        Diagrams.Prelude.# Diagrams.Prelude.closeLine
-        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
-        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-        Diagrams.Prelude.# Diagrams.Prelude.translate
-                             (Diagrams.Prelude.r2
-                                (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
     questionShape =
-      Diagrams.Prelude.fromOffsets
-        [ Diagrams.Prelude.V2 (-0.1) (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 0.1 (iconHeight * 0.5)
-        , Diagrams.Prelude.V2 (iconWidth - 0.1 - 0.1) 0.0
-        , Diagrams.Prelude.V2 0.1 (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 (-0.1) (iconHeight * (-0.5))
-        , Diagrams.Prelude.V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0
+      fromOffsets
+        [ V2 (-0.1) (iconHeight * 0.5)
+        , V2 0.1 (iconHeight * 0.5)
+        , V2 (iconWidth - 0.1 - 0.1) 0.0
+        , V2 0.1 (iconHeight * (-0.5))
+        , V2 (-0.1) (iconHeight * (-0.5))
+        , V2 ((iconWidth - 0.1 - 0.1) * (-1.0)) 0.0
         ]
-        Diagrams.Prelude.# Diagrams.Prelude.closeLine
-        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
-        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-        Diagrams.Prelude.# Diagrams.Prelude.translate
-                             (Diagrams.Prelude.r2
-                                ((iconWidth - 0.1 - 0.1) * (-0.5), iconHeight * (-0.5)))
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 ((iconWidth - 0.1 - 0.1) * (-0.5), iconHeight * (-0.5)))
     headlineShape =
-      Diagrams.Prelude.fromOffsets
-        [ Diagrams.Prelude.V2 0.0 iconHeight
-        , Diagrams.Prelude.V2 iconWidth 0.0
-        , Diagrams.Prelude.V2 0.0 (iconHeight * (-1.0))
-        , Diagrams.Prelude.V2 (iconWidth * (-0.5)) (-0.1)
+      fromOffsets
+        [ V2 0.0 iconHeight
+        , V2 iconWidth 0.0
+        , V2 0.0 (iconHeight * (-1.0))
+        , V2 (iconWidth * (-0.5)) (-0.1)
         ]
-        Diagrams.Prelude.# Diagrams.Prelude.closeLine
-        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
-        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-        Diagrams.Prelude.# Diagrams.Prelude.translate
-                             (Diagrams.Prelude.r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
     addressShape =
-      Diagrams.Prelude.fromOffsets
-        [ Diagrams.Prelude.V2 0.0 iconHeight
-        , Diagrams.Prelude.V2 (iconWidth * 0.5) 0.1
-        , Diagrams.Prelude.V2 (iconWidth * 0.5) (-0.1)
-        , Diagrams.Prelude.V2 0.0 (iconHeight * (-1.0))
-        , Diagrams.Prelude.V2 (iconWidth * (-1.0)) 0
+      fromOffsets
+        [ V2 0.0 iconHeight
+        , V2 (iconWidth * 0.5) 0.1
+        , V2 (iconWidth * 0.5) (-0.1)
+        , V2 0.0 (iconHeight * (-1.0))
+        , V2 (iconWidth * (-1.0)) 0
         ]
-        Diagrams.Prelude.# Diagrams.Prelude.closeLine
-        Diagrams.Prelude.# Diagrams.Prelude.strokeLoop
-        Diagrams.Prelude.# Diagrams.Prelude.fc questionIconColour
-        Diagrams.Prelude.# Diagrams.Prelude.lc lineColour
-        Diagrams.Prelude.# Diagrams.Prelude.lw Diagrams.Prelude.veryThin
-        Diagrams.Prelude.# Diagrams.Prelude.translate
-                             (Diagrams.Prelude.r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
