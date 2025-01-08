@@ -10,9 +10,9 @@ this is work in progress and, while progress is being made every week, the rende
 | --- | --- | --- |
 | ![primitive diagram 1](./diagrams/primitive-diagram-1/primitive-diagram-1.svg) | ![primitive diagram 2](./diagrams/primitive-diagram-2/primitive-diagram-2.svg) | ![primitive diagram 3](./diagrams/primitive-diagram-3/primitive-diagram-3.svg) |
 
-| primitive diagram 4 | primitive diagram 5 |
-| --- | --- |
-| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) ||
+| primitive diagram 4 | primitive diagram 5 | primitive diagram 6 |
+| --- | --- | --- |
+| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) |
 
 ## terminology
 
@@ -22,11 +22,13 @@ this is work in progress and, while progress is being made every week, the rende
 * `Question` - branching step with two possible outcomes:
   * yes
   * no
-* Headline
-* Address
-* Cap
-* Primitive
-* Silhouette
+* `Headline`
+* `Address`
+* `ForStart`
+* `ForEnd`
+* `Choice`
+* `Primitive`
+* `Silhouette`
 
 ## input syntax
 
