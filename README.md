@@ -12,7 +12,7 @@ this is work in progress and, while progress is being made every week, the rende
 
 | primitive diagram 4 | primitive diagram 5 | primitive diagram 6 |
 | --- | --- | --- |
-| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) |
+| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-6/primitive-diagram-6.svg) |
 
 ## terminology
 
