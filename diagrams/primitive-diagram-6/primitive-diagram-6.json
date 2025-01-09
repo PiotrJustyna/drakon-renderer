@@ -25,7 +25,7 @@
     },
     {
         "iconDescription": "Lift the weight",
-        "iconKind": "Action",
+        "iconKind": "Case",
         "iconName": "4",
         "iconNamesOfDependentIcons": [
             "5"
@@ -41,7 +41,7 @@
         ]
     },
     {
-        "iconDescription": "",
+        "iconDescription": "Test",
         "iconKind": "Action",
         "iconName": "6",
         "iconNamesOfDependentIcons": [

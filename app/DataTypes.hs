@@ -16,6 +16,7 @@ data IconKind
   | ForEnd
   | ValentPoint
   | Choice
+  | Case
 
 instance Eq DataTypes.IconKind where
   (==) Title Title = True
@@ -38,6 +39,8 @@ instance Eq DataTypes.IconKind where
   (==) ForEnd _ = False
   (==) Choice Choice = True
   (==) Choice _ = False
+  (==) Case Case = True
+  (==) Case _ = False
 
 instance Show IconKind where
   show Title = "Title"
@@ -50,6 +53,7 @@ instance Show IconKind where
   show ForEnd = "ForEnd"
   show ValentPoint = "ValentPoint"
   show Choice = "Choice"
+  show Case = "Case"
 
 instance ToJSON IconKind where
   toJSON Title = String "Title"
@@ -62,6 +66,7 @@ instance ToJSON IconKind where
   toJSON ForEnd = String "ForEnd"
   toJSON ValentPoint = String "ValentPoint"
   toJSON Choice = String "Choice"
+  toJSON Case = String "Case"
 
 instance FromJSON IconKind where
   parseJSON =
@@ -77,4 +82,5 @@ instance FromJSON IconKind where
         "ForEnd" -> pure ForEnd
         "ValentPoint" -> pure ValentPoint
         "Choice" -> pure Choice
+        "Case" -> pure Case
         unknown -> fail $ "unknown iconKind: " <> unknown
