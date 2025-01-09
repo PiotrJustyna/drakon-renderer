@@ -27,6 +27,7 @@ this is work in progress and, while progress is being made every week, the rende
 * `ForStart`
 * `ForEnd`
 * `Choice`
+* `Case`
 * `Primitive`
 * `Silhouette`
 
