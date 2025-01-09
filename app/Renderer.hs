@@ -243,6 +243,7 @@ renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconP
     ForEnd -> (coordinates, renderText description 0.0 0.0 <> forEndShape)
     ValentPoint -> (coordinates, renderText description 0.0 0.0 <> valentPointShape)
     Choice -> (coordinates, renderText description 0.0 0.0 <> choiceShape)
+    Case -> (coordinates, renderText description 0.0 0.0 <> caseShape)
   where
     coordinates = p2 (x, y)
     kind = getIconKind positionedIcon
@@ -294,6 +295,30 @@ renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconP
         # lc lineColour
         # lw veryThin
         # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
+    caseShape =
+      (fromOffsets
+        [ V2 iconWidth 0.0
+        , V2 0.0 (iconHeight * (-1.0))
+        , V2 (iconWidth * (-1.0)) 0.0
+        ]
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5), iconHeight * (0.5))))
+      <>
+      (fromOffsets
+        [ V2 iconWidth 0.0
+        , V2 (iconWidth * (-0.5)) (-0.1)
+        , V2 (iconWidth * (-0.5)) 0.1
+        ]
+        # closeLine
+        # strokeLoop
+        # fc questionIconColour
+        # lc lineColour
+        # lw veryThin
+        # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5))))
     questionShape =
       fromOffsets
         [ V2 (-0.1) (iconHeight * 0.5)
