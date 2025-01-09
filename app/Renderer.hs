@@ -306,7 +306,7 @@ renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconP
         # fc questionIconColour
         # lc lineColour
         # lw veryThin
-        # translate (r2 (iconWidth * (-0.5), iconHeight * (0.5))))
+        # translate (r2 (iconWidth * (-0.5), iconHeight * 0.5)))
       <>
       (fromOffsets
         [ V2 iconWidth 0.0
