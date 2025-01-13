@@ -284,11 +284,7 @@ renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconP
         # lw veryThin
         # translate (r2 (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
     choiceShape =
-      fromOffsets
-        [ V2 0.1 iconHeight
-        , V2 iconWidth 0.0
-        , V2 (-0.1) (iconHeight * (-1.0))
-        ]
+      fromOffsets [V2 0.1 iconHeight, V2 iconWidth 0.0, V2 (-0.1) (iconHeight * (-1.0))]
         # closeLine
         # strokeLoop
         # fc questionIconColour
@@ -296,29 +292,21 @@ renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconP
         # lw veryThin
         # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
     caseShape =
-      (fromOffsets
-        [ V2 iconWidth 0.0
-        , V2 0.0 (iconHeight * (-1.0))
-        , V2 (iconWidth * (-1.0)) 0.0
-        ]
-        # closeLine
-        # strokeLoop
-        # fc questionIconColour
-        # lc lineColour
-        # lw veryThin
-        # translate (r2 (iconWidth * (-0.5), iconHeight * 0.5)))
-      <>
-      (fromOffsets
-        [ V2 iconWidth 0.0
-        , V2 (iconWidth * (-0.5)) (-0.1)
-        , V2 (iconWidth * (-0.5)) 0.1
-        ]
-        # closeLine
-        # strokeLoop
-        # fc questionIconColour
-        # lc lineColour
-        # lw veryThin
-        # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5))))
+      (fromOffsets [V2 iconWidth 0.0, V2 0.0 (iconHeight * (-1.0)), V2 (iconWidth * (-1.0)) 0.0]
+         # closeLine
+         # strokeLoop
+         # fc questionIconColour
+         # lc lineColour
+         # lw veryThin
+         # translate (r2 (iconWidth * (-0.5), iconHeight * 0.5)))
+        <> (fromOffsets
+              [V2 iconWidth 0.0, V2 (iconWidth * (-0.5)) (-0.1), V2 (iconWidth * (-0.5)) 0.1]
+              # closeLine
+              # strokeLoop
+              # fc questionIconColour
+              # lc lineColour
+              # lw veryThin
+              # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5))))
     questionShape =
       fromOffsets
         [ V2 (-0.1) (iconHeight * 0.5)
