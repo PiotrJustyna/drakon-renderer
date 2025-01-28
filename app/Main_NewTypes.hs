@@ -14,9 +14,11 @@ instance Show Terminator where
   show CyclicStart = visualBlockNoEntry "CyclicStart"
   show End = visualBlockNoExit "End"
   show TitleWithParameters = visualBlockNoEntry "TitleWithParameters"
-  show CyclicStartWithParameters = visualBlockNoEntry "CyclicStartWithParameters"
+  show CyclicStartWithParameters =
+    visualBlockNoEntry "CyclicStartWithParameters"
 
-data ValentPoint = ValentPoint
+data ValentPoint =
+  ValentPoint
 
 instance AsciiShow ValentPoint where
   asciiShow _ = visualBlock "V"
@@ -49,9 +51,13 @@ instance Show Fork where
       <> "|"
       <> fill (10 + visualBlockLength `div` 2) ' '
       <> "|\n"
-      <> (if isLeft l then asciiShow ValentPoint 0 else asciiShow Action 0)
-      <> fill (10 + visualBlockLength `div` 2) ' ' 
-      <> (if null r then "V" else "O")
+      <> (if isLeft l
+            then asciiShow ValentPoint 0
+            else asciiShow Action 0)
+      <> fill (10 + visualBlockLength `div` 2) ' '
+      <> (if null r
+            then "V"
+            else "O")
       <> "\n"
       <> fill (visualBlockLength `div` 2) ' '
       <> "|"
@@ -134,7 +140,6 @@ instance AsciiShow SkewerBlock where
   asciiShow Action offset = visualBlock "Action" offset
   asciiShow _ _ = ""
 
-
 data DiagramBlock
   = TerminatorDiagramBlock Terminator
   | SkewerDiagramBlock SkewerBlock
@@ -148,18 +153,20 @@ newtype Diagram = Diagram
   }
 
 instance Show Diagram where
-  show Diagram {blocks = x} = foldl (\accu singleBlock -> accu <> "\n" <> show singleBlock) "" x
+  show Diagram {blocks = x} =
+    foldl (\accu singleBlock -> accu <> "\n" <> show singleBlock) "" x
 
 visualBlockLength :: Int
 visualBlockLength = 11
 
 fill :: Int -> Char -> String
 fill 0 _ = ""
-fill limit fillingCharacter = fillingCharacter : fill (limit - 1) fillingCharacter
+fill limit fillingCharacter =
+  fillingCharacter : fill (limit - 1) fillingCharacter
 
 visualBlockCore :: String -> Int -> String
 visualBlockCore content offset =
-    fill offset ' '
+  fill offset ' '
     <> fill visualBlockLength '-'
     <> "\n"
     <> fill offset ' '
@@ -183,10 +190,14 @@ visualBlock content offset =
 
 visualBlockNoEntry :: String -> String
 visualBlockNoEntry content =
-  visualBlockCore content 0 <> "\n" <> fill (visualBlockLength `div` 2) ' ' <> "|"
+  visualBlockCore content 0
+    <> "\n"
+    <> fill (visualBlockLength `div` 2) ' '
+    <> "|"
 
 visualBlockNoExit :: String -> String
-visualBlockNoExit content = fill (visualBlockLength `div` 2) ' ' <> "|\n" <> visualBlockCore content 0
+visualBlockNoExit content =
+  fill (visualBlockLength `div` 2) ' ' <> "|\n" <> visualBlockCore content 0
 
 sampleDiagram :: Diagram
 sampleDiagram =

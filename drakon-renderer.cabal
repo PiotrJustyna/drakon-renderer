@@ -46,7 +46,7 @@ common warnings
 executable drakon-renderer
     import:             warnings
 
-    main-is:            Main.hs
+    main-is:            Main_NewRendering.hs
 
     other-modules:      DataTypes,
                         LayoutEngine,

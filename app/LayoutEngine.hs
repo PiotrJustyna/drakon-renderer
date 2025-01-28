@@ -35,7 +35,8 @@ pathsEqual :: [[Icon]] -> [[Icon]] -> Bool
 pathsEqual x1 x2 =
   length x1 == length x2
     && foldl
-         (\acc (x1', x2') -> length x1' == length x2' && null x1' || head x1' == head x2' && acc)
+         (\acc (x1', x2') ->
+            length x1' == length x2' && null x1' || head x1' == head x2' && acc)
          True
          (zip x1 x2)
 
@@ -89,14 +90,21 @@ showBalancedPathsHeader inputPaths =
 
 showBalancedPaths :: [[Icon]] -> String
 showBalancedPaths inputPaths =
-  let maxColumnIndex = maximum $ map (\inputPath -> length inputPath - 1) inputPaths
+  let maxColumnIndex =
+        maximum $ map (\inputPath -> length inputPath - 1) inputPaths
       formatIcon row columnIndex =
         case drop columnIndex row of
           (icon:_) ->
             let name = getIconName icon
                 description = getIconDescription icon
                 dependents = show $ getIconNamesOfDependentIcons icon
-             in " **" <> name <> "** - " <> description <> " " <> dependents <> " |"
+             in " **"
+                  <> name
+                  <> "** - "
+                  <> description
+                  <> " "
+                  <> dependents
+                  <> " |"
           [] -> " :negative_squared_cross_mark: |"
    in concat
         [ "|" <> concat [formatIcon row columnIndex | row <- inputPaths] <> "\n"
@@ -130,7 +138,8 @@ sliceMap input =
     input
 
 balanceFirstSlice :: [[Icon]] -> Int -> ([[Icon]], Int)
-balanceFirstSlice [] nextAvailableValentPointName = ([], nextAvailableValentPointName)
+balanceFirstSlice [] nextAvailableValentPointName =
+  ([], nextAvailableValentPointName)
 balanceFirstSlice input nextAvailableValentPointName =
   let rowMap = sliceMap input
    in (if null rowMap
@@ -144,14 +153,18 @@ balanceFirstSlice input nextAvailableValentPointName =
                            newName = "v" <> show (snd acc)
                         in if key == value
                              then (fst acc <> [key : rest], snd acc)
-                             else ( fst acc <> [updateName value newName : (key : rest)]
+                             else ( fst acc
+                                      <> [ updateName value newName
+                                             : (key : rest)
+                                         ]
                                   , snd acc + 1))
                 ([], nextAvailableValentPointName)
                 input)
 
 balance :: [[Icon]] -> Int -> [[Icon]]
 balance unbalancedPaths nextAvailableValentPointName =
-  let firstSliceInformation = balanceFirstSlice unbalancedPaths nextAvailableValentPointName
+  let firstSliceInformation =
+        balanceFirstSlice unbalancedPaths nextAvailableValentPointName
    in case fst firstSliceInformation of
         [] -> []
         result ->
@@ -167,7 +180,8 @@ balance unbalancedPaths nextAvailableValentPointName =
 unconst :: a -> a -> a
 unconst _ x = x
 
-positionIconsInRow :: [Icon] -> Double -> Map String PositionedIcon -> Map String PositionedIcon
+positionIconsInRow ::
+     [Icon] -> Double -> Map String PositionedIcon -> Map String PositionedIcon
 positionIconsInRow row newXCoordinate positionedIcons =
   fst
     (foldl
