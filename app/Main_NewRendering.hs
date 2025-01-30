@@ -51,161 +51,6 @@ hex' x y =
     # closeLine
     # strokeLoop
 
-class Renderer a where
-  render :: a -> Point V2 Double -> Diagram B
-  widthInUnits :: a -> Double
-  heightInUnits :: a -> Double
-
-data Terminator
-  = Title
-  | CyclicStart
-  | End
-  | TitleWithParameters
-  | CyclicStartWithParameters
-
-instance Renderer Terminator where
-  render Title origin =
-    position
-      [ ( origin
-        , (roundedRect
-             (widthInUnits Title * defaultBlockWidth)
-             (heightInUnits Title * defaultBlockHeight * 0.5)
-             0.5
-             # lw thick
-             # lc lineColour
-             # translate
-                 (r2 (defaultBlockWidth * 0.5, defaultBlockHeight * (-0.5))))
-            <> (rect'
-                  (widthInUnits Title * defaultBlockWidth)
-                  (heightInUnits Title * defaultBlockHeight)
-                  # lw veryThin))
-      ]
-  render _ _ = mempty
-  widthInUnits _ = 1.0
-  heightInUnits _ = 1.0
-
-data ValentPoint =
-  ValentPoint
-
-instance Renderer ValentPoint where
-  render ValentPoint origin =
-    position
-      [ ( origin
-        , rect'
-            (widthInUnits Action * defaultBlockWidth)
-            (heightInUnits Action * defaultBlockHeight)
-            # lw veryThin)
-      ]
-  widthInUnits _ = 1.0
-  heightInUnits _ = 1.0
-
-data Fork = Fork
-  { question :: SkewerBlock
-  , left :: Either ValentPoint [SkewerBlock] -- this deserves a dedicated type (to allow for Renderer instance)
-  , right :: Either ValentPoint [SkewerBlock] -- same here
-  }
-
-renderEither :: Either ValentPoint [SkewerBlock] -> Point V2 Double -> Diagram B
-renderEither (Left ValentPoint) = render ValentPoint
-renderEither (Right skewerBlocks) = render Action
-
-heightInUnits' :: Either ValentPoint [SkewerBlock] -> Double
-heightInUnits' (Left ValentPoint) = heightInUnits ValentPoint
-heightInUnits' (Right skewerBlocks) = sum $ map heightInUnits skewerBlocks
-
-instance Renderer Fork where
-  render fork@Fork {question = q, left = l, right = r} origin@(P (V2 x y)) =
-    render q origin
-      <>
-       renderEither
-         l
-         (P (V2 x (y - heightInUnits Question * defaultBlockHeight)))
-      <>
-       renderEither
-         r
-         (P (V2
-               (x + widthInUnits Question * defaultBlockWidth)
-               (y - heightInUnits Question * defaultBlockHeight)))
-      <> position
-           [ ( origin
-             , rect'
-                 (widthInUnits fork * defaultBlockWidth)
-                 (heightInUnits fork * defaultBlockHeight)
-                 # lw veryThin)
-           ]
-  widthInUnits _ = 2.0
-  heightInUnits Fork {question = _, left = l, right = _} = heightInUnits Question + heightInUnits' l
-
-data SkewerBlock
-  = Action
-  | Question
-  | ForkBlock Fork
-
-instance Renderer SkewerBlock where
-  render Action origin =
-    let iconHeight = heightInUnits Action * defaultBlockHeight * 0.5
-     in position
-          [ ( origin
-            , rect' (widthInUnits Action * defaultBlockWidth) iconHeight
-                # lw thick
-                # lc lineColour
-                # translate (r2 (0.0, iconHeight * (-0.5)))
-                <> (rect'
-                      (widthInUnits Action * defaultBlockWidth)
-                      (heightInUnits Action * defaultBlockHeight)
-                      # lw veryThin))
-          ]
-  render Question origin =
-    let iconHeight = heightInUnits Action * defaultBlockHeight * 0.5
-     in position
-          [ ( origin
-            , hex' (widthInUnits Action * defaultBlockWidth) iconHeight
-                # lw thick
-                # lc lineColour
-                # translate (r2 (0.1, iconHeight * (-0.5)))
-                <> (rect'
-                      (widthInUnits Action * defaultBlockWidth)
-                      (heightInUnits Action * defaultBlockHeight)
-                      # lw veryThin))
-          ]
-  render (ForkBlock x) origin = render x origin
-  widthInUnits Action = 1.0
-  widthInUnits Question = 1.0
-  widthInUnits (ForkBlock x) = widthInUnits x
-  heightInUnits Action = 1.0
-  heightInUnits Question = 1.0
-  heightInUnits (ForkBlock x) = heightInUnits x
-
-data DiagramBlock
-  = TerminatorDiagramBlock Terminator
-  | SkewerDiagramBlock SkewerBlock
-
-instance Renderer DiagramBlock where
-  render (TerminatorDiagramBlock x) = render x
-  render (SkewerDiagramBlock x) = render x
-  widthInUnits (TerminatorDiagramBlock x) = widthInUnits x
-  widthInUnits (SkewerDiagramBlock x) = widthInUnits x
-  heightInUnits (TerminatorDiagramBlock x) = heightInUnits x
-  heightInUnits (SkewerDiagramBlock x) = heightInUnits x
-
-newtype DrakonDiagram = DrakonDiagram
-  { blocks :: [DiagramBlock]
-  }
-
-instance Renderer DrakonDiagram where
-  render DrakonDiagram {blocks = allBlocks} (P (V2 x y)) =
-    fst
-      $ foldl
-          (\accu singleBlock ->
-             ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-             , snd accu - heightInUnits singleBlock * defaultBlockHeight))
-          (mempty, y)
-          allBlocks
-  widthInUnits DrakonDiagram {blocks = allBlocks} =
-    maximum $ map widthInUnits allBlocks
-  heightInUnits DrakonDiagram {blocks = allBlocks} =
-    sum $ map heightInUnits allBlocks
-
 svgOptions :: Num n => Options SVG V2 n
 svgOptions =
   SVGOptions
@@ -219,14 +64,196 @@ svgOptions =
 svgOutputPath :: String
 svgOutputPath = "./new-types-diagram.svg"
 
-defaultBlockWidth :: Double
-defaultBlockWidth = 1.0
+defaultBoundingBoxWidth :: Double
+defaultBoundingBoxWidth = 2.0
 
-defaultBlockHeight :: Double
-defaultBlockHeight = 1.0
+defaultBoundingBoxHeight :: Double
+defaultBoundingBoxHeight = 1.0
+
+widthRatio :: Double
+widthRatio = 0.8
 
 lineColour :: Colour Double
 lineColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
+
+class Renderer a where
+  render :: a -> Point V2 Double -> Diagram B
+  widthInUnits :: a -> Double
+  heightInUnits :: a -> Double
+
+data Terminator
+  = Title
+  | CyclicStart
+  | End
+  | TitleWithParameters
+  | CyclicStartWithParameters
+
+data ValentPoint =
+  ValentPoint
+
+data Branch
+  = EmptyBranch ValentPoint
+  | FullBranch [SkewerBlock]
+
+data SkewerBlock
+  = Action
+  | Question
+  | ForkBlock Fork
+
+data DiagramBlock
+  = TerminatorDiagramBlock Terminator
+  | SkewerDiagramBlock SkewerBlock
+
+data Fork = Fork
+  { question :: SkewerBlock
+  , left :: Branch
+  , right :: Branch
+  }
+
+newtype DrakonDiagram = DrakonDiagram
+  { blocks :: [DiagramBlock]
+  }
+
+instance Renderer Terminator where
+  render Title origin =
+    position
+      [ ( origin
+        , (roundedRect
+             (widthInUnits Title * defaultBoundingBoxWidth * widthRatio)
+             (heightInUnits Title * defaultBoundingBoxHeight * 0.5)
+             0.5
+             # lw thick
+             # lc lineColour
+             # translate
+                 (r2
+                    ( defaultBoundingBoxWidth * 0.5
+                    , defaultBoundingBoxHeight * (-0.5))))
+            <> (rect'
+                  (widthInUnits Title * defaultBoundingBoxWidth)
+                  (heightInUnits Title * defaultBoundingBoxHeight)
+                  # lw veryThin))
+      ]
+  render _ _ = mempty
+  widthInUnits _ = 1.0
+  heightInUnits _ = 1.0
+
+instance Renderer ValentPoint where
+  render ValentPoint origin =
+    position
+      [ ( origin
+        , rect'
+            (widthInUnits Action * defaultBoundingBoxWidth)
+            (heightInUnits Action * defaultBoundingBoxHeight)
+            # lw veryThin)
+      ]
+  widthInUnits _ = 1.0
+  heightInUnits _ = 1.0
+
+instance Renderer Fork where
+  render fork@Fork {question = q, left = l, right = r} origin@(P (V2 x y)) =
+    render q origin
+      <> render
+           l
+           (P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight)))
+      <> render
+           r
+           (P (V2
+                 (x + widthInUnits l * defaultBoundingBoxWidth)
+                 (y - heightInUnits Question * defaultBoundingBoxHeight)))
+      <> position
+           [ ( origin
+             , rect'
+                 (widthInUnits fork * defaultBoundingBoxWidth)
+                 (heightInUnits fork * defaultBoundingBoxHeight)
+                 # lw veryThin)
+           ]
+  widthInUnits Fork {question = _, left = l, right = r} =
+    (widthInUnits l) + (widthInUnits r)
+  heightInUnits Fork {question = _, left = l, right = r} =
+    heightInUnits Question + max (heightInUnits l) (heightInUnits r)
+
+instance Renderer SkewerBlock where
+  render Action origin =
+    let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
+     in position
+          [ ( origin
+            , rect'
+                (widthInUnits Action * defaultBoundingBoxWidth * widthRatio)
+                iconHeight
+                # lw thick
+                # lc lineColour
+                # translate
+                    (r2
+                       ( defaultBoundingBoxWidth * (1 - widthRatio) / 2.0
+                       , iconHeight * (-0.5)))
+                <> (rect'
+                      (widthInUnits Action * defaultBoundingBoxWidth)
+                      (heightInUnits Action * defaultBoundingBoxHeight)
+                      # lw veryThin))
+          ]
+  render Question origin =
+    let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
+     in position
+          [ ( origin
+            , hex'
+                (widthInUnits Action * defaultBoundingBoxWidth * widthRatio)
+                iconHeight
+                # lw thick
+                # lc lineColour
+                # translate
+                    (r2
+                       ( 0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0
+                       , iconHeight * (-0.5)))
+                <> (rect'
+                      (widthInUnits Action * defaultBoundingBoxWidth)
+                      (heightInUnits Action * defaultBoundingBoxHeight)
+                      # lw veryThin))
+          ]
+  render (ForkBlock x) origin = render x origin
+  widthInUnits Action = 1.0
+  widthInUnits Question = 1.0
+  widthInUnits (ForkBlock x) = widthInUnits x
+  heightInUnits Action = 1.0
+  heightInUnits Question = 1.0
+  heightInUnits (ForkBlock x) = heightInUnits x
+
+instance Renderer DiagramBlock where
+  render (TerminatorDiagramBlock x) = render x
+  render (SkewerDiagramBlock x) = render x
+  widthInUnits (TerminatorDiagramBlock x) = widthInUnits x
+  widthInUnits (SkewerDiagramBlock x) = widthInUnits x
+  heightInUnits (TerminatorDiagramBlock x) = heightInUnits x
+  heightInUnits (SkewerDiagramBlock x) = heightInUnits x
+
+instance Renderer Branch where
+  render (EmptyBranch _) _origin = render ValentPoint _origin
+  render (FullBranch skewerBlocks) (P (V2 x y)) =
+    fst
+      $ foldl
+          (\accu singleBlock ->
+             ( fst accu <> render singleBlock (P (V2 x (snd accu)))
+             , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+          (mempty, y)
+          skewerBlocks
+  widthInUnits (EmptyBranch _) = 1.0
+  widthInUnits (FullBranch skewerBlocks) =
+    maximum $ map widthInUnits skewerBlocks
+  heightInUnits (EmptyBranch _) = 1.0
+  heightInUnits (FullBranch skewerBlocks) = sum $ map heightInUnits skewerBlocks
+
+instance Renderer DrakonDiagram where
+  render DrakonDiagram {blocks = allBlocks} (P (V2 x y)) =
+    fst
+      $ foldl
+          (\accu singleBlock ->
+             ( fst accu <> render singleBlock (P (V2 x (snd accu)))
+             , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+          (mempty, y)
+          allBlocks
+  widthInUnits DrakonDiagram {blocks = allBlocks} =
+    maximum $ map widthInUnits allBlocks
+  heightInUnits DrakonDiagram {blocks = allBlocks} =
+    sum $ map heightInUnits allBlocks
 
 main :: IO ()
 main = do
@@ -234,19 +261,24 @@ main = do
         DrakonDiagram
           { blocks =
               [ TerminatorDiagramBlock Title
-              , TerminatorDiagramBlock Title
               , SkewerDiagramBlock Action
               , SkewerDiagramBlock
                   (ForkBlock
                      Fork
                        { question = Question
-                       , left = Right [Action, Action, Action]
-                       , right = Left ValentPoint
+                       , left =
+                           FullBranch
+                             [ Action
+                             , ForkBlock
+                                 Fork
+                                   { question = Question
+                                   , left = FullBranch [Action, Action]
+                                   , right = FullBranch [Action, Action, Action]
+                                   }
+                             , Action
+                             ]
+                       , right = FullBranch [Action, Action, Action, Action]
                        })
-              , TerminatorDiagramBlock Title
-              , TerminatorDiagramBlock Title
-              , TerminatorDiagramBlock Title
-              , TerminatorDiagramBlock Title
               , TerminatorDiagramBlock Title
               , TerminatorDiagramBlock Title
               ]
