@@ -81,12 +81,17 @@ class Renderer a where
   widthInUnits :: a -> Double
   heightInUnits :: a -> Double
 
-data Terminator
+data DrakonDiagram =
+  DrakonDiagram StartTerminator [SkewerBlock] FinishTerminator
+
+data StartTerminator
   = Title
   | CyclicStart
-  | End
   | TitleWithParameters
   | CyclicStartWithParameters
+
+data FinishTerminator =
+  End
 
 data ValentPoint =
   ValentPoint
@@ -100,21 +105,13 @@ data SkewerBlock
   | Question
   | ForkBlock Fork
 
-data DiagramBlock
-  = TerminatorDiagramBlock Terminator
-  | SkewerDiagramBlock SkewerBlock
-
 data Fork = Fork
   { question :: SkewerBlock
   , left :: Branch
   , right :: Branch
   }
 
-newtype DrakonDiagram = DrakonDiagram
-  { blocks :: [DiagramBlock]
-  }
-
-instance Renderer Terminator where
+instance Renderer StartTerminator where
   render Title origin =
     position
       [ ( origin
@@ -134,6 +131,11 @@ instance Renderer Terminator where
                   # lw veryThin))
       ]
   render _ _ = mempty
+  widthInUnits _ = 1.0
+  heightInUnits _ = 1.0
+
+instance Renderer FinishTerminator where
+  render _ = render Title
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
 
@@ -168,7 +170,7 @@ instance Renderer Fork where
                  # lw veryThin)
            ]
   widthInUnits Fork {question = _, left = l, right = r} =
-    (widthInUnits l) + (widthInUnits r)
+    widthInUnits l + widthInUnits r
   heightInUnits Fork {question = _, left = l, right = r} =
     heightInUnits Question + max (heightInUnits l) (heightInUnits r)
 
@@ -217,14 +219,6 @@ instance Renderer SkewerBlock where
   heightInUnits Question = 1.0
   heightInUnits (ForkBlock x) = heightInUnits x
 
-instance Renderer DiagramBlock where
-  render (TerminatorDiagramBlock x) = render x
-  render (SkewerDiagramBlock x) = render x
-  widthInUnits (TerminatorDiagramBlock x) = widthInUnits x
-  widthInUnits (SkewerDiagramBlock x) = widthInUnits x
-  heightInUnits (TerminatorDiagramBlock x) = heightInUnits x
-  heightInUnits (SkewerDiagramBlock x) = heightInUnits x
-
 instance Renderer Branch where
   render (EmptyBranch _) _origin = render ValentPoint _origin
   render (FullBranch skewerBlocks) (P (V2 x y)) =
@@ -242,47 +236,47 @@ instance Renderer Branch where
   heightInUnits (FullBranch skewerBlocks) = sum $ map heightInUnits skewerBlocks
 
 instance Renderer DrakonDiagram where
-  render DrakonDiagram {blocks = allBlocks} (P (V2 x y)) =
-    fst
-      $ foldl
-          (\accu singleBlock ->
-             ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-             , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-          (mempty, y)
-          allBlocks
-  widthInUnits DrakonDiagram {blocks = allBlocks} =
-    maximum $ map widthInUnits allBlocks
-  heightInUnits DrakonDiagram {blocks = allBlocks} =
-    sum $ map heightInUnits allBlocks
+  render (DrakonDiagram startTerminator skewerBlocks finishTerminator) origin@(P (V2 x y)) =
+    let renderedSkewerBlocks =
+          foldl
+            (\accu singleBlock ->
+               ( fst accu <> render singleBlock (P (V2 x (snd accu)))
+               , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+            ( mempty
+            , y - heightInUnits startTerminator * defaultBoundingBoxHeight)
+            skewerBlocks
+     in render startTerminator origin
+          <> fst renderedSkewerBlocks
+          <> render finishTerminator (P (V2 x (snd renderedSkewerBlocks)))
+  widthInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
+    maximum $ (widthInUnits startTerminator) : (map widthInUnits skewerBlocks) ++ [widthInUnits finishTerminator]
+  heightInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
+    sum $ (heightInUnits startTerminator) : (map heightInUnits skewerBlocks) ++ [heightInUnits finishTerminator]
 
 main :: IO ()
 main = do
   let diagram =
         DrakonDiagram
-          { blocks =
-              [ TerminatorDiagramBlock Title
-              , SkewerDiagramBlock Action
-              , SkewerDiagramBlock
-                  (ForkBlock
-                     Fork
-                       { question = Question
-                       , left =
-                           FullBranch
-                             [ Action
-                             , ForkBlock
-                                 Fork
-                                   { question = Question
-                                   , left = FullBranch [Action, Action]
-                                   , right = FullBranch [Action, Action, Action]
-                                   }
-                             , Action
-                             ]
-                       , right = FullBranch [Action, Action, Action, Action]
-                       })
-              , TerminatorDiagramBlock Title
-              , TerminatorDiagramBlock Title
-              ]
-          }
+          Title
+          [ Action
+          , ForkBlock
+              Fork
+                { question = Question
+                , left =
+                    FullBranch
+                      [ Action
+                      , ForkBlock
+                          Fork
+                            { question = Question
+                            , left = FullBranch [Action, Action]
+                            , right = FullBranch [Action, Action, Action]
+                            }
+                      , Action
+                      ]
+                , right = FullBranch [Action, Action, Action, Action]
+                }
+          ]
+          End
   putStrLn $ "diagram total width in units: " <> show (widthInUnits diagram)
   putStrLn $ "diagram total height in units: " <> show (heightInUnits diagram)
   renderSVG' svgOutputPath svgOptions $ render diagram (p2 (0.0, 0.0))
