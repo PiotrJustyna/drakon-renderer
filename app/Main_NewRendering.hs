@@ -103,13 +103,7 @@ data Branch
 data SkewerBlock
   = Action
   | Question
-  | ForkBlock Fork
-
-data Fork = Fork
-  { question :: SkewerBlock
-  , left :: Branch
-  , right :: Branch
-  }
+  | Fork Branch Branch
 
 instance Renderer StartTerminator where
   render Title origin =
@@ -151,29 +145,6 @@ instance Renderer ValentPoint where
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
 
-instance Renderer Fork where
-  render fork@Fork {question = q, left = l, right = r} origin@(P (V2 x y)) =
-    render q origin
-      <> render
-           l
-           (P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight)))
-      <> render
-           r
-           (P (V2
-                 (x + widthInUnits l * defaultBoundingBoxWidth)
-                 (y - heightInUnits Question * defaultBoundingBoxHeight)))
-      <> position
-           [ ( origin
-             , rect'
-                 (widthInUnits fork * defaultBoundingBoxWidth)
-                 (heightInUnits fork * defaultBoundingBoxHeight)
-                 # lw veryThin)
-           ]
-  widthInUnits Fork {question = _, left = l, right = r} =
-    widthInUnits l + widthInUnits r
-  heightInUnits Fork {question = _, left = l, right = r} =
-    heightInUnits Question + max (heightInUnits l) (heightInUnits r)
-
 instance Renderer SkewerBlock where
   render Action origin =
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
@@ -211,13 +182,31 @@ instance Renderer SkewerBlock where
                       (heightInUnits Action * defaultBoundingBoxHeight)
                       # lw veryThin))
           ]
-  render (ForkBlock x) origin = render x origin
+  render fork@(Fork l r) origin@(P (V2 x y)) =
+    render Question origin
+      <> render
+          l
+          (P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight)))
+      <> render
+          r
+          (P (V2
+                (x + widthInUnits l * defaultBoundingBoxWidth)
+                (y - heightInUnits Question * defaultBoundingBoxHeight)))
+      <> position
+          [ ( origin
+            , rect'
+                (widthInUnits fork * defaultBoundingBoxWidth)
+                (heightInUnits fork * defaultBoundingBoxHeight)
+                # lw veryThin)
+          ]
+
   widthInUnits Action = 1.0
   widthInUnits Question = 1.0
-  widthInUnits (ForkBlock x) = widthInUnits x
+  widthInUnits (Fork l r) = widthInUnits l + widthInUnits r
+
   heightInUnits Action = 1.0
   heightInUnits Question = 1.0
-  heightInUnits (ForkBlock x) = heightInUnits x
+  heightInUnits (Fork l r) = heightInUnits Question + max (heightInUnits l) (heightInUnits r)
 
 instance Renderer Branch where
   render (EmptyBranch _) _origin = render ValentPoint _origin
@@ -249,9 +238,9 @@ instance Renderer DrakonDiagram where
           <> fst renderedSkewerBlocks
           <> render finishTerminator (P (V2 x (snd renderedSkewerBlocks)))
   widthInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
-    maximum $ (widthInUnits startTerminator) : (map widthInUnits skewerBlocks) ++ [widthInUnits finishTerminator]
+    maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits finishTerminator]
   heightInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
-    sum $ (heightInUnits startTerminator) : (map heightInUnits skewerBlocks) ++ [heightInUnits finishTerminator]
+    sum $ heightInUnits startTerminator : map heightInUnits skewerBlocks ++ [heightInUnits finishTerminator]
 
 main :: IO ()
 main = do
@@ -259,23 +248,14 @@ main = do
         DrakonDiagram
           Title
           [ Action
-          , ForkBlock
-              Fork
-                { question = Question
-                , left =
-                    FullBranch
-                      [ Action
-                      , ForkBlock
-                          Fork
-                            { question = Question
-                            , left = FullBranch [Action, Action]
-                            , right = FullBranch [Action, Action, Action]
-                            }
-                      , Action
-                      ]
-                , right = FullBranch [Action, Action, Action, Action]
-                }
-          ]
+          , Fork
+              (FullBranch
+                [ Action
+                , Fork
+                    (FullBranch [Action, Action])
+                    (FullBranch [Action, Action, Action])
+                , Action])
+              (FullBranch [Action, Action, Action, Action])]
           End
   putStrLn $ "diagram total width in units: " <> show (widthInUnits diagram)
   putStrLn $ "diagram total height in units: " <> show (heightInUnits diagram)
