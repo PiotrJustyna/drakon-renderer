@@ -96,14 +96,10 @@ data FinishTerminator =
 data ValentPoint =
   ValentPoint
 
-data Branch
-  = EmptyBranch ValentPoint
-  | FullBranch [SkewerBlock]
-
 data SkewerBlock
   = Action
   | Question
-  | Fork Branch Branch
+  | Fork [SkewerBlock] [SkewerBlock]
 
 instance Show DrakonDiagram where
   show diagram =
@@ -153,6 +149,22 @@ instance Renderer ValentPoint where
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
 
+render' :: [SkewerBlock] -> Point V2 Double -> Diagram B
+render' skewerBlocks origin@(P (V2 x y)) =
+  fst
+    $ foldl
+        (\accu singleBlock ->
+           ( fst accu <> render singleBlock (P (V2 x (snd accu)))
+           , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+        (mempty, y)
+        skewerBlocks
+
+widthInUnits' :: [SkewerBlock] -> Double
+widthInUnits' skewerBlocks = maximum $ map widthInUnits skewerBlocks
+
+heightInUnits' :: [SkewerBlock] -> Double
+heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
+
 instance Renderer SkewerBlock where
   render Action origin =
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
@@ -192,44 +204,48 @@ instance Renderer SkewerBlock where
           ]
   render fork@(Fork l r) origin@(P (V2 x y)) =
     render Question origin
-      <> render
-           l
-           (P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight)))
-      <> render
-           r
-           (P (V2
-                 (x + widthInUnits l * defaultBoundingBoxWidth)
-                 (y - heightInUnits Question * defaultBoundingBoxHeight)))
-      <> position
-           [ ( origin
-             , rect'
-                 (widthInUnits fork * defaultBoundingBoxWidth)
-                 (heightInUnits fork * defaultBoundingBoxHeight)
-                 # lw veryThin)
-           ]
+      <> if null l
+           then (render ValentPoint lOrigin)
+           else (render' l lOrigin)
+                  <> if null r
+                       then (render ValentPoint rOrigin)
+                       else (render' r rOrigin)
+                              <> position
+                                   [ ( origin
+                                     , rect'
+                                         (widthInUnits fork
+                                            * defaultBoundingBoxWidth)
+                                         (heightInUnits fork
+                                            * defaultBoundingBoxHeight)
+                                         # lw veryThin)
+                                   ]
+    where
+      lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
+      rOrigin =
+        P
+          (V2
+             (x + widthInUnits' l * defaultBoundingBoxWidth)
+             (y - heightInUnits Question * defaultBoundingBoxHeight))
   widthInUnits Action = 1.0
   widthInUnits Question = 1.0
-  widthInUnits (Fork l r) = widthInUnits l + widthInUnits r
+  widthInUnits (Fork l r) =
+    (if null l
+       then widthInUnits ValentPoint
+       else widthInUnits' l)
+      + (if null r
+           then widthInUnits ValentPoint
+           else widthInUnits' r)
   heightInUnits Action = 1.0
   heightInUnits Question = 1.0
   heightInUnits (Fork l r) =
-    heightInUnits Question + max (heightInUnits l) (heightInUnits r)
-
-instance Renderer Branch where
-  render (EmptyBranch _) _origin = render ValentPoint _origin
-  render (FullBranch skewerBlocks) (P (V2 x y)) =
-    fst
-      $ foldl
-          (\accu singleBlock ->
-             ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-             , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-          (mempty, y)
-          skewerBlocks
-  widthInUnits (EmptyBranch _) = 1.0
-  widthInUnits (FullBranch skewerBlocks) =
-    maximum $ map widthInUnits skewerBlocks
-  heightInUnits (EmptyBranch _) = 1.0
-  heightInUnits (FullBranch skewerBlocks) = sum $ map heightInUnits skewerBlocks
+    heightInUnits Question
+      + max
+          (if null l
+             then heightInUnits ValentPoint
+             else heightInUnits' l)
+          (if null r
+             then heightInUnits ValentPoint
+             else heightInUnits' r)
 
 instance Renderer DrakonDiagram where
   render (DrakonDiagram startTerminator skewerBlocks finishTerminator) origin@(P (V2 x y)) =
@@ -278,25 +294,33 @@ parse' (t:ts) =
     _ -> Left $ "unexpected token 1: " <> t
 
 parseSkewerBlocks :: [String] -> Either String ([SkewerBlock], [String])
-parseSkewerBlocks (t:ts) = case t of
-  "[" -> combine . loop $ parseSkewerBlock ts
-  _ -> Left $ "unexpected token 2: " <> t
+parseSkewerBlocks (t:ts) =
+  case t of
+    "[" -> combine . loop $ parseSkewerBlock ts
+    _ -> Left $ "unexpected token 2: " <> t
 
-loop :: Either String (Maybe SkewerBlock, [String]) -> [Either String (Maybe SkewerBlock, [String])]
+loop ::
+     Either String (Maybe SkewerBlock, [String])
+  -> [Either String (Maybe SkewerBlock, [String])]
 loop (Left e) = [Left e]
-loop x@(Right (Nothing, ts)) = [x]
+loop x@(Right (Nothing, _)) = [x]
 loop x@(Right (Just _, ts)) = x : loop (parseSkewerBlock ts)
 
-combine :: [Either String (Maybe SkewerBlock, [String])] -> Either String ([SkewerBlock], [String])
-combine = foldl
-  (\accu x -> case accu of
-    Left e -> Left e
-    Right (skewerBlocks, _) ->
-      case x of
-        Left e -> Left e
-        Right (Nothing, ts') -> Right (skewerBlocks, ts')
-        Right (Just skewerBlock, ts') -> Right (skewerBlock : skewerBlocks, ts'))
-  (Right ([], []))
+combine ::
+     [Either String (Maybe SkewerBlock, [String])]
+  -> Either String ([SkewerBlock], [String])
+combine =
+  foldl
+    (\accu x ->
+       case accu of
+         Left e -> Left e
+         Right (skewerBlocks, _) ->
+           case x of
+             Left e -> Left e
+             Right (Nothing, ts') -> Right (skewerBlocks, ts')
+             Right (Just skewerBlock, ts') ->
+               Right (skewerBlocks ++ [skewerBlock], ts'))
+    (Right ([], []))
 
 parseSkewerBlock :: [String] -> Either String (Maybe SkewerBlock, [String])
 parseSkewerBlock (t:ts) =
@@ -314,7 +338,7 @@ parseFinishTerminator (t:ts) =
 
 main :: IO ()
 main = do
-  case parse "Title [ Action Action ] End" of
+  case parse "Title [ Action Action Question Action ] End" of
     Left error -> putStrLn error
     Right diagram -> do
       print diagram
@@ -324,11 +348,9 @@ main = do
   --         Title
   --         [ Action
   --         , Fork
-  --             (FullBranch
-  --               [ Action
-  --               , Fork
-  --                   (FullBranch [Action, Action])
-  --                   (FullBranch [Action, Action, Action])
-  --               , Action])
-  --             (FullBranch [Action, Action, Action, Action])]
+  --             [Action, Fork [Action, Action] [Action, Action, Action], Action]
+  --             [Action, Action, Action, Action]
+  --         ]
   --         End
+  -- print diagram
+  -- renderSVG' svgOutputPath svgOptions $ render diagram (p2 (0.0, 0.0))
