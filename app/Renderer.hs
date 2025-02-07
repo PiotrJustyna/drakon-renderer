@@ -115,10 +115,7 @@ addIfNotContains (x1, y1) z =
     else (x1, y1) : z
 
 connection ::
-     (Double, Double)
-  -> (Double, Double)
-  -> [PositionedIcon]
-  -> ([(Double, Double)], Diagram B)
+     (Double, Double) -> (Double, Double) -> [PositionedIcon] -> ([(Double, Double)], Diagram B)
 connection (x1, y1) (x2, y2) positionedIcons
   | x1 == x2 =
     let waypoints =
@@ -149,8 +146,7 @@ connection (x1, y1) (x2, y2) positionedIcons
                         #
           -- 0.087:   from Pythegorean theorem
           -- 0.0165:  from line width?
-                         translate
-                           (r2 (x2 + 0.087 / 2.0 + 0.0165, y2 + iconHeight))
+                         translate (r2 (x2 + 0.087 / 2.0 + 0.0165, y2 + iconHeight))
                         # lc lineColour
                         # lw veryThin
                         # fc fillColour)
@@ -163,12 +159,7 @@ connection (x1, y1) (x2, y2) positionedIcons
                         , (x2, y2 + iconHeight)
                         ]
                    in (waypoints, renderedConnection waypoints)
-             else let waypoints =
-                        [ (x1, y1)
-                        , (x1, y2 + iconHeight)
-                        , (x2, y2 + iconHeight)
-                        , (x2, y2)
-                        ]
+             else let waypoints = [(x1, y1), (x1, y2 + iconHeight), (x2, y2 + iconHeight), (x2, y2)]
                    in (waypoints, renderedConnection waypoints)
   where
     iconClash =
@@ -189,13 +180,10 @@ renderSingleConnection ::
   -> [PositionedIcon]
   -> [[(Double, Double)]]
   -> ([[(Double, Double)]], Diagram B)
-renderSingleConnection PositionedIcon { icon = _
-                                      , iconPositionX = x1
-                                      , iconPositionY = y1
-                                      } PositionedIcon { icon = _
-                                                       , iconPositionX = x2
-                                                       , iconPositionY = y2
-                                                       } positionedIcons coordinatesOfTakenLines =
+renderSingleConnection PositionedIcon {icon = _, iconPositionX = x1, iconPositionY = y1} PositionedIcon { icon = _
+                                                                                                        , iconPositionX = x2
+                                                                                                        , iconPositionY = y2
+                                                                                                        } positionedIcons coordinatesOfTakenLines =
   (coordinatesOfNewLine : coordinatesOfTakenLines, renderedNewLine)
   where
     coordinatesOfNewLine = fst connectionInfo
@@ -208,13 +196,11 @@ renderConnections ::
   -> [PositionedIcon]
   -> [[(Double, Double)]]
   -> ([[(Double, Double)]], Diagram B)
-renderConnections _ [] _ coordinatesOfTakenLines =
-  (coordinatesOfTakenLines, mempty)
+renderConnections _ [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
 renderConnections parent (d:ds) allPositionedIcons coordinatesOfTakenLines =
   second (snd dResult <>) dsResult
   where
-    dResult =
-      renderSingleConnection parent d allPositionedIcons coordinatesOfTakenLines
+    dResult = renderSingleConnection parent d allPositionedIcons coordinatesOfTakenLines
     dsResult = renderConnections parent ds allPositionedIcons (fst dResult)
 
 renderAllConnections' ::
@@ -222,10 +208,8 @@ renderAllConnections' ::
   -> [PositionedIcon]
   -> [[(Double, Double)]]
   -> ([[(Double, Double)]], Diagram B)
-renderAllConnections' [] _ coordinatesOfTakenLines =
-  (coordinatesOfTakenLines, mempty)
-renderAllConnections' (p:ps) allParents coordinatesOfTakenLines =
-  second (snd pResult <>) psResult
+renderAllConnections' [] _ coordinatesOfTakenLines = (coordinatesOfTakenLines, mempty)
+renderAllConnections' (p:ps) allParents coordinatesOfTakenLines = second (snd pResult <>) psResult
   where
     pResult =
       renderConnections
@@ -242,10 +226,7 @@ renderAllIcons :: [PositionedIcon] -> Diagram B
 renderAllIcons positionedIcons = position $ map renderSingleIcon positionedIcons
 
 renderSingleIcon :: PositionedIcon -> (Point V2 Double, Diagram B)
-renderSingleIcon PositionedIcon { icon = positionedIcon
-                                , iconPositionX = x
-                                , iconPositionY = y
-                                } =
+renderSingleIcon PositionedIcon {icon = positionedIcon, iconPositionX = x, iconPositionY = y} =
   case kind of
     Title -> (coordinates, renderText description 0.0 0.0 <> titleShape)
     End -> (coordinates, renderText description 0.0 0.0 <> endShape)
@@ -260,8 +241,7 @@ renderSingleIcon PositionedIcon { icon = positionedIcon
     Address -> (coordinates, renderText description 0.0 0.0 <> addressShape)
     ForStart -> (coordinates, renderText description 0.0 0.0 <> forStartShape)
     ForEnd -> (coordinates, renderText description 0.0 0.0 <> forEndShape)
-    ValentPoint ->
-      (coordinates, renderText description 0.0 0.0 <> valentPointShape)
+    ValentPoint -> (coordinates, renderText description 0.0 0.0 <> valentPointShape)
     Choice -> (coordinates, renderText description 0.0 0.0 <> choiceShape)
     Case -> (coordinates, renderText description 0.0 0.0 <> caseShape)
   where
@@ -269,22 +249,10 @@ renderSingleIcon PositionedIcon { icon = positionedIcon
     kind = getIconKind positionedIcon
     description = getIconDescription positionedIcon
     titleShape =
-      roundedRect iconWidth iconHeight 0.5
-        # fc titleIconColour
-        # lc lineColour
-        # lw veryThin
-    valentPointShape =
-      circle 0.1 # fc titleIconColour # lc lineColour # lw veryThin
-    endShape =
-      roundedRect iconWidth iconHeight 0.5
-        # fc endIconColour
-        # lc lineColour
-        # lw veryThin
-    actionShape =
-      rect iconWidth iconHeight
-        # fc actionIconColour
-        # lc lineColour
-        # lw veryThin
+      roundedRect iconWidth iconHeight 0.5 # fc titleIconColour # lc lineColour # lw veryThin
+    valentPointShape = circle 0.1 # fc titleIconColour # lc lineColour # lw veryThin
+    endShape = roundedRect iconWidth iconHeight 0.5 # fc endIconColour # lc lineColour # lw veryThin
+    actionShape = rect iconWidth iconHeight # fc actionIconColour # lc lineColour # lw veryThin
     forStartShape =
       fromOffsets
         [ V2 0.0 (iconHeight * 0.5)
@@ -314,11 +282,9 @@ renderSingleIcon PositionedIcon { icon = positionedIcon
         # fc questionIconColour
         # lc lineColour
         # lw veryThin
-        # translate
-            (r2 (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
+        # translate (r2 (iconWidth * (-0.5) + (iconHeight * 0.5), iconHeight * (-0.5)))
     choiceShape =
-      fromOffsets
-        [V2 0.1 iconHeight, V2 iconWidth 0.0, V2 (-0.1) (iconHeight * (-1.0))]
+      fromOffsets [V2 0.1 iconHeight, V2 iconWidth 0.0, V2 (-0.1) (iconHeight * (-1.0))]
         # closeLine
         # strokeLoop
         # fc questionIconColour
@@ -326,11 +292,7 @@ renderSingleIcon PositionedIcon { icon = positionedIcon
         # lw veryThin
         # translate (r2 (iconWidth * (-0.5), iconHeight * (-0.5)))
     caseShape =
-      (fromOffsets
-         [ V2 iconWidth 0.0
-         , V2 0.0 (iconHeight * (-1.0))
-         , V2 (iconWidth * (-1.0)) 0.0
-         ]
+      (fromOffsets [V2 iconWidth 0.0, V2 0.0 (iconHeight * (-1.0)), V2 (iconWidth * (-1.0)) 0.0]
          # closeLine
          # strokeLoop
          # fc questionIconColour
@@ -338,10 +300,7 @@ renderSingleIcon PositionedIcon { icon = positionedIcon
          # lw veryThin
          # translate (r2 (iconWidth * (-0.5), iconHeight * 0.5)))
         <> (fromOffsets
-              [ V2 iconWidth 0.0
-              , V2 (iconWidth * (-0.5)) (-0.1)
-              , V2 (iconWidth * (-0.5)) 0.1
-              ]
+              [V2 iconWidth 0.0, V2 (iconWidth * (-0.5)) (-0.1), V2 (iconWidth * (-0.5)) 0.1]
               # closeLine
               # strokeLoop
               # fc questionIconColour

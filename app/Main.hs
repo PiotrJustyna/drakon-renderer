@@ -9,22 +9,8 @@ import Data.ByteString.Lazy (ByteString, hPutStr, readFile)
 import Data.ByteString.Lazy.Char8 (pack, unpack)
 import DataTypes (IconKind(..))
 import Diagrams.Backend.SVG (renderSVG')
-import LayoutEngine
-  ( balance
-  , dcPaths
-  , positionIcons
-  , showBalancedPaths
-  , showBalancedPathsHeader
-  )
-import Options.Applicative
-  ( (<**>)
-  , execParser
-  , fullDesc
-  , header
-  , helper
-  , info
-  , progDesc
-  )
+import LayoutEngine (balance, dcPaths, positionIcons, showBalancedPaths, showBalancedPathsHeader)
+import Options.Applicative ((<**>), execParser, fullDesc, header, helper, info, progDesc)
 import Records
   ( DrakonRendererArguments(DrakonRendererArguments)
   , Icon
@@ -68,9 +54,7 @@ oneTitleIconPresent icons =
             icons
     then Nothing
     else Just
-           ( "Diagram is required to have exactly one icon of kind \""
-               <> show Title
-               <> "\"."
+           ( "Diagram is required to have exactly one icon of kind \"" <> show Title <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
                <> show Title
                <> "\" and that it is the only icon of that kind.")
@@ -87,9 +71,7 @@ oneEndIconPresent icons =
             icons
     then Nothing
     else Just
-           ( "Diagram is required to have exactly one icon of kind \""
-               <> show End
-               <> "\"."
+           ( "Diagram is required to have exactly one icon of kind \"" <> show End <> "\"."
            , "Make sure your input diagram contains an icon of kind \""
                <> show End
                <> "\" and that it is the only icon of that kind.")
@@ -119,8 +101,7 @@ correctNumberOfDependencies icons =
         (\acc x ->
            case getIconKind x of
              Question ->
-               if correctNumberOfQuestionDependencies
-                    /= getNumberOfDependentIcons x
+               if correctNumberOfQuestionDependencies /= getNumberOfDependentIcons x
                  then getIconName x : acc
                  else acc
              End ->
@@ -167,37 +148,25 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
         Just icons -> do
           let validationErrors =
                 validation
-                  [ oneTitleIconPresent
-                  , oneEndIconPresent
-                  , correctNumberOfDependencies
-                  ]
+                  [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
                   icons
           case validationErrors of
             [] -> do
               titleIcon <-
                 maybe
-                  (fail
-                     $ "No icons of type \""
-                         <> show Title
-                         <> "\" detected in the input.")
+                  (fail $ "No icons of type \"" <> show Title <> "\" detected in the input.")
                   return
                   (findTitleIcon icons)
               endIcon <-
                 maybe
-                  (fail
-                     $ "No icons of type \""
-                         <> show End
-                         <> "\" detected in the input.")
+                  (fail $ "No icons of type \"" <> show End <> "\" detected in the input.")
                   return
                   (findEndIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
               let bPaths = balance paths 1
               let printableBPaths =
-                    showBalancedPathsHeader bPaths
-                      <> "\n"
-                      <> showBalancedPaths bPaths
-              let prettyMarkdown =
-                    pack $ "# balanced paths\n" <> printableBPaths
+                    showBalancedPathsHeader bPaths <> "\n" <> showBalancedPaths bPaths
+              let prettyMarkdown = pack $ "# balanced paths\n" <> printableBPaths
               bPathsOutputHandle <- openFile balancedPathsOutputPath WriteMode
               hPutStr bPathsOutputHandle prettyMarkdown
               hClose bPathsOutputHandle
@@ -205,26 +174,18 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
               layoutOutputhandle <- openFile layoutOutputPath WriteMode
               hPutStr layoutOutputhandle (encodePretty refreshedPositionedIcons)
               hClose layoutOutputhandle
-              let thisIsJustTemporary =
-                    renderAllConnections refreshedPositionedIcons
+              let thisIsJustTemporary = renderAllConnections refreshedPositionedIcons
               renderSVG' svgOutputPath svgOptions
-                $ renderAllIcons refreshedPositionedIcons
-                    <> snd thisIsJustTemporary
+                $ renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
             _ -> do
               let failureReasons =
                     foldl
                       (\acc (validationError, hint) ->
-                         acc
-                           <> "* Error: "
-                           <> validationError
-                           <> " Hint: "
-                           <> hint
-                           <> "\n")
+                         acc <> "* Error: " <> validationError <> " Hint: " <> hint <> "\n")
                       ""
                       validationErrors
               putStrLn
-                $ "Input validation did not succeed for following reasons:\n"
-                    <> failureReasons
+                $ "Input validation did not succeed for following reasons:\n" <> failureReasons
         Nothing -> do
           let unpackedContent = unpack content
           putStrLn

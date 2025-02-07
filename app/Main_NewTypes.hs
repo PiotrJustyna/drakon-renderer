@@ -14,8 +14,7 @@ instance Show Terminator where
   show CyclicStart = visualBlockNoEntry "CyclicStart"
   show End = visualBlockNoExit "End"
   show TitleWithParameters = visualBlockNoEntry "TitleWithParameters"
-  show CyclicStartWithParameters =
-    visualBlockNoEntry "CyclicStartWithParameters"
+  show CyclicStartWithParameters = visualBlockNoEntry "CyclicStartWithParameters"
 
 data ValentPoint =
   ValentPoint
@@ -153,16 +152,14 @@ newtype Diagram = Diagram
   }
 
 instance Show Diagram where
-  show Diagram {blocks = x} =
-    foldl (\accu singleBlock -> accu <> "\n" <> show singleBlock) "" x
+  show Diagram {blocks = x} = foldl (\accu singleBlock -> accu <> "\n" <> show singleBlock) "" x
 
 visualBlockLength :: Int
 visualBlockLength = 11
 
 fill :: Int -> Char -> String
 fill 0 _ = ""
-fill limit fillingCharacter =
-  fillingCharacter : fill (limit - 1) fillingCharacter
+fill limit fillingCharacter = fillingCharacter : fill (limit - 1) fillingCharacter
 
 visualBlockCore :: String -> Int -> String
 visualBlockCore content offset =
@@ -190,10 +187,7 @@ visualBlock content offset =
 
 visualBlockNoEntry :: String -> String
 visualBlockNoEntry content =
-  visualBlockCore content 0
-    <> "\n"
-    <> fill (visualBlockLength `div` 2) ' '
-    <> "|"
+  visualBlockCore content 0 <> "\n" <> fill (visualBlockLength `div` 2) ' ' <> "|"
 
 visualBlockNoExit :: String -> String
 visualBlockNoExit content =
@@ -207,11 +201,7 @@ sampleDiagram =
           : SkewerDiagramBlock Action
           : SkewerDiagramBlock
               (ForkBlock
-                 (Fork
-                    { forkContent = "Fork"
-                    , left = Left ValentPoint
-                    , right = Right [Action]
-                    }))
+                 (Fork {forkContent = "Fork", left = Left ValentPoint, right = Right [Action]}))
           : SkewerDiagramBlock Action
           : [TerminatorDiagramBlock End]
     }

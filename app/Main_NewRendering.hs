@@ -21,6 +21,7 @@ import Diagrams.Prelude
   , (#)
   , closeLine
   , fromOffsets
+  , fromVertices
   , lc
   , lw
   , mkSizeSpec
@@ -35,8 +36,7 @@ import Diagrams.Prelude
   )
 
 rect' :: Double -> Double -> Diagram B
-rect' x y =
-  fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y]
+rect' x y = fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y]
 
 hex' :: Double -> Double -> Diagram B
 hex' x y =
@@ -75,6 +75,12 @@ widthRatio = 0.8
 
 lineColour :: Colour Double
 lineColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
+
+troubleshootingMode :: Bool
+troubleshootingMode = True
+
+renderedConnection :: [Point V2 Double] -> Diagram B
+renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
 
 class Renderer a where
   render :: a -> Point V2 Double -> Diagram B
@@ -119,14 +125,13 @@ instance Renderer StartTerminator where
              0.5
              # lw thick
              # lc lineColour
-             # translate
-                 (r2
-                    ( defaultBoundingBoxWidth * 0.5
-                    , defaultBoundingBoxHeight * (-0.5))))
-            <> (rect'
-                  (widthInUnits Title * defaultBoundingBoxWidth)
-                  (heightInUnits Title * defaultBoundingBoxHeight)
-                  # lw veryThin))
+             # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
+            <> if troubleshootingMode
+                 then (rect'
+                         (widthInUnits Title * defaultBoundingBoxWidth)
+                         (heightInUnits Title * defaultBoundingBoxHeight)
+                         # lw veryThin)
+                 else mempty)
       ]
   render _ _ = mempty
   widthInUnits _ = 1.0
@@ -141,10 +146,10 @@ instance Renderer ValentPoint where
   render ValentPoint origin =
     position
       [ ( origin
-        , rect'
+        , if troubleshootingMode then (rect'
             (widthInUnits Action * defaultBoundingBoxWidth)
             (heightInUnits Action * defaultBoundingBoxHeight)
-            # lw veryThin)
+            # lw veryThin) else mempty)
       ]
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
@@ -170,37 +175,30 @@ instance Renderer SkewerBlock where
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
-            , rect'
-                (widthInUnits Action * defaultBoundingBoxWidth * widthRatio)
-                iconHeight
+            , rect' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
                 # lw thick
                 # lc lineColour
                 # translate
-                    (r2
-                       ( defaultBoundingBoxWidth * (1 - widthRatio) / 2.0
-                       , iconHeight * (-0.5)))
-                <> (rect'
+                    (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                <> if troubleshootingMode then (rect'
                       (widthInUnits Action * defaultBoundingBoxWidth)
                       (heightInUnits Action * defaultBoundingBoxHeight)
-                      # lw veryThin))
+                      # lw veryThin) else mempty)
           ]
   render Question origin =
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
-            , hex'
-                (widthInUnits Action * defaultBoundingBoxWidth * widthRatio)
-                iconHeight
+            , hex' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
                 # lw thick
                 # lc lineColour
                 # translate
                     (r2
-                       ( 0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0
-                       , iconHeight * (-0.5)))
-                <> (rect'
+                       (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                <> if troubleshootingMode then (rect'
                       (widthInUnits Action * defaultBoundingBoxWidth)
                       (heightInUnits Action * defaultBoundingBoxHeight)
-                      # lw veryThin))
+                      # lw veryThin) else mempty)
           ]
   render fork@(Fork l r) origin@(P (V2 x y)) =
     render Question origin
@@ -212,12 +210,10 @@ instance Renderer SkewerBlock where
                        else render' r rOrigin
                               <> position
                                    [ ( origin
-                                     , rect'
-                                         (widthInUnits fork
-                                            * defaultBoundingBoxWidth)
-                                         (heightInUnits fork
-                                            * defaultBoundingBoxHeight)
-                                         # lw veryThin)
+                                     , if troubleshootingMode then (rect'
+                                         (widthInUnits fork * defaultBoundingBoxWidth)
+                                         (heightInUnits fork * defaultBoundingBoxHeight)
+                                         # lw veryThin) else mempty)
                                    ]
     where
       lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
@@ -254,11 +250,26 @@ instance Renderer DrakonDiagram where
             (\accu singleBlock ->
                ( fst accu <> render singleBlock (P (V2 x (snd accu)))
                , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-            ( mempty
-            , y - heightInUnits startTerminator * defaultBoundingBoxHeight)
+            (mempty, y - heightInUnits startTerminator * defaultBoundingBoxHeight)
             skewerBlocks
      in render startTerminator origin
+          <> renderedConnection
+               [ p2
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   , y - heightInUnits startTerminator * defaultBoundingBoxHeight * 0.75)
+               , p2
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   , y - 1.25 * defaultBoundingBoxHeight)
+               ]
           <> fst renderedSkewerBlocks
+          <> renderedConnection
+               [ p2
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   , snd renderedSkewerBlocks + defaultBoundingBoxHeight * 0.25)
+               , p2
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   , snd renderedSkewerBlocks - defaultBoundingBoxHeight * 0.25)
+               ]
           <> render finishTerminator (P (V2 x (snd renderedSkewerBlocks)))
   widthInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
     maximum
@@ -276,8 +287,7 @@ parse x =
   case parse' (words x) of
     Left e -> Left e
     Right (diagram, []) -> Right diagram
-    Right (_, moreTokens) ->
-      Left $ "unexpected tokens: " <> unwords moreTokens
+    Right (_, moreTokens) -> Left $ "unexpected tokens: " <> unwords moreTokens
 
 parse' :: [String] -> Either String (DrakonDiagram, [String])
 parse' [] = Left "unexpected end of expression"
@@ -300,16 +310,12 @@ parseSkewerBlocks (t:ts) =
     "[" -> combine . loop $ parseSkewerBlock ts
     _ -> Left $ "unexpected token: " <> t
 
-loop ::
-     Either String (Maybe SkewerBlock, [String])
-  -> [Either String (Maybe SkewerBlock, [String])]
+loop :: Either String (Maybe SkewerBlock, [String]) -> [Either String (Maybe SkewerBlock, [String])]
 loop (Left e) = [Left e]
 loop x@(Right (Nothing, _)) = [x]
 loop x@(Right (Just _, ts)) = x : loop (parseSkewerBlock ts)
 
-combine ::
-     [Either String (Maybe SkewerBlock, [String])]
-  -> Either String ([SkewerBlock], [String])
+combine :: [Either String (Maybe SkewerBlock, [String])] -> Either String ([SkewerBlock], [String])
 combine =
   foldl
     (\accu x ->
@@ -319,8 +325,7 @@ combine =
            case x of
              Left e -> Left e
              Right (Nothing, ts') -> Right (skewerBlocks, ts')
-             Right (Just skewerBlock, ts') ->
-               Right (skewerBlocks ++ [skewerBlock], ts'))
+             Right (Just skewerBlock, ts') -> Right (skewerBlocks ++ [skewerBlock], ts'))
     (Right ([], []))
 
 parseSkewerBlock :: [String] -> Either String (Maybe SkewerBlock, [String])
@@ -329,6 +334,13 @@ parseSkewerBlock (t:ts) =
   case t of
     "Action" -> Right (Just Action, ts)
     "Question" -> Right (Just Question, ts)
+    "Fork" ->
+      case parseSkewerBlocks ts of
+        Left e -> Left e
+        Right (lSkewerBlocks, ts') ->
+          case parseSkewerBlocks ts' of
+            Left e -> Left e
+            Right (rSkewerBlocks, ts'') -> Right (Just (Fork lSkewerBlocks rSkewerBlocks), ts'')
     "]" -> Right (Nothing, ts)
     _ -> Left $ "unexpected token: " <> t
 
@@ -341,7 +353,8 @@ parseFinishTerminator (t:ts) =
 
 main :: IO ()
 main = do
-  case parse "Title [ Action Action Question Action ] End" of
+  case parse
+         "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End" of
     Left e -> putStrLn e
     Right diagram -> do
       print diagram
