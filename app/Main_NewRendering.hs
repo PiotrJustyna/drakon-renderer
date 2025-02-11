@@ -30,7 +30,6 @@ import Diagrams.Prelude
   , r2
   , roundedRect
   , strokeLoop
-  , thick
   , translate
   , veryThin
   )
@@ -65,7 +64,7 @@ svgOutputPath :: String
 svgOutputPath = "./new-types-diagram.svg"
 
 defaultBoundingBoxWidth :: Double
-defaultBoundingBoxWidth = 2.0
+defaultBoundingBoxWidth = 3.0
 
 defaultBoundingBoxHeight :: Double
 defaultBoundingBoxHeight = 1.0
@@ -77,7 +76,7 @@ lineColour :: Colour Double
 lineColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
 
 troubleshootingMode :: Bool
-troubleshootingMode = True
+troubleshootingMode = False
 
 renderedConnection :: [Point V2 Double] -> Diagram B
 renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
@@ -123,7 +122,7 @@ instance Renderer StartTerminator where
              (widthInUnits Title * defaultBoundingBoxWidth * widthRatio)
              (heightInUnits Title * defaultBoundingBoxHeight * 0.5)
              0.5
-             # lw thick
+             # lw veryThin
              # lc lineColour
              # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
             <> if troubleshootingMode
@@ -154,15 +153,14 @@ instance Renderer ValentPoint where
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
 
-render' :: [SkewerBlock] -> Point V2 Double -> Diagram B
+render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 render' skewerBlocks (P (V2 x y)) =
-  fst
-    $ foldl
-        (\accu singleBlock ->
-           ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-           , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-        (mempty, y)
-        skewerBlocks
+  foldl
+    (\accu singleBlock ->
+        ( fst accu <> render singleBlock (P (V2 x (snd accu)))
+        , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+    (mempty, y)
+    skewerBlocks
 
 widthInUnits' :: [SkewerBlock] -> Double
 widthInUnits' skewerBlocks = maximum $ map widthInUnits skewerBlocks
@@ -176,7 +174,7 @@ instance Renderer SkewerBlock where
      in position
           [ ( origin
             , rect' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                # lw thick
+                # lw veryThin
                 # lc lineColour
                 # translate
                     (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
@@ -190,7 +188,7 @@ instance Renderer SkewerBlock where
      in position
           [ ( origin
             , hex' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                # lw thick
+                # lw veryThin
                 # lc lineColour
                 # translate
                     (r2
@@ -204,10 +202,10 @@ instance Renderer SkewerBlock where
     render Question origin
       <> if null l
            then render ValentPoint lOrigin
-           else render' l lOrigin
+           else fst (render' l lOrigin)
                   <> if null r
                        then render ValentPoint rOrigin
-                       else render' r rOrigin
+                       else fst (render' r rOrigin)
                               <> position
                                    [ ( origin
                                      , if troubleshootingMode then (rect'
@@ -245,29 +243,23 @@ instance Renderer SkewerBlock where
 
 instance Renderer DrakonDiagram where
   render (DrakonDiagram startTerminator skewerBlocks finishTerminator) origin@(P (V2 x y)) =
-    let renderedSkewerBlocks =
-          foldl
-            (\accu singleBlock ->
-               ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-               , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-            (mempty, y - heightInUnits startTerminator * defaultBoundingBoxHeight)
-            skewerBlocks
+    let renderedSkewerBlocks = render' skewerBlocks (p2 (x, y - heightInUnits startTerminator * defaultBoundingBoxHeight))
      in render startTerminator origin
           <> renderedConnection
                [ p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
                    , y - heightInUnits startTerminator * defaultBoundingBoxHeight * 0.75)
                , p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
                    , y - 1.25 * defaultBoundingBoxHeight)
                ]
           <> fst renderedSkewerBlocks
           <> renderedConnection
                [ p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
                    , snd renderedSkewerBlocks + defaultBoundingBoxHeight * 0.25)
                , p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxHeight
+                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
                    , snd renderedSkewerBlocks - defaultBoundingBoxHeight * 0.25)
                ]
           <> render finishTerminator (P (V2 x (snd renderedSkewerBlocks)))
