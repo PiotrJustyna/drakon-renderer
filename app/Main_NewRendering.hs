@@ -145,10 +145,12 @@ instance Renderer ValentPoint where
   render ValentPoint origin =
     position
       [ ( origin
-        , if troubleshootingMode then (rect'
-            (widthInUnits Action * defaultBoundingBoxWidth)
-            (heightInUnits Action * defaultBoundingBoxHeight)
-            # lw veryThin) else mempty)
+        , if troubleshootingMode
+            then (rect'
+                    (widthInUnits Action * defaultBoundingBoxWidth)
+                    (heightInUnits Action * defaultBoundingBoxHeight)
+                    # lw veryThin)
+            else mempty)
       ]
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0
@@ -157,8 +159,19 @@ render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 render' skewerBlocks (P (V2 x y)) =
   foldl
     (\accu singleBlock ->
-        ( fst accu <> render singleBlock (P (V2 x (snd accu)))
-        , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+       ( renderedConnection
+           [ p2
+               ( x + defaultBoundingBoxWidth * 0.5
+               , (snd accu) - heightInUnits singleBlock * defaultBoundingBoxHeight * 0.75)
+           , p2
+               ( x + defaultBoundingBoxWidth * 0.5
+               , (snd accu)
+                   - heightInUnits singleBlock * defaultBoundingBoxHeight
+                   - defaultBoundingBoxHeight * 0.25)
+           ]
+           <> fst accu
+           <> render singleBlock (P (V2 x (snd accu)))
+       , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
 
@@ -178,10 +191,12 @@ instance Renderer SkewerBlock where
                 # lc lineColour
                 # translate
                     (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
-                <> if troubleshootingMode then (rect'
-                      (widthInUnits Action * defaultBoundingBoxWidth)
-                      (heightInUnits Action * defaultBoundingBoxHeight)
-                      # lw veryThin) else mempty)
+                <> if troubleshootingMode
+                     then (rect'
+                             (widthInUnits Action * defaultBoundingBoxWidth)
+                             (heightInUnits Action * defaultBoundingBoxHeight)
+                             # lw veryThin)
+                     else mempty)
           ]
   render Question origin =
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
@@ -193,29 +208,50 @@ instance Renderer SkewerBlock where
                 # translate
                     (r2
                        (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
-                <> if troubleshootingMode then (rect'
-                      (widthInUnits Action * defaultBoundingBoxWidth)
-                      (heightInUnits Action * defaultBoundingBoxHeight)
-                      # lw veryThin) else mempty)
+                <> if troubleshootingMode
+                     then (rect'
+                             (widthInUnits Action * defaultBoundingBoxWidth)
+                             (heightInUnits Action * defaultBoundingBoxHeight)
+                             # lw veryThin)
+                     else mempty)
           ]
   render fork@(Fork l r) origin@(P (V2 x y)) =
     render Question origin
+      <> renderedConnection
+        [ p2
+            ( x + defaultBoundingBoxWidth * 0.5
+            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.75)
+        , p2
+            ( x + defaultBoundingBoxWidth * 0.5
+            , y
+                - heightInUnits Question * defaultBoundingBoxHeight
+                - defaultBoundingBoxHeight * 0.25)
+        ]
       <> if null l
            then render ValentPoint lOrigin
            else fst (render' l lOrigin)
+                  <> renderedConnection
+                    [ p2
+                        ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                        , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                    , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                    , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                    ]
                   <> if null r
                        then render ValentPoint rOrigin
                        else fst (render' r rOrigin)
                               <> position
                                    [ ( origin
-                                     , if troubleshootingMode then (rect'
-                                         (widthInUnits fork * defaultBoundingBoxWidth)
-                                         (heightInUnits fork * defaultBoundingBoxHeight)
-                                         # lw veryThin) else mempty)
+                                     , if troubleshootingMode
+                                         then (rect'
+                                                 (widthInUnits fork * defaultBoundingBoxWidth)
+                                                 (heightInUnits fork * defaultBoundingBoxHeight)
+                                                 # lw veryThin)
+                                         else mempty)
                                    ]
     where
       lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
-      rOrigin =
+      rOrigin@(P (V2 rX rY)) =
         P
           (V2
              (x + widthInUnits' l * defaultBoundingBoxWidth)
@@ -243,7 +279,10 @@ instance Renderer SkewerBlock where
 
 instance Renderer DrakonDiagram where
   render (DrakonDiagram startTerminator skewerBlocks finishTerminator) origin@(P (V2 x y)) =
-    let renderedSkewerBlocks = render' skewerBlocks (p2 (x, y - heightInUnits startTerminator * defaultBoundingBoxHeight))
+    let renderedSkewerBlocks =
+          render'
+            skewerBlocks
+            (p2 (x, y - heightInUnits startTerminator * defaultBoundingBoxHeight))
      in render startTerminator origin
           <> renderedConnection
                [ p2
