@@ -73,6 +73,8 @@ defaultBoundingBoxHeight = 1.0
 widthRatio :: Double
 widthRatio = 0.8
 
+-- colours used:
+-- https://www.colourlovers.com/palette/541086/Loyal_Friends
 lineColour :: Colour Double
 lineColour = sRGB (6.0 / 255.0) (71.0 / 255.0) (128.0 / 255.0)
 
@@ -80,7 +82,7 @@ fillColour :: Colour Double
 fillColour = sRGB (237.0 / 255.0) (237.0 / 255.0) (244.0 / 255.0)
 
 troubleshootingMode :: Bool
-troubleshootingMode = True
+troubleshootingMode = False
 
 renderedConnection :: [Point V2 Double] -> Diagram B
 renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
@@ -166,15 +168,15 @@ render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 render' skewerBlocks (P (V2 x y)) =
   foldl
     (\accu singleBlock ->
-       ( renderedConnection
-           [ p2
-               ( x + defaultBoundingBoxWidth * 0.5
-               , (snd accu) - heightInUnits singleBlock * defaultBoundingBoxHeight * 0.75)
-           , p2
-               ( x + defaultBoundingBoxWidth * 0.5
-               , (snd accu) - heightInUnits singleBlock * defaultBoundingBoxHeight - defaultBoundingBoxHeight * 0.25)
-           ]
-           <> fst accu
+      let diagram = fst accu
+          preY1 = snd accu
+          connectionX = x + defaultBoundingBoxWidth * 0.5
+          preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+          postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+          postY2 = preY1 - defaultBoundingBoxHeight
+      in (renderedConnection [p2 ( connectionX, preY1), p2 ( connectionX, preY2)]
+           <> diagram
+           <> renderedConnection [p2 ( connectionX, postY1), p2 ( connectionX, postY2)]
            <> render singleBlock (P (V2 x (snd accu)))
        , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
@@ -200,7 +202,8 @@ instance Renderer SkewerBlock where
                      then (rect'
                              (widthInUnits Action * defaultBoundingBoxWidth)
                              (heightInUnits Action * defaultBoundingBoxHeight)
-                             # lw veryThin)
+                             # lw veryThin
+                             # lc lineColour)
                      else mempty)
           ]
   render Question origin =
@@ -216,53 +219,53 @@ instance Renderer SkewerBlock where
                      then (rect'
                              (widthInUnits Action * defaultBoundingBoxWidth)
                              (heightInUnits Action * defaultBoundingBoxHeight)
-                             # lw veryThin)
+                             # lw veryThin
+                             # lc lineColour)
                      else mempty)
           ]
   render fork@(Fork l r) origin@(P (V2 x y)) =
-    render Question origin
-      <> renderedConnection
-           [ p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits Question * defaultBoundingBoxHeight * 0.75)
-           , p2
-               ( x + defaultBoundingBoxWidth * 0.5
-               , y - heightInUnits Question * defaultBoundingBoxHeight - defaultBoundingBoxHeight * 0.25)
-           ]
-      <> if null l
-           then render ValentPoint lOrigin
-           else fst (render' l lOrigin)
-                  <> renderedConnection
-                       [ p2
-                           ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                           , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                       , p2
-                           ( rX + defaultBoundingBoxWidth * 0.5
-                           , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                       ]
-                  <> if null r
-                       then render ValentPoint rOrigin
-                       else fst (render' r rOrigin)
-                              <> position
-                                   [ ( origin
-                                     , if troubleshootingMode
-                                         then (rect'
-                                                 (widthInUnits fork * defaultBoundingBoxWidth)
-                                                 (heightInUnits fork * defaultBoundingBoxHeight)
-                                                 # lw veryThin)
-                                         else mempty)
-                                   ]
-                              <> renderedConnection
-                                   [ p2
-                                       ( rX + defaultBoundingBoxWidth * 0.5
-                                       , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                   , p2
-                                       ( x + defaultBoundingBoxWidth * 0.5
-                                       , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                   ]
-    where
-      lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
-      rOrigin@(P (V2 rX rY)) =
-        P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits Question * defaultBoundingBoxHeight))
+    let lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
+        rOrigin@(P (V2 rX rY)) = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits Question * defaultBoundingBoxHeight))
+        connectionLX = x + defaultBoundingBoxWidth * 0.5
+    in render Question origin
+        <> if null l
+            then render ValentPoint lOrigin
+            else fst (render' l lOrigin)
+                    <> renderedConnection
+                          [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
+                          , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight )
+                          ]
+                    <> renderedConnection
+                        [ p2
+                            ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                        , p2
+                            ( rX + defaultBoundingBoxWidth * 0.5
+                            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                        , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                        ]
+                    <> if null r
+                        then render ValentPoint rOrigin
+                        else fst (render' r rOrigin)
+                                <> position
+                                    [ ( origin
+                                      , if troubleshootingMode
+                                          then (rect'
+                                                  (widthInUnits fork * defaultBoundingBoxWidth)
+                                                  (heightInUnits fork * defaultBoundingBoxHeight)
+                                                  # lw veryThin
+                                                  # lc lineColour)
+                                          else mempty)
+                                    ]
+                                <> renderedConnection
+                                    [ p2
+                                        ( rX + defaultBoundingBoxWidth * 0.5
+                                        , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                    , p2
+                                        ( x + defaultBoundingBoxWidth * 0.5
+                                        , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                    ]
+
   widthInUnits Action = 1.0
   widthInUnits Question = 1.0
   widthInUnits (Fork l r) =
