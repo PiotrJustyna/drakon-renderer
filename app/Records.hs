@@ -23,27 +23,16 @@ data DrakonRendererArguments = DrakonRendererArguments
 drakonRendererArguments :: Parser DrakonRendererArguments
 drakonRendererArguments =
   DrakonRendererArguments
-    <$> strOption
-          (long "inputPath"
-             <> short 'i'
-             <> metavar "PATH"
-             <> help "Path to input *.json drakon diagram file.")
+    <$> strOption (long "inputPath" <> short 'i' <> metavar "PATH" <> help "Path to input *.json drakon diagram file.")
     <*> strOption
-          (long "layoutOutputPath"
-             <> short 'l'
-             <> metavar "PATH"
-             <> help "Path to output *.json drakon diagram file.")
+          (long "layoutOutputPath" <> short 'l' <> metavar "PATH" <> help "Path to output *.json drakon diagram file.")
     <*> strOption
           (long "balancedPathsOutputPath"
              <> short 'b'
              <> metavar "PATH"
-             <> help
-                  "Path to output *.md file containing visual representation of diagram's balanced paths.")
+             <> help "Path to output *.md file containing visual representation of diagram's balanced paths.")
     <*> strOption
-          (long "svgOutputPath"
-             <> short 's'
-             <> metavar "PATH"
-             <> help "Path to output *.svg drakon diagram file.")
+          (long "svgOutputPath" <> short 's' <> metavar "PATH" <> help "Path to output *.svg drakon diagram file.")
 
 --- <- DrakonRendererArguments --------------------------------------------------------------------
 --- Icon -> ---------------------------------------------------------------------------------------
@@ -60,22 +49,13 @@ data Icon = Icon
   } deriving (Show)
 
 getIconName :: Icon -> String
-getIconName Icon {iconName = x, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = _} =
-  x
+getIconName Icon {iconName = x, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = _} = x
 
 getIconDescription :: Icon -> String
-getIconDescription Icon { iconName = _
-                        , iconDescription = x
-                        , iconNamesOfDependentIcons = _
-                        , iconKind = _
-                        } = x
+getIconDescription Icon {iconName = _, iconDescription = x, iconNamesOfDependentIcons = _, iconKind = _} = x
 
 getIconNamesOfDependentIcons :: Icon -> [String]
-getIconNamesOfDependentIcons Icon { iconName = _
-                                  , iconDescription = _
-                                  , iconNamesOfDependentIcons = x
-                                  , iconKind = _
-                                  } = x
+getIconNamesOfDependentIcons Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = x, iconKind = _} = x
 
 getDependentIcons :: Icon -> [Icon] -> [Icon]
 getDependentIcons Icon { iconName = _
@@ -108,15 +88,11 @@ getIconNamesOfDependentIconsWithBlacklist Icon { iconName = _
     _ -> filter (\x -> all (\y -> x /= getIconName y) blacklist) names
 
 getNumberOfDependentIcons :: Icon -> Int
-getNumberOfDependentIcons Icon { iconName = _
-                               , iconDescription = _
-                               , iconNamesOfDependentIcons = x
-                               , iconKind = _
-                               } = length x
+getNumberOfDependentIcons Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = x, iconKind = _} =
+  length x
 
 getIconKind :: Icon -> IconKind
-getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = x} =
-  x
+getIconKind Icon {iconName = _, iconDescription = _, iconNamesOfDependentIcons = _, iconKind = x} = x
 
 updateName :: Icon -> String -> Icon
 updateName x newName = x {iconName = newName}
@@ -161,12 +137,7 @@ updateDependent Icon { iconName = name
 
 valentPoint :: String -> String -> Icon
 valentPoint name description =
-  Icon
-    { iconName = name
-    , iconDescription = description
-    , iconNamesOfDependentIcons = []
-    , iconKind = ValentPoint
-    }
+  Icon {iconName = name, iconDescription = description, iconNamesOfDependentIcons = [], iconKind = ValentPoint}
 
 instance ToJSON Icon where
   toJSON (Icon name description namesOfDependentIcons kind) =
@@ -179,11 +150,7 @@ instance ToJSON Icon where
 
 instance FromJSON Icon where
   parseJSON (Object v) =
-    Icon
-      <$> v .: "iconName"
-      <*> v .: "iconDescription"
-      <*> v .: "iconNamesOfDependentIcons"
-      <*> v .: "iconKind"
+    Icon <$> v .: "iconName" <*> v .: "iconDescription" <*> v .: "iconNamesOfDependentIcons" <*> v .: "iconKind"
   parseJSON _ = empty
 
 instance Eq Icon where
@@ -242,10 +209,7 @@ allDependents subset allIcons =
 
 allDependentsOfAllDependents :: [Icon] -> [Icon] -> [Icon]
 allDependentsOfAllDependents dependents allIcons =
-  foldl
-    (\acc singleDependent -> acc <> allDependentsOfOneDependent singleDependent allIcons acc)
-    []
-    dependents
+  foldl (\acc singleDependent -> acc <> allDependentsOfOneDependent singleDependent allIcons acc) [] dependents
 
 allDependentsOfOneDependent :: Icon -> [Icon] -> [Icon] -> [Icon]
 allDependentsOfOneDependent parent allIcons butNotThese = dependents
@@ -254,10 +218,7 @@ allDependentsOfOneDependent parent allIcons butNotThese = dependents
     dependents =
       reverse
         $ filter
-            (\singleIcon ->
-               any
-                 (\singleDependentName -> singleDependentName == getIconName singleIcon)
-                 dependentNames)
+            (\singleIcon -> any (\singleDependentName -> singleDependentName == getIconName singleIcon) dependentNames)
             allIcons
 
 --- <- Icon ---------------------------------------------------------------------------------------
@@ -276,8 +237,7 @@ getIcon :: PositionedIcon -> Icon
 getIcon PositionedIcon {icon = x, iconPositionX = _, iconPositionY = _} = x
 
 getPositionedIconName :: PositionedIcon -> String
-getPositionedIconName PositionedIcon {icon = x, iconPositionX = _, iconPositionY = _} =
-  getIconName x
+getPositionedIconName PositionedIcon {icon = x, iconPositionX = _, iconPositionY = _} = getIconName x
 
 getPositionedIconPositionX :: PositionedIcon -> Double
 getPositionedIconPositionX PositionedIcon {icon = _, iconPositionX = x, iconPositionY = _} = x
@@ -286,10 +246,8 @@ getPositionedIconPositionY :: PositionedIcon -> Double
 getPositionedIconPositionY PositionedIcon {icon = _, iconPositionX = _, iconPositionY = y} = y
 
 getPositionedIconNamesOfDependentIcons :: PositionedIcon -> [String]
-getPositionedIconNamesOfDependentIcons PositionedIcon { icon = x
-                                                      , iconPositionX = _
-                                                      , iconPositionY = _
-                                                      } = getIconNamesOfDependentIcons x
+getPositionedIconNamesOfDependentIcons PositionedIcon {icon = x, iconPositionX = _, iconPositionY = _} =
+  getIconNamesOfDependentIcons x
 
 getLastPositionedIconPositionX :: [PositionedIcon] -> Double
 getLastPositionedIconPositionX x =
@@ -298,16 +256,11 @@ getLastPositionedIconPositionX x =
     list -> getPositionedIconPositionX $ last list
 
 getDependentPositionedIcons :: PositionedIcon -> [PositionedIcon] -> [PositionedIcon]
-getDependentPositionedIcons PositionedIcon { icon = positionedIcon
-                                           , iconPositionX = _
-                                           , iconPositionY = _
-                                           } =
-  filter
-    (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
+getDependentPositionedIcons PositionedIcon {icon = positionedIcon, iconPositionX = _, iconPositionY = _} =
+  filter (\x -> any (\y -> y == getPositionedIconName x) (getIconNamesOfDependentIcons positionedIcon))
 
 iconParentElem :: Icon -> [PositionedIcon] -> Maybe PositionedIcon
-iconParentElem childIcon =
-  find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
+iconParentElem childIcon = find (\x -> getIconName childIcon `elem` getPositionedIconNamesOfDependentIcons x)
 
 lowestParentAndItsIcon :: [Icon] -> [PositionedIcon] -> Maybe (PositionedIcon, Icon)
 lowestParentAndItsIcon childrenIcons positionedIcons =

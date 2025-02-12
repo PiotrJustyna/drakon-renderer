@@ -35,9 +35,7 @@ main :: IO ()
 main = process =<< execParser options
   where
     options =
-      info
-        (drakonRendererArguments <**> helper)
-        (fullDesc <> progDesc "drakon renderer" <> header "drakon renderer")
+      info (drakonRendererArguments <**> helper) (fullDesc <> progDesc "drakon renderer" <> header "drakon renderer")
 
 correctNumberOfQuestionDependencies :: Int
 correctNumberOfQuestionDependencies = 2
@@ -146,10 +144,7 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
       content <- catch (Data.ByteString.Lazy.readFile inputPath) handleReadError
       case decode content :: Maybe [Icon] of
         Just icons -> do
-          let validationErrors =
-                validation
-                  [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies]
-                  icons
+          let validationErrors = validation [oneTitleIconPresent, oneEndIconPresent, correctNumberOfDependencies] icons
           case validationErrors of
             [] -> do
               titleIcon <-
@@ -164,8 +159,7 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
                   (findEndIcon icons)
               let paths = dcPaths [[titleIcon]] icons [endIcon]
               let bPaths = balance paths 1
-              let printableBPaths =
-                    showBalancedPathsHeader bPaths <> "\n" <> showBalancedPaths bPaths
+              let printableBPaths = showBalancedPathsHeader bPaths <> "\n" <> showBalancedPaths bPaths
               let prettyMarkdown = pack $ "# balanced paths\n" <> printableBPaths
               bPathsOutputHandle <- openFile balancedPathsOutputPath WriteMode
               hPutStr bPathsOutputHandle prettyMarkdown
@@ -175,8 +169,7 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
               hPutStr layoutOutputhandle (encodePretty refreshedPositionedIcons)
               hClose layoutOutputhandle
               let thisIsJustTemporary = renderAllConnections refreshedPositionedIcons
-              renderSVG' svgOutputPath svgOptions
-                $ renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
+              renderSVG' svgOutputPath svgOptions $ renderAllIcons refreshedPositionedIcons <> snd thisIsJustTemporary
             _ -> do
               let failureReasons =
                     foldl
@@ -184,12 +177,7 @@ process (DrakonRendererArguments inputPath layoutOutputPath balancedPathsOutputP
                          acc <> "* Error: " <> validationError <> " Hint: " <> hint <> "\n")
                       ""
                       validationErrors
-              putStrLn
-                $ "Input validation did not succeed for following reasons:\n" <> failureReasons
+              putStrLn $ "Input validation did not succeed for following reasons:\n" <> failureReasons
         Nothing -> do
           let unpackedContent = unpack content
-          putStrLn
-            $ "Problem interpreting diagram file \""
-                <> inputPath
-                <> "\". Details: "
-                <> unpackedContent
+          putStrLn $ "Problem interpreting diagram file \"" <> inputPath <> "\". Details: " <> unpackedContent

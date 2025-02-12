@@ -34,10 +34,7 @@ combine parents = foldl (\acc dependent -> acc <> [dependent : parents]) []
 pathsEqual :: [[Icon]] -> [[Icon]] -> Bool
 pathsEqual x1 x2 =
   length x1 == length x2
-    && foldl
-         (\acc (x1', x2') -> length x1' == length x2' && null x1' || head x1' == head x2' && acc)
-         True
-         (zip x1 x2)
+    && foldl (\acc (x1', x2') -> length x1' == length x2' && null x1' || head x1' == head x2' && acc) True (zip x1 x2)
 
 -- "paths" are represented like this (simplified):
 -- [
@@ -54,11 +51,7 @@ dcPaths paths allIcons convergenceIcons =
         foldl
           (\acc singleRow ->
              acc
-               <> case getDependentIconsWithBlacklist
-                         (head singleRow)
-                         allIcons
-                         convergenceIcons
-                         singleRow of
+               <> case getDependentIconsWithBlacklist (head singleRow) allIcons convergenceIcons singleRow of
                     [] -> [singleRow]
                     dependents -> combine singleRow dependents)
           []
@@ -99,9 +92,7 @@ showBalancedPaths inputPaths =
              in " **" <> name <> "** - " <> description <> " " <> dependents <> " |"
           [] -> " :negative_squared_cross_mark: |"
    in concat
-        [ "|" <> concat [formatIcon row columnIndex | row <- inputPaths] <> "\n"
-        | columnIndex <- [0 .. maxColumnIndex]
-        ]
+        ["|" <> concat [formatIcon row columnIndex | row <- inputPaths] <> "\n" | columnIndex <- [0 .. maxColumnIndex]]
 
 skipFirst :: [[Icon]] -> [[Icon]]
 skipFirst = foldl (\acc row -> acc <> [drop 1 row]) []
@@ -144,8 +135,7 @@ balanceFirstSlice input nextAvailableValentPointName =
                            newName = "v" <> show (snd acc)
                         in if key == value
                              then (fst acc <> [key : rest], snd acc)
-                             else ( fst acc <> [updateName value newName : (key : rest)]
-                                  , snd acc + 1))
+                             else (fst acc <> [updateName value newName : (key : rest)], snd acc + 1))
                 ([], nextAvailableValentPointName)
                 input)
 
@@ -159,10 +149,7 @@ balance unbalancedPaths nextAvailableValentPointName =
               remainingPaths = skipFirst result
            in if all null remainingPaths
                 then firstBalancedSlice
-                else zipWith
-                       (<>)
-                       firstBalancedSlice
-                       (balance remainingPaths (snd firstSliceInformation))
+                else zipWith (<>) firstBalancedSlice (balance remainingPaths (snd firstSliceInformation))
 
 unconst :: a -> a -> a
 unconst _ x = x
@@ -173,11 +160,7 @@ positionIconsInRow row newXCoordinate positionedIcons =
     (foldl
        (\acc icon ->
           let newYCoordinate = snd acc - iconHeight
-           in ( insertWith
-                  unconst
-                  (getIconName icon)
-                  (toPositionedIcon icon newXCoordinate newYCoordinate)
-                  (fst acc)
+           in ( insertWith unconst (getIconName icon) (toPositionedIcon icon newXCoordinate newYCoordinate) (fst acc)
               , newYCoordinate))
        (positionedIcons, 0.0)
        row)
@@ -188,7 +171,6 @@ positionIcons paths =
     $ foldl
         (\rowAccu row ->
            let newXCoordinate = snd rowAccu
-            in ( positionIconsInRow row newXCoordinate (fst rowAccu)
-               , newXCoordinate + iconWidth + spaceBetweenIconsX))
+            in (positionIconsInRow row newXCoordinate (fst rowAccu), newXCoordinate + iconWidth + spaceBetweenIconsX))
         (empty, 0.0)
         paths

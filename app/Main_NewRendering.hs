@@ -20,6 +20,7 @@ import Diagrams.Prelude
   , V2(..)
   , (#)
   , closeLine
+  , fc
   , fromOffsets
   , fromVertices
   , lc
@@ -35,7 +36,7 @@ import Diagrams.Prelude
   )
 
 rect' :: Double -> Double -> Diagram B
-rect' x y = fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y]
+rect' x y = fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y] # closeLine # strokeLoop
 
 hex' :: Double -> Double -> Diagram B
 hex' x y =
@@ -73,10 +74,13 @@ widthRatio :: Double
 widthRatio = 0.8
 
 lineColour :: Colour Double
-lineColour = sRGB (34.0 / 255.0) (69.0 / 255.0) (57.0 / 255.0)
+lineColour = sRGB (6.0 / 255.0) (71.0 / 255.0) (128.0 / 255.0)
+
+fillColour :: Colour Double
+fillColour = sRGB (237.0 / 255.0) (237.0 / 255.0) (244.0 / 255.0)
 
 troubleshootingMode :: Bool
-troubleshootingMode = False
+troubleshootingMode = True
 
 renderedConnection :: [Point V2 Double] -> Diagram B
 renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
@@ -124,12 +128,14 @@ instance Renderer StartTerminator where
              0.5
              # lw veryThin
              # lc lineColour
+             # fc fillColour
              # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
             <> if troubleshootingMode
                  then (rect'
                          (widthInUnits Title * defaultBoundingBoxWidth)
                          (heightInUnits Title * defaultBoundingBoxHeight)
-                         # lw veryThin)
+                         # lw veryThin
+                         # lc lineColour)
                  else mempty)
       ]
   render _ _ = mempty
@@ -149,7 +155,8 @@ instance Renderer ValentPoint where
             then (rect'
                     (widthInUnits Action * defaultBoundingBoxWidth)
                     (heightInUnits Action * defaultBoundingBoxHeight)
-                    # lw veryThin)
+                    # lw veryThin
+                    # lc lineColour)
             else mempty)
       ]
   widthInUnits _ = 1.0
@@ -165,9 +172,7 @@ render' skewerBlocks (P (V2 x y)) =
                , (snd accu) - heightInUnits singleBlock * defaultBoundingBoxHeight * 0.75)
            , p2
                ( x + defaultBoundingBoxWidth * 0.5
-               , (snd accu)
-                   - heightInUnits singleBlock * defaultBoundingBoxHeight
-                   - defaultBoundingBoxHeight * 0.25)
+               , (snd accu) - heightInUnits singleBlock * defaultBoundingBoxHeight - defaultBoundingBoxHeight * 0.25)
            ]
            <> fst accu
            <> render singleBlock (P (V2 x (snd accu)))
@@ -189,8 +194,8 @@ instance Renderer SkewerBlock where
             , rect' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
                 # lw veryThin
                 # lc lineColour
-                # translate
-                    (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                # fc fillColour
+                # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then (rect'
                              (widthInUnits Action * defaultBoundingBoxWidth)
@@ -205,9 +210,8 @@ instance Renderer SkewerBlock where
             , hex' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
                 # lw veryThin
                 # lc lineColour
-                # translate
-                    (r2
-                       (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                # fc fillColour
+                # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then (rect'
                              (widthInUnits Action * defaultBoundingBoxWidth)
@@ -218,25 +222,23 @@ instance Renderer SkewerBlock where
   render fork@(Fork l r) origin@(P (V2 x y)) =
     render Question origin
       <> renderedConnection
-        [ p2
-            ( x + defaultBoundingBoxWidth * 0.5
-            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.75)
-        , p2
-            ( x + defaultBoundingBoxWidth * 0.5
-            , y
-                - heightInUnits Question * defaultBoundingBoxHeight
-                - defaultBoundingBoxHeight * 0.25)
-        ]
+           [ p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits Question * defaultBoundingBoxHeight * 0.75)
+           , p2
+               ( x + defaultBoundingBoxWidth * 0.5
+               , y - heightInUnits Question * defaultBoundingBoxHeight - defaultBoundingBoxHeight * 0.25)
+           ]
       <> if null l
            then render ValentPoint lOrigin
            else fst (render' l lOrigin)
                   <> renderedConnection
-                    [ p2
-                        ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                        , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                    , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                    , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                    ]
+                       [ p2
+                           ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                           , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                       , p2
+                           ( rX + defaultBoundingBoxWidth * 0.5
+                           , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                       ]
                   <> if null r
                        then render ValentPoint rOrigin
                        else fst (render' r rOrigin)
@@ -249,13 +251,18 @@ instance Renderer SkewerBlock where
                                                  # lw veryThin)
                                          else mempty)
                                    ]
+                              <> renderedConnection
+                                   [ p2
+                                       ( rX + defaultBoundingBoxWidth * 0.5
+                                       , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                   , p2
+                                       ( x + defaultBoundingBoxWidth * 0.5
+                                       , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                   ]
     where
       lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
       rOrigin@(P (V2 rX rY)) =
-        P
-          (V2
-             (x + widthInUnits' l * defaultBoundingBoxWidth)
-             (y - heightInUnits Question * defaultBoundingBoxHeight))
+        P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits Question * defaultBoundingBoxHeight))
   widthInUnits Action = 1.0
   widthInUnits Question = 1.0
   widthInUnits (Fork l r) =
@@ -279,39 +286,22 @@ instance Renderer SkewerBlock where
 
 instance Renderer DrakonDiagram where
   render (DrakonDiagram startTerminator skewerBlocks finishTerminator) origin@(P (V2 x y)) =
-    let renderedSkewerBlocks =
-          render'
-            skewerBlocks
-            (p2 (x, y - heightInUnits startTerminator * defaultBoundingBoxHeight))
-     in render startTerminator origin
-          <> renderedConnection
-               [ p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
-                   , y - heightInUnits startTerminator * defaultBoundingBoxHeight * 0.75)
-               , p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
-                   , y - 1.25 * defaultBoundingBoxHeight)
-               ]
+    let connectionX = x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
+        skewerY = heightInUnits startTerminator * defaultBoundingBoxHeight
+        startY1 = y - skewerY * 0.75
+        startY2 = y - defaultBoundingBoxHeight
+        renderedSkewerBlocks = render' skewerBlocks (p2 (x, y - skewerY))
+        finishY1 = snd renderedSkewerBlocks
+        finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
+    in render startTerminator origin
+          <> renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)]
           <> fst renderedSkewerBlocks
-          <> renderedConnection
-               [ p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
-                   , snd renderedSkewerBlocks + defaultBoundingBoxHeight * 0.25)
-               , p2
-                   ( x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
-                   , snd renderedSkewerBlocks - defaultBoundingBoxHeight * 0.25)
-               ]
+          <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
           <> render finishTerminator (P (V2 x (snd renderedSkewerBlocks)))
   widthInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
-    maximum
-      $ widthInUnits startTerminator
-          : map widthInUnits skewerBlocks
-          ++ [widthInUnits finishTerminator]
+    maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits finishTerminator]
   heightInUnits (DrakonDiagram startTerminator skewerBlocks finishTerminator) =
-    sum
-      $ heightInUnits startTerminator
-          : map heightInUnits skewerBlocks
-          ++ [heightInUnits finishTerminator]
+    sum $ heightInUnits startTerminator : map heightInUnits skewerBlocks ++ [heightInUnits finishTerminator]
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -330,8 +320,7 @@ parse' (t:ts) =
         Right (skewerBlocks, ts') ->
           case parseFinishTerminator ts' of
             Left e -> Left e
-            Right (finishTerminator, _) ->
-              Right (DrakonDiagram Title skewerBlocks finishTerminator, [])
+            Right (finishTerminator, _) -> Right (DrakonDiagram Title skewerBlocks finishTerminator, [])
     _ -> Left $ "unexpected token: " <> t
 
 parseSkewerBlocks :: [String] -> Either String ([SkewerBlock], [String])

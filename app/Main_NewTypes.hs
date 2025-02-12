@@ -186,12 +186,10 @@ visualBlock content offset =
     <> "|"
 
 visualBlockNoEntry :: String -> String
-visualBlockNoEntry content =
-  visualBlockCore content 0 <> "\n" <> fill (visualBlockLength `div` 2) ' ' <> "|"
+visualBlockNoEntry content = visualBlockCore content 0 <> "\n" <> fill (visualBlockLength `div` 2) ' ' <> "|"
 
 visualBlockNoExit :: String -> String
-visualBlockNoExit content =
-  fill (visualBlockLength `div` 2) ' ' <> "|\n" <> visualBlockCore content 0
+visualBlockNoExit content = fill (visualBlockLength `div` 2) ' ' <> "|\n" <> visualBlockCore content 0
 
 sampleDiagram :: Diagram
 sampleDiagram =
@@ -200,8 +198,7 @@ sampleDiagram =
         TerminatorDiagramBlock Title
           : SkewerDiagramBlock Action
           : SkewerDiagramBlock
-              (ForkBlock
-                 (Fork {forkContent = "Fork", left = Left ValentPoint, right = Right [Action]}))
+              (ForkBlock (Fork {forkContent = "Fork", left = Left ValentPoint, right = Right [Action]}))
           : SkewerDiagramBlock Action
           : [TerminatorDiagramBlock End]
     }
