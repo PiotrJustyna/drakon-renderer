@@ -21,9 +21,13 @@ import Diagrams.Prelude
   , (#)
   , closeLine
   , fc
+  , font
+  , fontSize
   , fromOffsets
   , fromVertices
   , lc
+  , light
+  , local
   , lw
   , mkSizeSpec
   , p2
@@ -31,6 +35,7 @@ import Diagrams.Prelude
   , r2
   , roundedRect
   , strokeLoop
+  , text
   , translate
   , veryThin
   )
@@ -81,11 +86,26 @@ lineColour = sRGB (6.0 / 255.0) (71.0 / 255.0) (128.0 / 255.0)
 fillColour :: Colour Double
 fillColour = sRGB (237.0 / 255.0) (237.0 / 255.0) (244.0 / 255.0)
 
+fontColour :: Colour Double
+fontColour = lineColour
+
 troubleshootingMode :: Bool
 troubleshootingMode = False
 
 renderedConnection :: [Point V2 Double] -> Diagram B
 renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
+
+defaultFontSize :: Double
+defaultFontSize = defaultBoundingBoxHeight / 6.0
+
+renderText :: String -> Double -> Double -> Diagram B
+renderText content translateX translateY =
+  text content
+    # fontSize (local defaultFontSize)
+    # light
+    # font "helvetica"
+    # fc fontColour
+    # translate (r2 (translateX, translateY))
 
 class Renderer a where
   render :: a -> Point V2 Double -> Diagram B
@@ -124,14 +144,18 @@ instance Renderer StartTerminator where
   render Title origin =
     position
       [ ( origin
-        , (roundedRect
-             (widthInUnits Title * defaultBoundingBoxWidth * widthRatio)
-             (heightInUnits Title * defaultBoundingBoxHeight * 0.5)
-             0.5
-             # lw veryThin
-             # lc lineColour
-             # fc fillColour
-             # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
+        , renderText
+            "title"
+            (0.0 + widthInUnits Title * defaultBoundingBoxWidth * 0.5)
+            (0.0 - heightInUnits Title * defaultBoundingBoxHeight * 0.5)
+            <> (roundedRect
+                  (widthInUnits Title * defaultBoundingBoxWidth * widthRatio)
+                  (heightInUnits Title * defaultBoundingBoxHeight * 0.5)
+                  0.5
+                  # lw veryThin
+                  # lc lineColour
+                  # fc fillColour
+                  # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
             <> if troubleshootingMode
                  then (rect'
                          (widthInUnits Title * defaultBoundingBoxWidth)
@@ -168,17 +192,17 @@ render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 render' skewerBlocks (P (V2 x y)) =
   foldl
     (\accu singleBlock ->
-      let diagram = fst accu
-          preY1 = snd accu
-          connectionX = x + defaultBoundingBoxWidth * 0.5
-          preY2 = preY1 - defaultBoundingBoxHeight * 0.25
-          postY1 = preY2 - defaultBoundingBoxHeight * 0.5
-          postY2 = preY1 - defaultBoundingBoxHeight
-      in (renderedConnection [p2 ( connectionX, preY1), p2 ( connectionX, preY2)]
-           <> diagram
-           <> renderedConnection [p2 ( connectionX, postY1), p2 ( connectionX, postY2)]
-           <> render singleBlock (P (V2 x (snd accu)))
-       , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+       let diagram = fst accu
+           preY1 = snd accu
+           connectionX = x + defaultBoundingBoxWidth * 0.5
+           preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+           postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+           postY2 = preY1 - defaultBoundingBoxHeight
+        in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+               <> diagram
+               <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+               <> render singleBlock (P (V2 x (snd accu)))
+           , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
 
@@ -193,11 +217,15 @@ instance Renderer SkewerBlock where
     let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
-            , rect' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                # lw veryThin
-                # lc lineColour
-                # fc fillColour
-                # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+            , renderText
+                "action"
+                (0.0 + widthInUnits Action * defaultBoundingBoxWidth * 0.5)
+                (0.0 - heightInUnits Action * defaultBoundingBoxHeight * 0.5)
+                <> rect' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
+                     # lw veryThin
+                     # lc lineColour
+                     # fc fillColour
+                     # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then (rect'
                              (widthInUnits Action * defaultBoundingBoxWidth)
@@ -207,65 +235,88 @@ instance Renderer SkewerBlock where
                      else mempty)
           ]
   render Question origin =
-    let iconHeight = heightInUnits Action * defaultBoundingBoxHeight * 0.5
+    let iconHeight = heightInUnits Question * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
-            , hex' (widthInUnits Action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                # lw veryThin
-                # lc lineColour
-                # fc fillColour
-                # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+            , renderText
+                "question"
+                (0.0 + widthInUnits Question * defaultBoundingBoxWidth * 0.5)
+                (0.0 - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                <> hex' (widthInUnits Question * defaultBoundingBoxWidth * widthRatio) iconHeight
+                     # lw veryThin
+                     # lc lineColour
+                     # fc fillColour
+                     # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then (rect'
-                             (widthInUnits Action * defaultBoundingBoxWidth)
-                             (heightInUnits Action * defaultBoundingBoxHeight)
+                             (widthInUnits Question * defaultBoundingBoxWidth)
+                             (heightInUnits Question * defaultBoundingBoxHeight)
                              # lw veryThin
                              # lc lineColour)
                      else mempty)
           ]
   render fork@(Fork l r) origin@(P (V2 x y)) =
     let lOrigin = P (V2 x (y - heightInUnits Question * defaultBoundingBoxHeight))
-        rOrigin@(P (V2 rX rY)) = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits Question * defaultBoundingBoxHeight))
+        rOrigin@(P (V2 rX rY)) =
+          P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits Question * defaultBoundingBoxHeight))
         connectionLX = x + defaultBoundingBoxWidth * 0.5
-    in render Question origin
-        <> if null l
-            then render ValentPoint lOrigin
-            else fst (render' l lOrigin)
-                    <> renderedConnection
-                          [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
-                          , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight )
-                          ]
-                    <> renderedConnection
-                        [ p2
-                            ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                        , p2
-                            ( rX + defaultBoundingBoxWidth * 0.5
-                            , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
-                        , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                        ]
-                    <> if null r
-                        then render ValentPoint rOrigin
-                        else fst (render' r rOrigin)
-                                <> position
-                                    [ ( origin
-                                      , if troubleshootingMode
-                                          then (rect'
-                                                  (widthInUnits fork * defaultBoundingBoxWidth)
-                                                  (heightInUnits fork * defaultBoundingBoxHeight)
-                                                  # lw veryThin
-                                                  # lc lineColour)
-                                          else mempty)
-                                    ]
-                                <> renderedConnection
-                                    [ p2
-                                        ( rX + defaultBoundingBoxWidth * 0.5
-                                        , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                    , p2
-                                        ( x + defaultBoundingBoxWidth * 0.5
-                                        , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                    ]
-
+     in render Question origin
+          <> if null l
+               then render ValentPoint lOrigin
+               else renderText
+                      "no"
+                      (x + widthInUnits Question * defaultBoundingBoxWidth * 0.97)
+                      (y - heightInUnits Question * defaultBoundingBoxHeight * 0.35)
+                      <> renderText
+                           "yes"
+                           (x + widthInUnits Question * defaultBoundingBoxWidth * 0.42)
+                           (y - heightInUnits Question * defaultBoundingBoxHeight * 0.9)
+                      <> fst (render' l lOrigin)
+                      <> renderedConnection
+                           [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
+                           , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
+                           ]
+                      <> renderedConnection
+                           [ p2
+                               ( x + widthInUnits Question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                               , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                           , p2
+                               ( rX + defaultBoundingBoxWidth * 0.5
+                               , y - heightInUnits Question * defaultBoundingBoxHeight * 0.5)
+                           , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                           ]
+                      <> if null r
+                           then render ValentPoint rOrigin
+                            <> renderedConnection
+                                  [ p2
+                                      ( rX + defaultBoundingBoxWidth * 0.5
+                                      , y - heightInUnits ValentPoint * defaultBoundingBoxHeight)
+                                  , p2
+                                      ( rX + defaultBoundingBoxWidth * 0.5
+                                      , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                  , p2
+                                      ( x + defaultBoundingBoxWidth * 0.5
+                                      , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                  ]
+                           else fst (render' r rOrigin)
+                                  <> position
+                                       [ ( origin
+                                         , if troubleshootingMode
+                                             then (rect'
+                                                     (widthInUnits fork * defaultBoundingBoxWidth)
+                                                     (heightInUnits fork * defaultBoundingBoxHeight)
+                                                     # lw veryThin
+                                                     # lc lineColour)
+                                             else mempty)
+                                       ]
+                                  <> renderedConnection
+                                       [ p2
+                                           ( rX + defaultBoundingBoxWidth * 0.5
+                                           , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                       , p2
+                                           ( x + defaultBoundingBoxWidth * 0.5
+                                           , y - heightInUnits fork * defaultBoundingBoxHeight)
+                                       ]
   widthInUnits Action = 1.0
   widthInUnits Question = 1.0
   widthInUnits (Fork l r) =
@@ -296,7 +347,7 @@ instance Renderer DrakonDiagram where
         renderedSkewerBlocks = render' skewerBlocks (p2 (x, y - skewerY))
         finishY1 = snd renderedSkewerBlocks
         finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
-    in render startTerminator origin
+     in render startTerminator origin
           <> renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)]
           <> fst renderedSkewerBlocks
           <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
@@ -376,8 +427,11 @@ parseFinishTerminator (t:ts) =
 
 main :: IO ()
 main = do
-  case parse
-         "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End" of
+  let newTypesDiagram =
+        "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
+  let diagram3 = "Title [ Fork [ Action Action ] [ ] ] End"
+  -- let diagram4 = "Title [ Fork [ Action Action Action Action ] [ Fork [ Action ] [ Action ] ] ] End"
+  case parse diagram3 of
     Left e -> putStrLn e
     Right diagram -> do
       print diagram
