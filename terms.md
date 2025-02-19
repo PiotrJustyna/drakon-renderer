@@ -26,6 +26,8 @@
       * address
       * begin of for loop
       * end of for loop
+    * empty if equivalent to an empty operator (e.g. empty fork is an empty atom)
   * alpha-element
   * beta-element
-* operator
+* empty atoms are allowed for all stages of designing a drakon chart except for the last stage
+* compound skewer block - a sequence of atoms
