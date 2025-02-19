@@ -31,3 +31,4 @@
   * beta-element
 * empty atoms are allowed for all stages of designing a drakon chart except for the last stage
 * compound skewer block - a sequence of atoms
+* a set of alpha-elements is obtained from the set of sequences of atoms by multiple application of the insert operation
