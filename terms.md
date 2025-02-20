@@ -15,6 +15,7 @@
       * timer-driven switch loop
       * timer-driven for loop
       * timer-driven wait loop
+  * of second kind: located at the entrance or exit of a skewer block
 * connecting line
   * insert
 * skewer-block
