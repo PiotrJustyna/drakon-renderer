@@ -15,7 +15,7 @@ name:               drakon-renderer
 -- PVP summary:     +-+------- breaking API changes
 --                  | | +----- non-breaking API additions
 --                  | | | +--- code changes with no API change
-version:            0.1.1.0
+version:            0.2.0.0
 
 synopsis:           drakon diagrams renderer
 
@@ -46,26 +46,15 @@ common warnings
 executable drakon-renderer
     import:             warnings
 
-    main-is:            Main_NewRendering.hs
-
-    other-modules:      DataTypes,
-                        LayoutEngine,
-                        Records,
-                        Renderer
+    main-is:            Main.hs
 
     default-extensions: LambdaCase
 
-    build-depends:      aeson,
-                        aeson-pretty,
-                        base ^>= 4.19.1.0,
-                        bytestring,
+    build-depends:      base ^>= 4.19.1.0,
                         colour,
                         containers,
                         diagrams-lib,
                         diagrams-svg,
-                        directory,
-                        optparse-applicative,
-                        pandoc,
                         text,
 
     hs-source-dirs:     app

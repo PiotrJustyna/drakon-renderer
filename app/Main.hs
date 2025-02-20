@@ -158,11 +158,11 @@ instance Renderer StartTerminator where
                   # fc fillColour
                   # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
             <> if troubleshootingMode
-                 then (rect'
+                 then rect'
                          (widthInUnits title * defaultBoundingBoxWidth)
                          (heightInUnits title * defaultBoundingBoxHeight)
                          # lw veryThin
-                         # lc lineColour)
+                         # lc lineColour
                  else mempty)
       ]
   render _ _ = mempty
@@ -433,9 +433,9 @@ parseEndTerminator (t:ts) =
 
 main :: IO ()
 main = do
-  let diagram =
+  let diagramInput =
         "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
-  case parse diagram of
+  case parse diagramInput of
     Left e -> putStrLn e
     Right diagram -> do
       print diagram
