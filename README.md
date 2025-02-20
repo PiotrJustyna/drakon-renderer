@@ -1,18 +1,18 @@
 # drakon-renderer
 
-Reasonably portable drakon diagrams renderer. Development, compilation and execution are intended to take place in containers.
+Reasonably portable drakon-esque diagrams renderer. Development, compilation and execution are intended to take place in containers.
 
 **Important:**
 
-this is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams. Current focus is to render primitive diagrams according to drakon rules.
+This is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams (we're getting close, though, I feel!). Current focus is to translate [the drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf) into a Haskell-friendly set of types and functions.
 
-| primitive diagram 1 | primitive diagram 2 | primitive diagram 3 |
-| --- | --- | --- |
-| ![primitive diagram 1](./diagrams/primitive-diagram-1/primitive-diagram-1.svg) | ![primitive diagram 2](./diagrams/primitive-diagram-2/primitive-diagram-2.svg) | ![primitive diagram 3](./diagrams/primitive-diagram-3/primitive-diagram-3.svg) |
+Sample diagrams the renderer can produce today:
 
-| primitive diagram 4 | primitive diagram 5 | primitive diagram 6 |
+| name | input | output |
 | --- | --- | --- |
-| ![primitive diagram 4](./diagrams/primitive-diagram-4/primitive-diagram-4.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-5/primitive-diagram-5.svg) | ![primitive diagram 5](./diagrams/primitive-diagram-6/primitive-diagram-6.svg) |
+| primitive diagram 1 | ```Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End``` | ![primitive-diagram-1](./primitive-diagram-1.png) |
+| primitive diagram 2 | ```Title [ Fork [ Action Action ] [ ] ] End``` | ![primitive-diagram-1](./primitive-diagram-2.png) |
+| primitive diagram 3 | ```Title [ Fork [ Action Action Action Action ] [ Fork [ Action ] [ Action ] ] ] End``` | ![primitive-diagram-3](./primitive-diagram-3.png) |
 
 ## terminology
 
