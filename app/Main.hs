@@ -40,21 +40,26 @@ import Diagrams.Prelude
   , veryThin
   )
 
+drakonStyle :: Diagram B -> Diagram B
+drakonStyle x = x # lw veryThin # lc lineColour # fc fillColour
+
 rect' :: Double -> Double -> Diagram B
-rect' x y = fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y] # closeLine # strokeLoop
+rect' x y =
+  drakonStyle $ fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y] # closeLine # strokeLoop
 
 hex' :: Double -> Double -> Diagram B
 hex' x y =
-  fromOffsets
-    [ V2 (x - 0.1 - 0.1) 0.0
-    , V2 0.1 (y * (-0.5))
-    , V2 (-0.1) (y * (-0.5))
-    , V2 ((x - 0.1 - 0.1) * (-1.0)) 0.0
-    , V2 (-0.1) (y * 0.5)
-    , V2 0.1 (y * 0.5)
-    ]
-    # closeLine
-    # strokeLoop
+  drakonStyle
+    $ fromOffsets
+        [ V2 (x - 0.1 - 0.1) 0.0
+        , V2 0.1 (y * (-0.5))
+        , V2 (-0.1) (y * (-0.5))
+        , V2 ((x - 0.1 - 0.1) * (-1.0)) 0.0
+        , V2 (-0.1) (y * 0.5)
+        , V2 0.1 (y * 0.5)
+        ]
+        # closeLine
+        # strokeLoop
 
 svgOptions :: Num n => Options SVG V2 n
 svgOptions =
@@ -93,7 +98,7 @@ troubleshootingMode :: Bool
 troubleshootingMode = False
 
 renderedConnection :: [Point V2 Double] -> Diagram B
-renderedConnection coordinates = fromVertices coordinates # lc lineColour # lw veryThin
+renderedConnection coordinates = drakonStyle $ fromVertices coordinates
 
 defaultFontSize :: Double
 defaultFontSize = defaultBoundingBoxHeight / 6.0
@@ -149,20 +154,15 @@ instance Renderer StartTerminator where
             content
             (0.0 + widthInUnits title * defaultBoundingBoxWidth * 0.5)
             (0.0 - heightInUnits title * defaultBoundingBoxHeight * 0.5)
-            <> (roundedRect
+            <> (drakonStyle (roundedRect
                   (widthInUnits title * defaultBoundingBoxWidth * widthRatio)
                   (heightInUnits title * defaultBoundingBoxHeight * 0.5)
-                  0.5
-                  # lw veryThin
-                  # lc lineColour
-                  # fc fillColour
+                  0.5)
                   # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
             <> if troubleshootingMode
                  then rect'
-                         (widthInUnits title * defaultBoundingBoxWidth)
-                         (heightInUnits title * defaultBoundingBoxHeight)
-                         # lw veryThin
-                         # lc lineColour
+                        (widthInUnits title * defaultBoundingBoxWidth)
+                        (heightInUnits title * defaultBoundingBoxHeight)
                  else mempty)
       ]
   render _ _ = mempty
@@ -179,11 +179,10 @@ instance Renderer ValentPoint where
     position
       [ ( origin
         , if troubleshootingMode
-            then rect'
-                   (widthInUnits ValentPoint * defaultBoundingBoxWidth)
-                   (heightInUnits ValentPoint * defaultBoundingBoxHeight)
-                   # lw veryThin
-                   # lc lineColour
+            then drakonStyle
+                   $ rect'
+                       (widthInUnits ValentPoint * defaultBoundingBoxWidth)
+                       (heightInUnits ValentPoint * defaultBoundingBoxHeight)
             else mempty)
       ]
   widthInUnits _ = 1.0
@@ -223,16 +222,11 @@ instance Renderer SkewerBlock where
                 (0.0 + widthInUnits action * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits action * defaultBoundingBoxHeight * 0.5)
                 <> rect' (widthInUnits action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                     # lw veryThin
-                     # lc lineColour
-                     # fc fillColour
                      # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then rect'
                             (widthInUnits action * defaultBoundingBoxWidth)
                             (heightInUnits action * defaultBoundingBoxHeight)
-                            # lw veryThin
-                            # lc lineColour
                      else mempty)
           ]
   render question@(Question content) origin =
@@ -244,16 +238,11 @@ instance Renderer SkewerBlock where
                 (0.0 + widthInUnits question * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                 <> hex' (widthInUnits question * defaultBoundingBoxWidth * widthRatio) iconHeight
-                     # lw veryThin
-                     # lc lineColour
-                     # fc fillColour
                      # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
                      then rect'
                             (widthInUnits question * defaultBoundingBoxWidth)
                             (heightInUnits question * defaultBoundingBoxHeight)
-                            # lw veryThin
-                            # lc lineColour
                      else mempty)
           ]
   render fork@(Fork content l r) origin@(P (V2 x y)) =
@@ -307,8 +296,6 @@ instance Renderer SkewerBlock where
                                              then rect'
                                                     (widthInUnits fork * defaultBoundingBoxWidth)
                                                     (heightInUnits fork * defaultBoundingBoxHeight)
-                                                    # lw veryThin
-                                                    # lc lineColour
                                              else mempty)
                                        ]
                                   <> renderedConnection
