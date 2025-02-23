@@ -18,7 +18,7 @@ Sample diagrams the renderer can produce today:
 
 | command | description |
 | --- | --- |
-| `./start-development-environment.sh` or `.\start-development-environment.ps1` | starts a fully dockerized development environment |
+| `./start-development-environment.sh` | starts a fully dockerized development environment |
 | `./build.sh` | builds and lints code - preferrably while development environment docker container is running, otherwise local installation of cabal and hlint is required) |
 | `./run.sh` | runs code - just like the build script, the preferred way to use it is while the development environment is running |
 | `./format.sh` | formats all `*.hs` files located in the `./app` directory using [hindent](https://github.com/mihaimaruseac/hindent) |

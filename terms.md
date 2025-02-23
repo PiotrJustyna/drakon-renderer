@@ -16,6 +16,7 @@
       * timer-driven for loop
       * timer-driven wait loop
   * of second kind: located at the entrance or exit of a skewer block
+  * of third kind
 * connecting line/connection
   * could have a valent point at which it can be broken
 * skewer-block
@@ -43,6 +44,7 @@
   * skewer-block replaces a valent point
   * axiom valent point of type/kind 1
   * drakon-chart valent point of type/kind 1 or 2
+* initial terminator
 * operation: selection of an initial terminator
   * icon 1 (Title) of primitive axiom or silhouette axiom can be replaced by:
     * Cyclic start letter
@@ -57,6 +59,40 @@
     * transplantation of a liana
     * selection of an initial terminator
     * deletion of the end of a primitive
+* bus
+* fragment
+  * upper bus
+  * standard branch
+  * lower bus
+* operation: insert a fragment, applies to:
+  * axiom-silhouette charts
+  * silhouette drakon-charts
+  * upper bus broken at the valent point of the third kind/type
+  * fragment is inserted and attached to the upper and lower buses
+* operataion: additional entry into a program
+  * applies to:
+    * axiom-silhouette charts
+    * silhouette drakon-charts
+  * an additional initial terminator is inserted above the headline icon
+* branch
+* operation: deletion of the last branch
+  * applies to:
+    * axiom-silhouette charts
+    * silhouette drakon-charts
+  * what gets deleted:
+    * the last branch
+    * entering vertical appendix of the upper line
+    * used to describe an infinite parallel process (we are removing the end terminator after all)
+* silhouette drakon-chart
+  * starts as a axiom-silhouette chart
+  * finite number of the following operations:
+    * insertion of a fragment
+    * insertion of a skewer-block
+    * transplantation of a liana
+    * grounding of a liana
+    * selection of an initial terminator
+    * additional entry into a program
+    * deletion of the last branch
 
 ---
 
@@ -64,6 +100,8 @@
   * drakon-chart valent point
     * first kind/type
     * second kind/type
+    * third kind/type
   * axiom valent point
     * first kind/type
     * second kind/type
+    * third kind/type
