@@ -105,3 +105,19 @@
     * first kind/type
     * second kind/type
     * third kind/type
+
+---
+
+List of allowed operations:
+
+| operation | `primitive drakon-chart` | `silhouette drakon-chart` |
+| --- | --- | --- |
+| `insertion of a skewer-block` | YES | YES |
+| `transplantation of a liana` | YES | - |
+| `selection of an initial terminator` | YES | YES |
+| `deletion of the end of a primitive` | YES | - |
+| `insertion of a fragment` | - | YES |
+| `transplantation of a liana` | - | YES |
+| `grounding of a liana` | - | YES |
+| `additional entry into a program` | - | YES |
+| `deletion of the last branch` | - | YES |
