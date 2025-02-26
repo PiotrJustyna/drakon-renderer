@@ -48,6 +48,16 @@ executable drakon-renderer
 
     main-is:            Main.hs
 
+    other-modules:      Drakon.Constants
+                        Drakon.Content
+                        Drakon.DrakonDiagram
+                        Drakon.EndTerminator
+                        Drakon.HelperDiagrams
+                        Drakon.ID
+                        Drakon.SkewerBlock
+                        Drakon.StartTerminator
+                        Drakon.TypeClasses
+
     default-extensions: LambdaCase
 
     build-depends:      base ^>= 4.19.1.0,
