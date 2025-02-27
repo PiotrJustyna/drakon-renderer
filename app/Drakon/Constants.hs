@@ -1,8 +1,14 @@
 module Drakon.Constants where
 
 import Data.Colour.SRGB (sRGB)
-import Diagrams.Backend.SVG (B)
-import Diagrams.Prelude (Colour, Diagram, Point(..), V2(..), (#), fc, fromVertices, lc, lw, veryThin)
+import Diagrams.Backend.SVG (B, Options(SVGOptions)  , SVG
+  , _generateDoctype
+  , _idPrefix
+  , _size
+  , _svgAttributes
+  , _svgDefinitions)
+import Diagrams.Prelude (Colour, Diagram, (#), V2(..), fc, lc, lw, veryThin, mkSizeSpec)
+import Data.Text (empty)
 
 defaultBoundingBoxWidth :: Double
 defaultBoundingBoxWidth = 3.0
@@ -32,3 +38,16 @@ defaultFontSize = defaultBoundingBoxHeight / 6.0
 
 drakonStyle :: Diagram B -> Diagram B
 drakonStyle = lw veryThin # lc lineColour # fc fillColour
+
+svgOutputPath :: String
+svgOutputPath = "./new-types-diagram.svg"
+
+svgOptions :: Num n => Options SVG V2 n
+svgOptions =
+  SVGOptions
+    { _size = mkSizeSpec $ V2 (Just 1000) (Just 1000)
+    , _idPrefix = empty
+    , _svgDefinitions = Nothing
+    , _svgAttributes = []
+    , _generateDoctype = True
+    }

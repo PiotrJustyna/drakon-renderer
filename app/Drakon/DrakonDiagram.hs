@@ -1,16 +1,16 @@
 module Drakon.DrakonDiagram where
 
-import Diagrams.Backend.SVG (B)
-import Diagrams.Prelude (Diagram, Point(..), V2(..), p2)
+import Diagrams.Prelude (Point(..), V2(..), p2)
 import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth)
 import Drakon.EndTerminator (EndTerminator)
 import Drakon.HelperDiagrams (renderedConnection)
-import Drakon.SkewerBlock (SkewerBlock, heightInUnits', render', widthInUnits')
+import Drakon.SkewerBlock (SkewerBlock, render')
 import Drakon.StartTerminator (StartTerminator)
-import Drakon.TypeClasses (Renderer(..))
+import Drakon.TypeClasses (Renderer(render, widthInUnits, heightInUnits))
+import Drakon.ID (ID)
 
 data DrakonDiagram =
-  DrakonDiagram StartTerminator [SkewerBlock] EndTerminator
+    DrakonDiagram StartTerminator [SkewerBlock] EndTerminator [((Double, Double), (Double, Double))]
 
 instance Show DrakonDiagram where
   show diagram =
@@ -21,7 +21,7 @@ instance Show DrakonDiagram where
       <> show (heightInUnits diagram)
 
 instance Renderer DrakonDiagram where
-  render (DrakonDiagram startTerminator skewerBlocks endTerminator) origin@(P (V2 x y)) =
+  render (DrakonDiagram startTerminator skewerBlocks endTerminator additionalConnections) origin@(P (V2 x y)) =
     let connectionX = x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
         skewerY = heightInUnits startTerminator * defaultBoundingBoxHeight
         startY1 = y - skewerY * 0.75
@@ -29,12 +29,17 @@ instance Renderer DrakonDiagram where
         renderedSkewerBlocks = render' skewerBlocks (p2 (x, y - skewerY))
         finishY1 = snd renderedSkewerBlocks
         finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
+        renderedAdditionalConnections = foldl
+          (\accu (start, finish) -> accu <> renderedConnection [p2 (fst start, snd start), p2 (fst finish, snd finish)])
+          mempty
+          additionalConnections
      in render startTerminator origin
           <> renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)]
           <> fst renderedSkewerBlocks
           <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
           <> render endTerminator (P (V2 x (snd renderedSkewerBlocks)))
-  widthInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator) =
+          <> renderedAdditionalConnections
+  widthInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator _additionalConnections) =
     maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits endTerminator]
-  heightInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator) =
+  heightInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator _additionalConnections) =
     sum $ heightInUnits startTerminator : map heightInUnits skewerBlocks ++ [heightInUnits endTerminator]

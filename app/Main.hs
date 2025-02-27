@@ -1,64 +1,15 @@
 module Main where
 
-import Data.Colour.SRGB (sRGB)
-import Data.Text (empty)
-import Diagrams.Backend.SVG
-  ( B
-  , Options(SVGOptions)
-  , SVG
-  , _generateDoctype
-  , _idPrefix
-  , _size
-  , _svgAttributes
-  , _svgDefinitions
-  , renderSVG'
-  )
-import Diagrams.Prelude
-  ( Colour
-  , Diagram
-  , Point(..)
-  , V2(..)
-  , (#)
-  , closeLine
-  , fc
-  , font
-  , fontSize
-  , fromOffsets
-  , fromVertices
-  , lc
-  , light
-  , local
-  , lw
-  , mkSizeSpec
-  , p2
-  , position
-  , r2
-  , roundedRect
-  , strokeLoop
-  , text
-  , translate
-  , veryThin
-  )
+import Diagrams.Backend.SVG (renderSVG')
+import Diagrams.Prelude (p2)
 import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock (SkewerBlock(Action, Fork))
 import Drakon.StartTerminator (StartTerminator(Title))
-import Drakon.TypeClasses (Renderer, render)
-
-svgOptions :: Num n => Options SVG V2 n
-svgOptions =
-  SVGOptions
-    { _size = mkSizeSpec $ V2 (Just 1000) (Just 1000)
-    , _idPrefix = empty
-    , _svgDefinitions = Nothing
-    , _svgAttributes = []
-    , _generateDoctype = True
-    }
-
-svgOutputPath :: String
-svgOutputPath = "./new-types-diagram.svg"
+import Drakon.TypeClasses (render)
+import Drakon.Constants (svgOptions, svgOutputPath)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -78,7 +29,7 @@ parse' (t:ts) =
           case parseEndTerminator ts' of
             Left e -> Left e
             Right (endTerminator, _) ->
-              Right (DrakonDiagram (Title "custom content - title") skewerBlocks endTerminator, [])
+              Right (DrakonDiagram (Title "custom content - title") skewerBlocks endTerminator [((1.0, -1.0), (7.0, -7.0)), ((3.0, -3.0), (4.0, -5.0))], [])
     _ -> Left $ "unexpected token: " <> t
 
 parseSkewerBlocks :: [String] -> Either String ([SkewerBlock], [String])
