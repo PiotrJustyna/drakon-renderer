@@ -2,6 +2,7 @@ module Main where
 
 import Diagrams.Backend.SVG (renderSVG')
 import Diagrams.Prelude (p2)
+import Drakon.Constants (svgOptions, svgOutputPath)
 import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
@@ -9,7 +10,6 @@ import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock (SkewerBlock(Action, Fork))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
-import Drakon.Constants (svgOptions, svgOutputPath)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -29,7 +29,13 @@ parse' (t:ts) =
           case parseEndTerminator ts' of
             Left e -> Left e
             Right (endTerminator, _) ->
-              Right (DrakonDiagram (Title "custom content - title") skewerBlocks endTerminator [((1.0, -1.0), (7.0, -7.0)), ((3.0, -3.0), (4.0, -5.0))], [])
+              Right
+                ( DrakonDiagram
+                    (Title (p2 (-1.0, -1.0)) "custom content - title")
+                    skewerBlocks
+                    endTerminator
+                    [((1.0, -1.0), (7.0, -7.0)), ((3.0, -3.0), (4.0, -5.0))]
+                , [])
     _ -> Left $ "unexpected token: " <> t
 
 parseSkewerBlocks :: [String] -> Either String ([SkewerBlock], [String])
@@ -61,7 +67,7 @@ parseSkewerBlock :: [String] -> Either String (Maybe SkewerBlock, [String])
 parseSkewerBlock [] = Left "no skewer block tokens provided"
 parseSkewerBlock (t:ts) =
   case t of
-    "Action" -> Right (Just (Action (ID "-1") (Content "custom content - action")), ts)
+    "Action" -> Right (Just (Action (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - action")), ts)
     "Fork" ->
       case parseSkewerBlocks ts of
         Left e -> Left e
@@ -69,7 +75,7 @@ parseSkewerBlock (t:ts) =
           case parseSkewerBlocks ts' of
             Left e -> Left e
             Right (rSkewerBlocks, ts'') ->
-              Right (Just (Fork (ID "-1") (Content "custom content - fork") lSkewerBlocks rSkewerBlocks), ts'')
+              Right (Just (Fork (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - fork") lSkewerBlocks rSkewerBlocks), ts'')
     "]" -> Right (Nothing, ts)
     _ -> Left $ "unexpected token: " <> t
 
@@ -77,7 +83,7 @@ parseEndTerminator :: [String] -> Either String (EndTerminator, [String])
 parseEndTerminator [] = Left "no finish terminator tokens provided"
 parseEndTerminator (t:ts) =
   case t of
-    "End" -> Right (End "custom content - end", ts)
+    "End" -> Right (End (p2 (-1.0, -1.0)) "custom content - end", ts)
     _ -> Left $ "unexpected token: " <> t
 
 main :: IO ()
@@ -88,4 +94,4 @@ main = do
     Left e -> putStrLn e
     Right diagram -> do
       print diagram
-      renderSVG' svgOutputPath svgOptions $ render diagram (p2 (0.0, 0.0))
+      renderSVG' svgOutputPath svgOptions $ render diagram

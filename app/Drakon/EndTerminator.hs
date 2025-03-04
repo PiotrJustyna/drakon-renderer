@@ -1,20 +1,24 @@
 module Drakon.EndTerminator where
 
-import Diagrams.Prelude
-  ((#)
-  , position
-  , r2
-  , roundedRect
-  , translate)
-import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth, troubleshootingMode, widthRatio, drakonStyle)
+import Diagrams.Prelude ((#), Point(..), V2(..), position, r2, roundedRect, translate)
+import Drakon.Constants
+  ( defaultBoundingBoxHeight
+  , defaultBoundingBoxWidth
+  , drakonStyle
+  , troubleshootingMode
+  , widthRatio
+  )
 import Drakon.HelperDiagrams (boundingBox, renderText)
-import Drakon.TypeClasses (Renderer(render, widthInUnits, heightInUnits))
+import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
-newtype EndTerminator =
-  End String
+data EndTerminator =
+  End (Point V2 Double) String
+
+changeOrigin :: EndTerminator -> Point V2 Double -> EndTerminator
+changeOrigin (End _ content) newOrigin = End newOrigin content
 
 instance Renderer EndTerminator where
-  render end@(End content) origin =
+  render end@(End origin content) =
     position
       [ ( origin
         , renderText

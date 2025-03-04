@@ -1,14 +1,18 @@
 module Drakon.Constants where
 
 import Data.Colour.SRGB (sRGB)
-import Diagrams.Backend.SVG (B, Options(SVGOptions)  , SVG
+import Data.Text (empty)
+import Diagrams.Backend.SVG
+  ( B
+  , Options(SVGOptions)
+  , SVG
   , _generateDoctype
   , _idPrefix
   , _size
   , _svgAttributes
-  , _svgDefinitions)
-import Diagrams.Prelude (Colour, Diagram, (#), V2(..), fc, lc, lw, veryThin, mkSizeSpec)
-import Data.Text (empty)
+  , _svgDefinitions
+  )
+import Diagrams.Prelude (Colour, Diagram, V2(..), (#), fc, lc, lw, mkSizeSpec, veryThin)
 
 defaultBoundingBoxWidth :: Double
 defaultBoundingBoxWidth = 3.0

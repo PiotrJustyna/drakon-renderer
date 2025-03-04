@@ -29,13 +29,19 @@ import Drakon.HelperDiagrams
 import Drakon.TypeClasses
 
 data StartTerminator
-  = Title String
-  | CyclicStart String
-  | TitleWithParameters String
-  | CyclicStartWithParameters String
+  = Title (Point V2 Double) String
+  | CyclicStart (Point V2 Double) String
+  | TitleWithParameters (Point V2 Double) String
+  | CyclicStartWithParameters (Point V2 Double) String
+
+changeOrigin :: StartTerminator -> Point V2 Double -> StartTerminator
+changeOrigin (Title _ content) newOrigin = Title newOrigin content
+changeOrigin (CyclicStart _ content) newOrigin = CyclicStart newOrigin content
+changeOrigin (TitleWithParameters _ content) newOrigin = TitleWithParameters newOrigin content
+changeOrigin (CyclicStartWithParameters _ content) newOrigin = CyclicStartWithParameters newOrigin content
 
 instance Renderer StartTerminator where
-  render title@(Title content) origin =
+  render title@(Title origin content) =
     position
       [ ( origin
         , renderText
@@ -54,6 +60,6 @@ instance Renderer StartTerminator where
                         (heightInUnits title * defaultBoundingBoxHeight)
                  else mempty)
       ]
-  render _ _ = mempty
+  render _ = mempty
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0

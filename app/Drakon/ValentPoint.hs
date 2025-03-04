@@ -1,21 +1,20 @@
 module Drakon.ValentPoint where
 
-import Diagrams.Prelude (position)
+import Diagrams.Prelude (Point(..), V2(..), position)
 import Drakon.Constants
 import Drakon.HelperDiagrams
 import Drakon.TypeClasses
 
-data ValentPoint =
-  ValentPoint
+data ValentPoint = ValentPoint (Point V2 Double)
 
 instance Renderer ValentPoint where
-  render ValentPoint origin =
+  render valentPoint@(ValentPoint origin) =
     position
       [ ( origin
         , if troubleshootingMode
             then boundingBox
-                   (widthInUnits ValentPoint * defaultBoundingBoxWidth)
-                   (heightInUnits ValentPoint * defaultBoundingBoxHeight)
+                   (widthInUnits valentPoint * defaultBoundingBoxWidth)
+                   (heightInUnits valentPoint * defaultBoundingBoxHeight)
             else mempty)
       ]
   widthInUnits _ = 1.0
