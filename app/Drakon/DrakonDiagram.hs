@@ -30,7 +30,7 @@ instance Renderer DrakonDiagram where
         finishY1 = snd renderedSkewerBlocks
         finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
         renderedAdditionalConnections = foldl
-          (\accu (start, finish) -> accu <> renderedConnection [p2 (fst start, snd start), p2 (fst finish, snd finish)])
+          (\accu (start, finish) -> accu <> renderedConnection [p2 start, p2 finish])
           mempty
           additionalConnections
      in render startTerminator origin

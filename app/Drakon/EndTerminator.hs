@@ -1,32 +1,14 @@
 module Drakon.EndTerminator where
 
-import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude
-  ( Diagram
-  , Point
-  , V2(..)
-  , (#)
-  , closeLine
-  , fc
-  , font
-  , fontSize
-  , fromOffsets
-  , lc
-  , light
-  , local
-  , lw
-  , origin
+  ((#)
   , position
   , r2
   , roundedRect
-  , strokeLoop
-  , text
-  , translate
-  , veryThin
-  )
-import Drakon.Constants
-import Drakon.HelperDiagrams
-import Drakon.TypeClasses
+  , translate)
+import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth, troubleshootingMode, widthRatio, drakonStyle)
+import Drakon.HelperDiagrams (boundingBox, renderText)
+import Drakon.TypeClasses (Renderer(render, widthInUnits, heightInUnits))
 
 newtype EndTerminator =
   End String
