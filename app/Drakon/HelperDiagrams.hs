@@ -22,7 +22,7 @@ import Diagrams.Prelude
   , translate
   , veryThin
   )
-import Drakon.Constants
+import Drakon.Constants (defaultFontSize, drakonStyle, fontColour, lineColour)
 
 rect' :: Double -> Double -> Diagram B
 rect' x y =

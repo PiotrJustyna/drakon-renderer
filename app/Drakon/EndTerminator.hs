@@ -1,6 +1,6 @@
 module Drakon.EndTerminator where
 
-import Diagrams.Prelude ((#), Point(..), V2(..), position, r2, roundedRect, translate)
+import Diagrams.Prelude (Point(..), V2(..), (#), position, r2, roundedRect, translate)
 import Drakon.Constants
   ( defaultBoundingBoxHeight
   , defaultBoundingBoxWidth
