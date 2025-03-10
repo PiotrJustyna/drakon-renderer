@@ -8,21 +8,26 @@ import Drakon.Constants
   , troubleshootingMode
   , widthRatio
   )
+import Drakon.Content (Content)
 import Drakon.HelperDiagrams (boundingBox, renderText)
+import Drakon.ID (ID)
 import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
 data EndTerminator =
-  End (Point V2 Double) String
+  End ID (Point V2 Double) Content
 
 changeOrigin :: EndTerminator -> Point V2 Double -> EndTerminator
-changeOrigin (End _ content) newOrigin = End newOrigin content
+changeOrigin (End id _ content) newOrigin = End id newOrigin content
 
 instance Renderer EndTerminator where
-  render end@(End origin content) =
+  render end@(End endId origin content) =
     position
       [ ( origin
         , renderText
-            content
+            ((if troubleshootingMode
+                then "[" <> show endId <> " | " <> show origin <> "] "
+                else "")
+               <> show content)
             (0.0 + widthInUnits end * defaultBoundingBoxWidth * 0.5)
             (0.0 - heightInUnits end * defaultBoundingBoxHeight * 0.5)
             <> (drakonStyle

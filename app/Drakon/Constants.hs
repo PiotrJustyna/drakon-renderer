@@ -35,10 +35,10 @@ fontColour :: Colour Double
 fontColour = sRGB (6.0 / 255.0) (71.0 / 255.0) (128.0 / 255.0)
 
 troubleshootingMode :: Bool
-troubleshootingMode = False
+troubleshootingMode = True
 
 defaultFontSize :: Double
-defaultFontSize = defaultBoundingBoxHeight / 6.0
+defaultFontSize = defaultBoundingBoxHeight / 12.0
 
 drakonStyle :: Diagram B -> Diagram B
 drakonStyle = lw veryThin # lc lineColour # fc fillColour

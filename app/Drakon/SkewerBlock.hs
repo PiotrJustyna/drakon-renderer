@@ -1,5 +1,6 @@
 module Drakon.SkewerBlock where
 
+import Data.Map (Map, empty, insert)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, translate)
 import Drakon.Constants
@@ -8,7 +9,6 @@ import Drakon.HelperDiagrams
 import Drakon.ID
 import Drakon.TypeClasses
 import Drakon.ValentPoint
-import Data.Map (Map, empty, insert)
 
 -- before this gets called, we need those skewer blocks already positioned
 -- position
@@ -26,10 +26,36 @@ render' skewerBlocks (P (V2 x y)) =
         in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
                <> diagram
                <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-               <> render (changeOrigin singleBlock (P (V2 x (snd accu))))
+               <> render singleBlock
            , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
+
+renderIcons :: [SkewerBlock] -> Diagram B
+renderIcons =
+  foldl
+    (\accu singleBlock ->
+       let (P (V2 x preY1)) = getOrigin singleBlock
+           connectionX = x + defaultBoundingBoxWidth * 0.5
+           preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+           postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+           postY2 = preY1 - defaultBoundingBoxHeight
+        in renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+             <> accu
+             <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+             <> render singleBlock)
+    mempty
+
+position' :: [SkewerBlock] -> Point V2 Double -> [SkewerBlock]
+position' skewerBlocks (P (V2 x y)) =
+  fst
+    $ foldl
+        (\accu singleBlock ->
+           let positionedSkewerBlocks = fst accu
+            in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (snd accu)))]
+               , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+        ([], y)
+        skewerBlocks
 
 widthInUnits' :: [SkewerBlock] -> Double
 widthInUnits' skewerBlocks = maximum $ map widthInUnits skewerBlocks
@@ -38,23 +64,45 @@ heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 
 toMap :: [SkewerBlock] -> Map ID SkewerBlock
-toMap = foldl (\accu singleBlock -> insert (getId singleBlock) singleBlock accu) empty
+toMap = foldl (flip insertToMap) empty
 
 data SkewerBlock
   = Action ID (Point V2 Double) Content
-  | Question ID (Point V2 Double) String
+  | Question ID (Point V2 Double) Content
   | Fork ID (Point V2 Double) Content [SkewerBlock] [SkewerBlock]
-  -- also insert nested skewer blocks into the main map
 
 getId :: SkewerBlock -> ID
 getId (Action actionId _ _) = actionId
 getId (Question questionId _ _) = questionId
 getId (Fork forkId _ _ _ _) = forkId
 
+getOrigin :: SkewerBlock -> Point V2 Double
+getOrigin (Action _ origin _) = origin
+getOrigin (Question _ origin _) = origin
+getOrigin (Fork _ origin _ _ _) = origin
+
+-- it can be as simple as:
+-- ID
+-- Origin (it doesn't have to be a skewerblock)
+insertToMap :: SkewerBlock -> Map ID SkewerBlock -> Map ID SkewerBlock
+insertToMap skewerBlock@(Action actionId _ _) startingMap = insert actionId skewerBlock startingMap
+insertToMap skewerBlock@(Question questionId _ _) startingMap = insert questionId skewerBlock startingMap
+insertToMap skewerBlock@(Fork forkId _ _ l r) startingMap =
+  let leftMap = toMap l
+      rightMap = toMap r
+   in insert forkId skewerBlock (startingMap <> leftMap <> rightMap)
+
 changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content
 changeOrigin (Question questionId _ content) newOrigin = Question questionId newOrigin content
-changeOrigin (Fork forkId _ content l r) newOrigin = Fork forkId newOrigin content l r
+changeOrigin (Fork forkId _ content l r) newOrigin@(P (V2 x y)) =
+  let question = Question forkId newOrigin content
+      lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
+      rOrigin =
+        P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
+      newL = position' l lOrigin
+      newR = position' r rOrigin
+   in Fork forkId newOrigin content newL newR
 
 instance Show SkewerBlock where
   show (Action (ID actionId) origin (Content content)) =
@@ -64,13 +112,13 @@ instance Show SkewerBlock where
   show _ = ""
 
 instance Renderer SkewerBlock where
-  render action@(Action (ID actionId) origin (Content actionContent)) =
+  render action@(Action actionId origin (Content actionContent)) =
     let iconHeight = heightInUnits action * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
             , renderText
                 ((if troubleshootingMode
-                    then "[" <> actionId <> "] "
+                    then "[" <> show actionId <> " | " <> show origin <> "] "
                     else "")
                    <> actionContent)
                 (0.0 + widthInUnits action * defaultBoundingBoxWidth * 0.5)
@@ -83,12 +131,15 @@ instance Renderer SkewerBlock where
                             (heightInUnits action * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render question@(Question _ origin content) =
+  render question@(Question questionId origin (Content content)) =
     let iconHeight = heightInUnits question * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
             , renderText
-                content
+                ((if troubleshootingMode
+                    then "[" <> show questionId <> " | " <> show origin <> "] "
+                    else "")
+                   <> content)
                 (0.0 + widthInUnits question * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                 <> hex' (widthInUnits question * defaultBoundingBoxWidth * widthRatio) iconHeight
@@ -99,7 +150,7 @@ instance Renderer SkewerBlock where
                             (heightInUnits question * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render fork@(Fork forkId origin@(P (V2 x y)) (Content content) l r) =
+  render fork@(Fork forkId origin@(P (V2 x y)) content l r) =
     let question = Question forkId origin content
         lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
         rOrigin@(P (V2 rX rY)) =
@@ -177,7 +228,7 @@ instance Renderer SkewerBlock where
   heightInUnits (Action {}) = 1.0
   heightInUnits (Question {}) = 1.0
   heightInUnits (Fork _questionId _origin (Content content) l r) =
-    heightInUnits (Question _questionId _origin content)
+    heightInUnits (Question _questionId _origin (Content content))
       + max
           (if null l
              then heightInUnits (ValentPoint (p2 (-1.0, -1.0)))

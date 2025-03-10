@@ -31,7 +31,7 @@ parse' (t:ts) =
             Right (endTerminator, _) ->
               Right
                 ( DrakonDiagram
-                    (Title (p2 (-1.0, -1.0)) "custom content - title")
+                    (Title (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - title"))
                     skewerBlocks
                     endTerminator
                     [((1.0, -1.0), (7.0, -7.0)), ((3.0, -3.0), (4.0, -5.0))]
@@ -85,15 +85,29 @@ parseEndTerminator :: [String] -> Either String (EndTerminator, [String])
 parseEndTerminator [] = Left "no finish terminator tokens provided"
 parseEndTerminator (t:ts) =
   case t of
-    "End" -> Right (End (p2 (-1.0, -1.0)) "custom content - end", ts)
+    "End" -> Right (End (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - end"), ts)
     _ -> Left $ "unexpected token: " <> t
 
 main :: IO ()
 main = do
-  let diagramInput =
-        "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
-  case parse diagramInput of
-    Left e -> putStrLn e
-    Right diagram@(DrakonDiagram _ skewers _ _) -> do
-      print $ toMap [Action (ID "1") (p2 (1.0, 1.0)) (Content "custom content - action 1"), Action (ID "2") (p2 (2.0, 2.0)) (Content "custom content - action 2")]
-      renderSVG' svgOutputPath svgOptions $ render diagram
+  let newDiagram@(DrakonDiagram _ skewerBlocks _ _) =
+        DrakonDiagram
+          (Title (ID "100") (p2 (-1.0, -1.0)) (Content "custom content - title"))
+          [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "custom content - action")
+          , Fork
+              (ID "210")
+              (p2 (-1.0, -1.0))
+              (Content "custom content - fork")
+              [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+              [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+          ]
+          (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
+          []
+  print $ toMap skewerBlocks
+  renderSVG' svgOutputPath svgOptions $ render newDiagram
+  -- let diagramInput =
+  --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
+  -- case parse diagramInput of
+  --   Left e -> putStrLn e
+  --   Right diagram@(DrakonDiagram _ _ _ _) -> do
+  --     renderSVG' svgOutputPath svgOptions $ render diagram

@@ -25,27 +25,32 @@ import Diagrams.Prelude
   , veryThin
   )
 import Drakon.Constants
+import Drakon.Content (Content)
 import Drakon.HelperDiagrams
+import Drakon.ID (ID)
 import Drakon.TypeClasses
 
 data StartTerminator
-  = Title (Point V2 Double) String
-  | CyclicStart (Point V2 Double) String
-  | TitleWithParameters (Point V2 Double) String
-  | CyclicStartWithParameters (Point V2 Double) String
+  = Title ID (Point V2 Double) Content
+  | CyclicStart ID (Point V2 Double) Content
+  | TitleWithParameters ID (Point V2 Double) Content
+  | CyclicStartWithParameters ID (Point V2 Double) Content
 
 changeOrigin :: StartTerminator -> Point V2 Double -> StartTerminator
-changeOrigin (Title _ content) newOrigin = Title newOrigin content
-changeOrigin (CyclicStart _ content) newOrigin = CyclicStart newOrigin content
-changeOrigin (TitleWithParameters _ content) newOrigin = TitleWithParameters newOrigin content
-changeOrigin (CyclicStartWithParameters _ content) newOrigin = CyclicStartWithParameters newOrigin content
+changeOrigin (Title id _ content) newOrigin = Title id newOrigin content
+changeOrigin (CyclicStart id _ content) newOrigin = CyclicStart id newOrigin content
+changeOrigin (TitleWithParameters id _ content) newOrigin = TitleWithParameters id newOrigin content
+changeOrigin (CyclicStartWithParameters id _ content) newOrigin = CyclicStartWithParameters id newOrigin content
 
 instance Renderer StartTerminator where
-  render title@(Title origin content) =
+  render title@(Title titleId origin content) =
     position
       [ ( origin
         , renderText
-            content
+            ((if troubleshootingMode
+                then "[" <> show titleId <> " | " <> show origin <> "] "
+                else "")
+               <> show content)
             (0.0 + widthInUnits title * defaultBoundingBoxWidth * 0.5)
             (0.0 - heightInUnits title * defaultBoundingBoxHeight * 0.5)
             <> (drakonStyle
