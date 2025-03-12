@@ -63,8 +63,23 @@ widthInUnits' skewerBlocks = maximum $ map widthInUnits skewerBlocks
 heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 
-toMap :: [SkewerBlock] -> Map ID SkewerBlock
+toMap :: [SkewerBlock] -> Map ID (Point V2 Double)
 toMap = foldl (flip insertToMap) empty
+
+data NewSkewerBlock
+  = NewAction ID Content
+  | NewFork ID Content (Either [NewSkewerBlock] ID) (Either [NewSkewerBlock] ID)
+  deriving Show
+
+data PositionedNewSkewerBlock
+  = PositionedNewAction ID Content (Point V2 Double)
+  | PositionedNewFork ID Content (Point V2 Double) (Either [NewSkewerBlock] ID) (Either [NewSkewerBlock] ID)
+  deriving Show
+
+instance NewRenderer PositionedNewSkewerBlock where
+  newRender _ = mempty
+  newWidthInUnits _ = 0.0
+  newHeightInUnits _ = 0.0
 
 data SkewerBlock
   = Action ID (Point V2 Double) Content
@@ -81,16 +96,13 @@ getOrigin (Action _ origin _) = origin
 getOrigin (Question _ origin _) = origin
 getOrigin (Fork _ origin _ _ _) = origin
 
--- it can be as simple as:
--- ID
--- Origin (it doesn't have to be a skewerblock)
-insertToMap :: SkewerBlock -> Map ID SkewerBlock -> Map ID SkewerBlock
-insertToMap skewerBlock@(Action actionId _ _) startingMap = insert actionId skewerBlock startingMap
-insertToMap skewerBlock@(Question questionId _ _) startingMap = insert questionId skewerBlock startingMap
+insertToMap :: SkewerBlock -> Map ID (Point V2 Double) -> Map ID (Point V2 Double)
+insertToMap skewerBlock@(Action actionId _ _) startingMap = insert actionId (getOrigin skewerBlock) startingMap
+insertToMap skewerBlock@(Question questionId _ _) startingMap = insert questionId (getOrigin skewerBlock) startingMap
 insertToMap skewerBlock@(Fork forkId _ _ l r) startingMap =
   let leftMap = toMap l
       rightMap = toMap r
-   in insert forkId skewerBlock (startingMap <> leftMap <> rightMap)
+   in insert forkId (getOrigin skewerBlock) (startingMap <> leftMap <> rightMap)
 
 changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content

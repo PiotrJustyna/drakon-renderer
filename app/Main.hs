@@ -7,7 +7,7 @@ import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (SkewerBlock(Action, Fork), toMap)
+import Drakon.SkewerBlock (SkewerBlock(Action, Fork), NewSkewerBlock(NewFork, NewAction))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
 
@@ -34,7 +34,7 @@ parse' (t:ts) =
                     (Title (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - title"))
                     skewerBlocks
                     endTerminator
-                    [((1.0, -1.0), (7.0, -7.0)), ((3.0, -3.0), (4.0, -5.0))]
+                    [(ID "4.0", ID "-5.0")]
                 , [])
     _ -> Left $ "unexpected token: " <> t
 
@@ -90,10 +90,11 @@ parseEndTerminator (t:ts) =
 
 main :: IO ()
 main = do
-  let newDiagram@(DrakonDiagram _ skewerBlocks _ _) =
+  let newDiagram@(DrakonDiagram _ _ _ _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "custom content - title"))
           [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "custom content - action")
+          , Action (ID "201") (p2 (-1.0, -1.0)) (Content "custom content - action")
           , Fork
               (ID "210")
               (p2 (-1.0, -1.0))
@@ -103,7 +104,9 @@ main = do
           ]
           (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
           []
-  print $ toMap skewerBlocks
+          -- [(ID "221", ID "200"), (ID "221", ID "201")]
+  let newFork = NewFork (ID "210") (Content "custom content - fork") (Left [NewAction (ID "220") (Content "custom content - action")]) (Right (ID "200"))
+  print newFork
   renderSVG' svgOutputPath svgOptions $ render newDiagram
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
