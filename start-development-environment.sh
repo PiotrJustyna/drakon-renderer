@@ -17,6 +17,7 @@ docker buildx build \
 && \
 docker run \
   -it \
+  -p 7658:7658 \
   -v "$HOME/.ssh/:/root/.ssh:ro" \
   -v "$(pwd):/root/code/drakon-renderer" \
   -v cabal-config:/root/.config/cabal \

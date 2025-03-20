@@ -1,8 +1,8 @@
 module Drakon.DrakonDiagram where
 
-import Diagrams.Prelude (Diagram, Point(..), V2(..), p2)
 import Data.Map (Map, lookup)
 import Diagrams.Backend.SVG (B)
+import Diagrams.Prelude (Diagram, Point(..), V2(..), p2)
 import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth)
 import Drakon.EndTerminator (EndTerminator, changeOrigin)
 import Drakon.HelperDiagrams (renderedConnection)
@@ -23,12 +23,15 @@ instance Show DrakonDiagram where
       <> show (heightInUnits diagram)
 
 renderAdditionalCnnections :: Map ID (Point V2 Double) -> [(ID, ID)] -> Diagram B
-renderAdditionalCnnections mapOfOrigins = foldl (\accu (startID, finishID) ->
-  let start = Data.Map.lookup startID mapOfOrigins
-      finish = Data.Map.lookup finishID mapOfOrigins
-   in case (start, finish) of
-        (Just start', Just finish') -> accu <> renderedConnection [start', finish']
-        _ -> accu) mempty
+renderAdditionalCnnections mapOfOrigins =
+  foldl
+    (\accu (startID, finishID) ->
+       let start = Data.Map.lookup startID mapOfOrigins
+           finish = Data.Map.lookup finishID mapOfOrigins
+        in case (start, finish) of
+             (Just start', Just finish') -> accu <> renderedConnection [start', finish']
+             _ -> accu)
+    mempty
 
 instance Renderer DrakonDiagram where
   render (DrakonDiagram startTerminator skewerBlocks endTerminator additionalConnections) =

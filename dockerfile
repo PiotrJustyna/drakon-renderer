@@ -1,4 +1,4 @@
-FROM alpine:3.20.2
+FROM alpine:3.21.3
 
 WORKDIR "/root/code/drakon-renderer"
 
@@ -20,7 +20,7 @@ RUN \
   && \
   cabal update \
   && \
-  cabal install hlint hindent \
+  cabal install hindent \
   && \
   echo "PROMPT='%F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
 

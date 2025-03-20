@@ -7,7 +7,7 @@ import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (SkewerBlock(Action, Fork), NewSkewerBlock(NewFork, NewAction))
+import Drakon.SkewerBlock (SkewerBlock(Action, Fork))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
 
@@ -105,8 +105,13 @@ main = do
           (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
           []
           -- [(ID "221", ID "200"), (ID "221", ID "201")]
-  let newFork = NewFork (ID "210") (Content "custom content - fork") (Left [NewAction (ID "220") (Content "custom content - action")]) (Right (ID "200"))
-  print newFork
+  -- let newFork =
+  --       NewFork
+  --         (ID "210")
+  --         (Content "custom content - fork")
+  --         (ConnectedSkewerBlocks [NewAction (ID "220") (Content "custom content - action")] Nothing)
+  --         (ConnectedSkewerBlocks [] (Just (ID "200")))
+  -- print newFork
   renderSVG' svgOutputPath svgOptions $ render newDiagram
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

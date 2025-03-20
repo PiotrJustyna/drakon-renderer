@@ -66,21 +66,45 @@ heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 toMap :: [SkewerBlock] -> Map ID (Point V2 Double)
 toMap = foldl (flip insertToMap) empty
 
-data NewSkewerBlock
-  = NewAction ID Content
-  | NewFork ID Content (Either [NewSkewerBlock] ID) (Either [NewSkewerBlock] ID)
-  deriving Show
-
-data PositionedNewSkewerBlock
-  = PositionedNewAction ID Content (Point V2 Double)
-  | PositionedNewFork ID Content (Point V2 Double) (Either [NewSkewerBlock] ID) (Either [NewSkewerBlock] ID)
-  deriving Show
-
-instance NewRenderer PositionedNewSkewerBlock where
-  newRender _ = mempty
-  newWidthInUnits _ = 0.0
-  newHeightInUnits _ = 0.0
-
+-- #1 - possible state
+-- Q - +
+-- |   |
+-- L   R
+-- |   |
+-- A1  A3
+-- | - +
+-- A2
+-- |
+-- A3
+-- |
+-- END
+-- #2 - possible state
+-- Q - +
+-- |   |
+-- L   R
+-- |   |
+-- A1  |
+-- |   |
+-- A2  |
+-- |   |
+-- A3  |
+-- | - +
+-- END
+-- #3 - impossible state
+-- | - - - +
+-- A0      |
+-- |       |
+-- Q - +   |
+-- |   |   |
+-- L   R   |
+-- |   |   |
+-- A1  A3  |
+-- |   |   |
+-- A2  A4  |
+-- |   |   |
+-- A3  + - +
+-- |
+-- END
 data SkewerBlock
   = Action ID (Point V2 Double) Content
   | Question ID (Point V2 Double) Content
