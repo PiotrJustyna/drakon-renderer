@@ -10,9 +10,6 @@ import Drakon.ID
 import Drakon.TypeClasses
 import Drakon.ValentPoint
 
--- before this gets called, we need those skewer blocks already positioned
--- position
--- render :: positioned skewer blocks -> map of positioned skewer blocks -> Diagram B
 render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 render' skewerBlocks (P (V2 x y)) =
   foldl
@@ -105,10 +102,14 @@ toMap = foldl (flip insertToMap) empty
 -- A3  + - +
 -- |
 -- END
+data ConnectedSkewerBlocks =
+  ConnectedSkewerBlocks [SkewerBlock] (Maybe ID)
+  deriving (Show)
+
 data SkewerBlock
   = Action ID (Point V2 Double) Content
   | Question ID (Point V2 Double) Content
-  | Fork ID (Point V2 Double) Content [SkewerBlock] [SkewerBlock]
+  | Fork ID (Point V2 Double) Content ConnectedSkewerBlocks ConnectedSkewerBlocks
 
 getId :: SkewerBlock -> ID
 getId (Action actionId _ _) = actionId
@@ -123,7 +124,7 @@ getOrigin (Fork _ origin _ _ _) = origin
 insertToMap :: SkewerBlock -> Map ID (Point V2 Double) -> Map ID (Point V2 Double)
 insertToMap skewerBlock@(Action actionId _ _) startingMap = insert actionId (getOrigin skewerBlock) startingMap
 insertToMap skewerBlock@(Question questionId _ _) startingMap = insert questionId (getOrigin skewerBlock) startingMap
-insertToMap skewerBlock@(Fork forkId _ _ l r) startingMap =
+insertToMap skewerBlock@(Fork forkId _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) startingMap =
   let leftMap = toMap l
       rightMap = toMap r
    in insert forkId (getOrigin skewerBlock) (startingMap <> leftMap <> rightMap)
@@ -131,13 +132,13 @@ insertToMap skewerBlock@(Fork forkId _ _ l r) startingMap =
 changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content
 changeOrigin (Question questionId _ content) newOrigin = Question questionId newOrigin content
-changeOrigin (Fork forkId _ content l r) newOrigin@(P (V2 x y)) =
+changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) newOrigin@(P (V2 x y)) =
   let question = Question forkId newOrigin content
       lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
       rOrigin =
         P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
-      newL = position' l lOrigin
-      newR = position' r rOrigin
+      newL = ConnectedSkewerBlocks (position' l lOrigin) Nothing
+      newR = ConnectedSkewerBlocks (position' r rOrigin) Nothing
    in Fork forkId newOrigin content newL newR
 
 instance Show SkewerBlock where
@@ -186,7 +187,7 @@ instance Renderer SkewerBlock where
                             (heightInUnits question * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render fork@(Fork forkId origin@(P (V2 x y)) content l r) =
+  render fork@(Fork forkId origin@(P (V2 x y)) content (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     let question = Question forkId origin content
         lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
         rOrigin@(P (V2 rX rY)) =
@@ -254,7 +255,7 @@ instance Renderer SkewerBlock where
                                        ]
   widthInUnits (Action {}) = 1.0
   widthInUnits (Question {}) = 1.0
-  widthInUnits (Fork _ _ _ l r) =
+  widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     (if null l
        then widthInUnits (ValentPoint (p2 (-1.0, -1.0)))
        else widthInUnits' l)
@@ -263,7 +264,7 @@ instance Renderer SkewerBlock where
            else widthInUnits' r)
   heightInUnits (Action {}) = 1.0
   heightInUnits (Question {}) = 1.0
-  heightInUnits (Fork _questionId _origin (Content content) l r) =
+  heightInUnits (Fork _questionId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     heightInUnits (Question _questionId _origin (Content content))
       + max
           (if null l

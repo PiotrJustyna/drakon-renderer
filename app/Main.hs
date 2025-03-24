@@ -7,7 +7,7 @@ import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (SkewerBlock(Action, Fork))
+import Drakon.SkewerBlock (SkewerBlock(Action, Fork), ConnectedSkewerBlocks(ConnectedSkewerBlocks))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
 
@@ -76,7 +76,7 @@ parseSkewerBlock (t:ts) =
             Left e -> Left e
             Right (rSkewerBlocks, ts'') ->
               Right
-                ( Just (Fork (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - fork") lSkewerBlocks rSkewerBlocks)
+                (Just (Fork (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - fork") (ConnectedSkewerBlocks lSkewerBlocks Nothing) (ConnectedSkewerBlocks rSkewerBlocks Nothing))
                 , ts'')
     "]" -> Right (Nothing, ts)
     _ -> Left $ "unexpected token: " <> t
@@ -98,13 +98,13 @@ main = do
           , Fork
               (ID "210")
               (p2 (-1.0, -1.0))
-              (Content "custom content - fork")
-              [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
-              [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+              (Content "custom content - fork test")
+              (ConnectedSkewerBlocks [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")] Nothing)
+              (ConnectedSkewerBlocks [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")] Nothing)
           ]
           (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
-          []
-          -- [(ID "221", ID "200"), (ID "221", ID "201")]
+          -- []
+          [(ID "221", ID "200"), (ID "221", ID "201")]
   -- let newFork =
   --       NewFork
   --         (ID "210")

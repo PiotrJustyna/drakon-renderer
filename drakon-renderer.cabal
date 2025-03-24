@@ -58,9 +58,6 @@ executable drakon-renderer
                         Drakon.StartTerminator
                         Drakon.TypeClasses
                         Drakon.ValentPoint
-                        Drakon.ConnectedSkewerBlocks
-                        Drakon.NewSkewerBlock
-                        Drakon.PositionedNewSkewerBlock
 
     default-extensions: LambdaCase
 

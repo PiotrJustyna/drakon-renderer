@@ -22,8 +22,8 @@ instance Show DrakonDiagram where
       <> "diagram total height in units: "
       <> show (heightInUnits diagram)
 
-renderAdditionalCnnections :: Map ID (Point V2 Double) -> [(ID, ID)] -> Diagram B
-renderAdditionalCnnections mapOfOrigins =
+renderAdditionalConnections :: Map ID (Point V2 Double) -> [(ID, ID)] -> Diagram B
+renderAdditionalConnections mapOfOrigins =
   foldl
     (\accu (startID, finishID) ->
        let start = Data.Map.lookup startID mapOfOrigins
@@ -50,7 +50,7 @@ instance Renderer DrakonDiagram where
           <> renderedSkewerBlocks
           <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
           <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 x finishY1)))
-          <> renderAdditionalCnnections mapOfOrigins additionalConnections
+          <> renderAdditionalConnections mapOfOrigins additionalConnections
   widthInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator _additionalConnections) =
     maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits endTerminator]
   heightInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator _additionalConnections) =
