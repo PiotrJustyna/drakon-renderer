@@ -10,8 +10,8 @@ import Drakon.ID
 import Drakon.TypeClasses
 import Drakon.ValentPoint
 
-render' :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
-render' skewerBlocks (P (V2 x y)) =
+render' :: ConnectedSkewerBlocks -> Point V2 Double -> (Diagram B, Double)
+render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) =
   foldl
     (\accu singleBlock ->
        let diagram = fst accu
@@ -28,8 +28,8 @@ render' skewerBlocks (P (V2 x y)) =
     (mempty, y)
     skewerBlocks
 
-renderIcons :: [SkewerBlock] -> Diagram B
-renderIcons =
+renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
+renderIcons skewerBlocks _mapOfOrigins =
   foldl
     (\accu singleBlock ->
        let (P (V2 x preY1)) = getOrigin singleBlock
@@ -42,6 +42,7 @@ renderIcons =
              <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
              <> render singleBlock)
     mempty
+    skewerBlocks
 
 position' :: [SkewerBlock] -> Point V2 Double -> [SkewerBlock]
 position' skewerBlocks (P (V2 x y)) =
@@ -63,45 +64,6 @@ heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 toMap :: [SkewerBlock] -> Map ID (Point V2 Double)
 toMap = foldl (flip insertToMap) empty
 
--- #1 - possible state
--- Q - +
--- |   |
--- L   R
--- |   |
--- A1  A3
--- | - +
--- A2
--- |
--- A3
--- |
--- END
--- #2 - possible state
--- Q - +
--- |   |
--- L   R
--- |   |
--- A1  |
--- |   |
--- A2  |
--- |   |
--- A3  |
--- | - +
--- END
--- #3 - impossible state
--- | - - - +
--- A0      |
--- |       |
--- Q - +   |
--- |   |   |
--- L   R   |
--- |   |   |
--- A1  A3  |
--- |   |   |
--- A2  A4  |
--- |   |   |
--- A3  + - +
--- |
--- END
 data ConnectedSkewerBlocks =
   ConnectedSkewerBlocks [SkewerBlock] (Maybe ID)
   deriving (Show)
@@ -187,7 +149,7 @@ instance Renderer SkewerBlock where
                             (heightInUnits question * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render fork@(Fork forkId origin@(P (V2 x y)) content (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
+  render fork@(Fork forkId origin@(P (V2 x y)) content l r) =
     let question = Question forkId origin content
         lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
         rOrigin@(P (V2 rX rY)) =

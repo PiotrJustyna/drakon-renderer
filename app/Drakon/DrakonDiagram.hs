@@ -42,7 +42,7 @@ instance Renderer DrakonDiagram where
         startY2 = y - defaultBoundingBoxHeight
         positionedSkewerBlocks = position' skewerBlocks (p2 (x, y - skewerY))
         mapOfOrigins = toMap positionedSkewerBlocks
-        renderedSkewerBlocks = renderIcons positionedSkewerBlocks
+        renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins
         finishY1 = y - skewerY - heightInUnits' positionedSkewerBlocks
         finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
      in render (Drakon.StartTerminator.changeOrigin startTerminator origin)
