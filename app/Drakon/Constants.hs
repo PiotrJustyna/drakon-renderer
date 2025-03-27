@@ -35,7 +35,7 @@ fontColour :: Colour Double
 fontColour = sRGB (6.0 / 255.0) (71.0 / 255.0) (128.0 / 255.0)
 
 troubleshootingMode :: Bool
-troubleshootingMode = False
+troubleshootingMode = True
 
 defaultFontSize :: Double
 defaultFontSize = defaultBoundingBoxHeight / 10.0

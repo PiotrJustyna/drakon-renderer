@@ -1,6 +1,6 @@
 module Drakon.SkewerBlock where
 
-import Data.Map (Map, empty, insert)
+import Data.Map (Map, empty, insert, lookup)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, translate)
 import Drakon.Constants
@@ -9,6 +9,14 @@ import Drakon.HelperDiagrams
 import Drakon.ID
 import Drakon.TypeClasses
 import Drakon.ValentPoint
+
+renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
+renderAdditionalConnection sourceOrigin destinationId mapOfOrigins =
+  renderedConnection [p2 (1.0, 1.0), p2 (1.0, -3.0)]
+  -- let destinationOrigin = Data.Map.lookup destinationId mapOfOrigins
+  -- in case destinationOrigin of
+  --         (Just destinationOrigin') -> renderedConnection [sourceOrigin, destinationOrigin']
+  --         _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
 render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
@@ -24,6 +32,10 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
                <> diagram
                <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
                <> render singleBlock mapOfOrigins
+               <> renderAdditionalConnection (p2 (3.0, -5.0)) (ID "12312316") mapOfOrigins
+               -- <> (case _id of
+               --      (Just destinationId) -> renderAdditionalConnection (p2 (3.0, -5.0)) destinationId mapOfOrigins
+               --      _ -> mempty)
            , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
