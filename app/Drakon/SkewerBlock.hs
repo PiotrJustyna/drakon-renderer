@@ -12,11 +12,10 @@ import Drakon.ValentPoint
 
 renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
 renderAdditionalConnection sourceOrigin destinationId mapOfOrigins =
-  renderedConnection [p2 (1.0, 1.0), p2 (1.0, -3.0)]
-  -- let destinationOrigin = Data.Map.lookup destinationId mapOfOrigins
-  -- in case destinationOrigin of
-  --         (Just destinationOrigin') -> renderedConnection [sourceOrigin, destinationOrigin']
-  --         _ -> mempty
+  let destinationOrigin = Data.Map.lookup destinationId mapOfOrigins
+  in case destinationOrigin of
+          (Just destinationOrigin') -> renderedConnection [sourceOrigin, destinationOrigin']
+          _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
 render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
@@ -32,10 +31,9 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
                <> diagram
                <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
                <> render singleBlock mapOfOrigins
-               <> renderAdditionalConnection (p2 (3.0, -5.0)) (ID "12312316") mapOfOrigins
-               -- <> (case _id of
-               --      (Just destinationId) -> renderAdditionalConnection (p2 (3.0, -5.0)) destinationId mapOfOrigins
-               --      _ -> mempty)
+               <> (case _id of
+                    (Just destinationId) -> renderAdditionalConnection (p2 (connectionX, postY2)) destinationId mapOfOrigins
+                    _ -> mempty)
            , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
@@ -106,13 +104,13 @@ insertToMap skewerBlock@(Fork forkId _ _ (ConnectedSkewerBlocks l _) (ConnectedS
 changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content
 changeOrigin (Question questionId _ content) newOrigin = Question questionId newOrigin content
-changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) newOrigin@(P (V2 x y)) =
+changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l leftId) (ConnectedSkewerBlocks r rightId)) newOrigin@(P (V2 x y)) =
   let question = Question forkId newOrigin content
       lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
       rOrigin =
         P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
-      newL = ConnectedSkewerBlocks (position' l lOrigin) Nothing
-      newR = ConnectedSkewerBlocks (position' r rOrigin) Nothing
+      newL = ConnectedSkewerBlocks (position' l lOrigin) leftId
+      newR = ConnectedSkewerBlocks (position' r rOrigin) rightId
    in Fork forkId newOrigin content newL newR
 
 instance Show SkewerBlock where

@@ -1,16 +1,16 @@
 module Main where
 
+import Data.Map (Map, empty)
 import Diagrams.Backend.SVG (renderSVG')
-import Diagrams.Prelude (p2)
+import Diagrams.Prelude (p2, Point(..), V2(..))
 import Drakon.Constants (svgOptions, svgOutputPath)
 import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Fork), toMap, position')
+import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Fork), position', toMap, insertToMap)
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
-import Data.Map (empty)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -95,6 +95,8 @@ parseEndTerminator (t:ts) =
     "End" -> Right (End (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - end"), ts)
     _ -> Left $ "unexpected token: " <> t
 
+-- insertToMap :: SkewerBlock -> Map ID (Point V2 Double) -> Map ID (Point V2 Double)
+
 main :: IO ()
 main = do
   let newDiagram@(DrakonDiagram _ skewerBlocks _ _) =
@@ -106,15 +108,17 @@ main = do
               (ID "210")
               (p2 (-1.0, -1.0))
               (Content "custom content - fork test")
-              (ConnectedSkewerBlocks [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")] (Just (ID "200")))
-              (ConnectedSkewerBlocks [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")] (Just (ID "200")))
+              (ConnectedSkewerBlocks
+                 [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+                 (Just (ID "200")))
+              (ConnectedSkewerBlocks
+                 [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+                 (Just (ID "200")))
           ]
           (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
-          -- [(ID "221", ID "200"), (ID "221", ID "201")]
           []
-  let _positionedSkewerBlocks = position' skewerBlocks (p2 (0.0, 0.0))
-  -- let mapOfOrigins = toMap _positionedSkewerBlocks
-  print _positionedSkewerBlocks
+          -- [(ID "221", ID "200"), (ID "221", ID "201")]
+
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

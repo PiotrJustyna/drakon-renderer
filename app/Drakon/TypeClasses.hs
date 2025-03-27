@@ -1,8 +1,8 @@
 module Drakon.TypeClasses where
 
+import Data.Map (Map)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..))
-import Data.Map (Map)
 import Drakon.ID (ID)
 
 class Renderer a where

@@ -40,7 +40,8 @@ changeOrigin :: StartTerminator -> Point V2 Double -> StartTerminator
 changeOrigin (Title startId _ content) newOrigin = Title startId newOrigin content
 changeOrigin (CyclicStart startId _ content) newOrigin = CyclicStart startId newOrigin content
 changeOrigin (TitleWithParameters startId _ content) newOrigin = TitleWithParameters startId newOrigin content
-changeOrigin (CyclicStartWithParameters startId _ content) newOrigin = CyclicStartWithParameters startId newOrigin content
+changeOrigin (CyclicStartWithParameters startId _ content) newOrigin =
+  CyclicStartWithParameters startId newOrigin content
 
 instance Renderer StartTerminator where
   render title@(Title titleId origin content) _mapOfOrigins =
