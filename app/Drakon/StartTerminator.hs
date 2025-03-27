@@ -37,13 +37,13 @@ data StartTerminator
   | CyclicStartWithParameters ID (Point V2 Double) Content
 
 changeOrigin :: StartTerminator -> Point V2 Double -> StartTerminator
-changeOrigin (Title id _ content) newOrigin = Title id newOrigin content
-changeOrigin (CyclicStart id _ content) newOrigin = CyclicStart id newOrigin content
-changeOrigin (TitleWithParameters id _ content) newOrigin = TitleWithParameters id newOrigin content
-changeOrigin (CyclicStartWithParameters id _ content) newOrigin = CyclicStartWithParameters id newOrigin content
+changeOrigin (Title startId _ content) newOrigin = Title startId newOrigin content
+changeOrigin (CyclicStart startId _ content) newOrigin = CyclicStart startId newOrigin content
+changeOrigin (TitleWithParameters startId _ content) newOrigin = TitleWithParameters startId newOrigin content
+changeOrigin (CyclicStartWithParameters startId _ content) newOrigin = CyclicStartWithParameters startId newOrigin content
 
 instance Renderer StartTerminator where
-  render title@(Title titleId origin content) =
+  render title@(Title titleId origin content) _mapOfOrigins =
     position
       [ ( origin
         , renderText
@@ -65,6 +65,6 @@ instance Renderer StartTerminator where
                         (heightInUnits title * defaultBoundingBoxHeight)
                  else mempty)
       ]
-  render _ = mempty
+  render _ _ = mempty
   widthInUnits _ = 1.0
   heightInUnits _ = 1.0

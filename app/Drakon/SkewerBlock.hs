@@ -10,8 +10,8 @@ import Drakon.ID
 import Drakon.TypeClasses
 import Drakon.ValentPoint
 
-render' :: ConnectedSkewerBlocks -> Point V2 Double -> (Diagram B, Double)
-render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) =
+render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
+render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
   foldl
     (\accu singleBlock ->
        let diagram = fst accu
@@ -23,13 +23,13 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) =
         in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
                <> diagram
                <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-               <> render singleBlock
+               <> render singleBlock mapOfOrigins
            , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
     (mempty, y)
     skewerBlocks
 
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
-renderIcons skewerBlocks _mapOfOrigins =
+renderIcons skewerBlocks mapOfOrigins =
   foldl
     (\accu singleBlock ->
        let (P (V2 x preY1)) = getOrigin singleBlock
@@ -40,7 +40,7 @@ renderIcons skewerBlocks _mapOfOrigins =
         in renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
              <> accu
              <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-             <> render singleBlock)
+             <> render singleBlock mapOfOrigins)
     mempty
     skewerBlocks
 
@@ -111,7 +111,7 @@ instance Show SkewerBlock where
   show _ = ""
 
 instance Renderer SkewerBlock where
-  render action@(Action actionId origin (Content actionContent)) =
+  render action@(Action actionId origin (Content actionContent)) _mapOfOrigins =
     let iconHeight = heightInUnits action * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
@@ -130,7 +130,7 @@ instance Renderer SkewerBlock where
                             (heightInUnits action * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render question@(Question questionId origin (Content content)) =
+  render question@(Question questionId origin (Content content)) _mapOfOrigins =
     let iconHeight = heightInUnits question * defaultBoundingBoxHeight * 0.5
      in position
           [ ( origin
@@ -149,15 +149,15 @@ instance Renderer SkewerBlock where
                             (heightInUnits question * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render fork@(Fork forkId origin@(P (V2 x y)) content l r) =
+  render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l _) rightBranch@(ConnectedSkewerBlocks r _)) _mapOfOrigins =
     let question = Question forkId origin content
         lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
         rOrigin@(P (V2 rX rY)) =
           P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
         connectionLX = x + defaultBoundingBoxWidth * 0.5
-     in render question
+     in render question _mapOfOrigins
           <> if null l
-               then render (ValentPoint lOrigin)
+               then render (ValentPoint lOrigin) _mapOfOrigins
                else renderText
                       "no"
                       (x + widthInUnits question * defaultBoundingBoxWidth * 0.97)
@@ -166,7 +166,7 @@ instance Renderer SkewerBlock where
                            "yes"
                            (x + widthInUnits question * defaultBoundingBoxWidth * 0.42)
                            (y - heightInUnits question * defaultBoundingBoxHeight * 0.9)
-                      <> fst (render' l lOrigin)
+                      <> fst (render' leftBranch lOrigin _mapOfOrigins)
                       <> renderedConnection
                            [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
                            , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
@@ -181,7 +181,7 @@ instance Renderer SkewerBlock where
                            , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
                            ]
                       <> if null r
-                           then render (ValentPoint rOrigin)
+                           then render (ValentPoint rOrigin) _mapOfOrigins
                                   <> renderedConnection
                                        [ p2
                                            ( rX + defaultBoundingBoxWidth * 0.5
@@ -195,7 +195,7 @@ instance Renderer SkewerBlock where
                                            ( x + defaultBoundingBoxWidth * 0.5
                                            , y - heightInUnits fork * defaultBoundingBoxHeight)
                                        ]
-                           else fst (render' r rOrigin)
+                           else fst (render' rightBranch rOrigin _mapOfOrigins)
                                   <> position
                                        [ ( origin
                                          , if troubleshootingMode

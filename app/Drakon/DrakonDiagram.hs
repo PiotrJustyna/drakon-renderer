@@ -34,7 +34,7 @@ renderAdditionalConnections mapOfOrigins =
     mempty
 
 instance Renderer DrakonDiagram where
-  render (DrakonDiagram startTerminator skewerBlocks endTerminator additionalConnections) =
+  render (DrakonDiagram startTerminator skewerBlocks endTerminator additionalConnections) _ =
     let origin@(P (V2 x y)) = p2 (0.0, 0.0)
         connectionX = x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
         skewerY = heightInUnits startTerminator * defaultBoundingBoxHeight
@@ -45,11 +45,11 @@ instance Renderer DrakonDiagram where
         renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins
         finishY1 = y - skewerY - heightInUnits' positionedSkewerBlocks
         finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
-     in render (Drakon.StartTerminator.changeOrigin startTerminator origin)
+     in render (Drakon.StartTerminator.changeOrigin startTerminator origin) mapOfOrigins
           <> renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)]
           <> renderedSkewerBlocks
           <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
-          <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 x finishY1)))
+          <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 x finishY1))) mapOfOrigins
           <> renderAdditionalConnections mapOfOrigins additionalConnections
   widthInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator _additionalConnections) =
     maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits endTerminator]

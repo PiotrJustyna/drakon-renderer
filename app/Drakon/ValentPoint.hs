@@ -9,7 +9,7 @@ newtype ValentPoint =
   ValentPoint (Point V2 Double)
 
 instance Renderer ValentPoint where
-  render valentPoint@(ValentPoint origin) =
+  render valentPoint@(ValentPoint origin) _ =
     position
       [ ( origin
         , if troubleshootingMode

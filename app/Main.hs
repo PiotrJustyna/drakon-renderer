@@ -10,6 +10,7 @@ import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Fork))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
+import Data.Map (empty)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -118,7 +119,7 @@ main = do
   --         (ConnectedSkewerBlocks [NewAction (ID "220") (Content "custom content - action")] Nothing)
   --         (ConnectedSkewerBlocks [] (Just (ID "200")))
   -- print newFork
-  renderSVG' svgOutputPath svgOptions $ render newDiagram
+  renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
   -- case parse diagramInput of
