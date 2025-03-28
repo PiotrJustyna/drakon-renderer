@@ -1,14 +1,20 @@
 module Main where
 
-import Data.Map (Map, empty)
+import Data.Map (empty)
 import Diagrams.Backend.SVG (renderSVG')
-import Diagrams.Prelude (p2, Point(..), V2(..))
+import Diagrams.Prelude (Point(..), V2(..), p2)
 import Drakon.Constants (svgOptions, svgOutputPath)
 import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..))
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Fork), position', toMap, insertToMap)
+import Drakon.SkewerBlock
+  ( ConnectedSkewerBlocks(ConnectedSkewerBlocks)
+  , SkewerBlock(Action, Fork)
+  , insertToMap
+  , position'
+  , toMap
+  )
 import Drakon.StartTerminator (StartTerminator(Title))
 import Drakon.TypeClasses (render)
 
@@ -35,7 +41,6 @@ parse' (t:ts) =
                     (Title (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - title"))
                     skewerBlocks
                     endTerminator
-                    [(ID "4.0", ID "-5.0")]
                 , [])
     _ -> Left $ "unexpected token: " <> t
 
@@ -95,30 +100,87 @@ parseEndTerminator (t:ts) =
     "End" -> Right (End (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - end"), ts)
     _ -> Left $ "unexpected token: " <> t
 
--- insertToMap :: SkewerBlock -> Map ID (Point V2 Double) -> Map ID (Point V2 Double)
-
 main :: IO ()
 main = do
-  let newDiagram@(DrakonDiagram _ skewerBlocks _ _) =
+-- just a test
+-- DrakonDiagram
+--   (Title (ID "100") (p2 (-1.0, -1.0)) (Content "custom content - title"))
+--   [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "custom content - action")
+--   , Action (ID "201") (p2 (-1.0, -1.0)) (Content "custom content - action")
+--   , Fork
+--       (ID "210")
+--       (p2 (-1.0, -1.0))
+--       (Content "custom content - fork test 1")
+--       (ConnectedSkewerBlocks
+--          [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+--          Nothing)
+--       (ConnectedSkewerBlocks
+--          [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action 221"),
+--           Action (ID "222") (p2 (-1.0, -1.0)) (Content "custom content - action 222"),
+--           Fork
+--               (ID "223")
+--               (p2 (-1.0, -1.0))
+--               (Content "custom content - fork test 2")
+--               (ConnectedSkewerBlocks
+--                  [Action (ID "224") (p2 (-1.0, -1.0)) (Content "custom content - action")]
+--                  (Just (ID "200")))
+--               (ConnectedSkewerBlocks
+--                  [Action (ID "225") (p2 (-1.0, -1.0)) (Content "custom content - action 225"),
+--                   Action (ID "226") (p2 (-1.0, -1.0)) (Content "custom content - action 226")]
+--                  (Just (ID "200")))]
+--          Nothing)
+--   ]
+--   (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
+-- Fig.6:
+  let newDiagram@(DrakonDiagram _ skewerBlocks _) =
         DrakonDiagram
-          (Title (ID "100") (p2 (-1.0, -1.0)) (Content "custom content - title"))
-          [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "custom content - action")
-          , Action (ID "201") (p2 (-1.0, -1.0)) (Content "custom content - action")
+          (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
+          [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
           , Fork
-              (ID "210")
+              (ID "300")
               (p2 (-1.0, -1.0))
-              (Content "custom content - fork test")
+              (Content "has a bus arrived?")
+              (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
               (ConnectedSkewerBlocks
-                 [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
-                 (Just (ID "200")))
+                 [Action (ID "11410") (p2 (-1.0, -1.0)) (Content "huh")] -- can't remove huh from here, this needs to be fixed
+                 (Just (ID "410")))
+          , Fork
+              (ID "500")
+              (p2 (-1.0, -1.0))
+              (Content "is it your turn?")
               (ConnectedSkewerBlocks
-                 [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action")]
-                 (Just (ID "200")))
+                 [] -- maximum causes a runtime exception, empty list
+                 Nothing)
+              (ConnectedSkewerBlocks
+                 [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
+                 (Just (ID "500")))
+          , Fork
+              (ID "700")
+              (p2 (-1.0, -1.0))
+              (Content "is it possible to enter the bus?")
+              (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
+              (ConnectedSkewerBlocks [Action (ID "810") (p2 (-1.0, -1.0)) (Content "huh")] (Just (ID "410"))) -- can't remove huh from here, this needs to be fixed
+          , Fork
+              (ID "900")
+              (p2 (-1.0, -1.0))
+              (Content "are any seats available?")
+              (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
+              (ConnectedSkewerBlocks [Fork
+                                      (ID "1010")
+                                      (p2 (-1.0, -1.0))
+                                      (Content "do you want to travel standing?")
+                                      (ConnectedSkewerBlocks [Action (ID "1100") (p2 (-1.0, -1.0)) (Content "huh")] Nothing) -- can't remove huh from here, this needs to be fixed
+                                      (ConnectedSkewerBlocks [Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus"), Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")] (Just (ID "300")))] Nothing)
+          , Fork
+              (ID "1200")
+              (p2 (-1.0, -1.0))
+              (Content "do you have money for a ticket?")
+              (ConnectedSkewerBlocks [Action (ID "1300") (p2 (-1.0, -1.0)) (Content "buy a ticket")] Nothing)
+              (ConnectedSkewerBlocks [] Nothing)
+          , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
+          , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
           ]
-          (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
-          []
-          -- [(ID "221", ID "200"), (ID "221", ID "201")]
-
+          (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
