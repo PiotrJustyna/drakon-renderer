@@ -132,7 +132,7 @@ main = do
 --   ]
 --   (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
 -- Fig.6:
-  let newDiagram@(DrakonDiagram _ skewerBlocks _) =
+  let newDiagram@(DrakonDiagram _ _ _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
           [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")

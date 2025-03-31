@@ -70,7 +70,7 @@ position' skewerBlocks (P (V2 x y)) =
 
 widthInUnits' :: [SkewerBlock] -> Double
 widthInUnits' x = case x of
-  null -> 1.0
+  [] -> 1.0
   skewerBlocks -> maximum $ map widthInUnits skewerBlocks
 
 heightInUnits' :: [SkewerBlock] -> Double
@@ -171,9 +171,10 @@ instance Renderer SkewerBlock where
           P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
         connectionLX = x + defaultBoundingBoxWidth * 0.5
      in render question _mapOfOrigins
-          <> if null l
+          <> (if null l
                then render (ValentPoint lOrigin) _mapOfOrigins
-               else renderText
+               else fst (render' leftBranch lOrigin _mapOfOrigins))
+          <> renderText 
                       "no"
                       (x + widthInUnits question * defaultBoundingBoxWidth * 0.97)
                       (y - heightInUnits question * defaultBoundingBoxHeight * 0.35)
@@ -181,13 +182,12 @@ instance Renderer SkewerBlock where
                            "yes"
                            (x + widthInUnits question * defaultBoundingBoxWidth * 0.42)
                            (y - heightInUnits question * defaultBoundingBoxHeight * 0.9)
-                      <> fst (render' leftBranch lOrigin _mapOfOrigins)
                       <> case lDetourId of
                            Nothing ->
-                             (renderedConnection
+                             renderedConnection
                                 [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
                                 , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                ])
+                                ]
                            Just _ -> mempty
                       <> renderedConnection
                            [ p2
@@ -224,7 +224,7 @@ instance Renderer SkewerBlock where
                                        ]
                                   <> case rDetourId of
                                        Nothing ->
-                                         (renderedConnection
+                                         renderedConnection
                                             [ p2
                                                 ( rX + defaultBoundingBoxWidth * 0.5
                                                 , y - heightInUnits' r * defaultBoundingBoxHeight)
@@ -234,7 +234,7 @@ instance Renderer SkewerBlock where
                                             , p2
                                                 ( x + defaultBoundingBoxWidth * 0.5
                                                 , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                            ])
+                                            ]
                                        Just _ -> mempty
   widthInUnits (Action {}) = 1.0
   widthInUnits (Question {}) = 1.0
