@@ -18,28 +18,36 @@ renderAdditionalConnection sourceOrigin destinationId mapOfOrigins =
         _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
-render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
-  let connectionX = x + defaultBoundingBoxWidth * 0.5
-      (renderedBlocks, lastY) =
-        foldl
-          (\accu singleBlock ->
-             let diagram = fst accu
-                 preY1 = snd accu
-                 preY2 = preY1 - defaultBoundingBoxHeight * 0.25
-                 postY1 = preY2 - defaultBoundingBoxHeight * 0.5
-                 postY2 = preY1 - defaultBoundingBoxHeight
-              in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-                     <> diagram
-                     <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-                     <> render singleBlock mapOfOrigins
-                 , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-          (mempty, y)
-          skewerBlocks
-   in case _id -- this is slightly more complicated, we should also check if there are any blocks to connect here
-            of
-        Just destinationId ->
-          (renderedBlocks <> renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins, lastY)
-        _ -> (renderedBlocks, lastY)
+render' (ConnectedSkewerBlocks skewerBlocks _id) origin@(P (V2 x y)) mapOfOrigins =
+   if null skewerBlocks
+    then
+        (let connectionX = x + defaultBoundingBoxWidth * 0.5
+             lastY = y - defaultBoundingBoxHeight
+        in ((render (ValentPoint origin) mapOfOrigins)
+            <> (case _id of
+                Just destinationId -> (renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins)
+                Nothing -> mempty), lastY))
+    else (
+        let connectionX = x + defaultBoundingBoxWidth * 0.5
+            (renderedBlocks, lastY) =
+                 foldl
+                   (\accu singleBlock ->
+                      let diagram = fst accu
+                          preY1 = snd accu
+                          preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+                          postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+                          postY2 = preY1 - defaultBoundingBoxHeight
+                       in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                              <> diagram
+                              <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+                              <> render singleBlock mapOfOrigins
+                          , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+                   (mempty, y)
+                   skewerBlocks
+             in case _id of
+                Just destinationId ->
+                  (renderedBlocks <> renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins, lastY)
+                _ -> (renderedBlocks, lastY))
 
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
 renderIcons skewerBlocks mapOfOrigins =
@@ -69,9 +77,10 @@ position' skewerBlocks (P (V2 x y)) =
         skewerBlocks
 
 widthInUnits' :: [SkewerBlock] -> Double
-widthInUnits' x = case x of
-  [] -> 1.0
-  skewerBlocks -> maximum $ map widthInUnits skewerBlocks
+widthInUnits' x =
+  case x of
+    [] -> 1.0
+    skewerBlocks -> maximum $ map widthInUnits skewerBlocks
 
 heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
@@ -166,76 +175,54 @@ instance Renderer SkewerBlock where
           ]
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let question = Question forkId origin content
-        lOrigin = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
+        lOrigin@(P (V2 _ lY)) = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
         rOrigin@(P (V2 rX rY)) =
           P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - heightInUnits question * defaultBoundingBoxHeight))
         connectionLX = x + defaultBoundingBoxWidth * 0.5
      in render question _mapOfOrigins
-          <> (if null l
-               then render (ValentPoint lOrigin) _mapOfOrigins
-               else fst (render' leftBranch lOrigin _mapOfOrigins))
-          <> renderText 
-                      "no"
-                      (x + widthInUnits question * defaultBoundingBoxWidth * 0.97)
-                      (y - heightInUnits question * defaultBoundingBoxHeight * 0.35)
-                      <> renderText
-                           "yes"
-                           (x + widthInUnits question * defaultBoundingBoxWidth * 0.42)
-                           (y - heightInUnits question * defaultBoundingBoxHeight * 0.9)
-                      <> case lDetourId of
-                           Nothing ->
-                             renderedConnection
-                                [ p2 (connectionLX, y - heightInUnits' l * defaultBoundingBoxHeight)
-                                , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                ]
-                           Just _ -> mempty
-                      <> renderedConnection
-                           [ p2
-                               ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                               , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                           , p2
-                               ( rX + defaultBoundingBoxWidth * 0.5
-                               , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                           , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                           ]
-                      <> if null r
-                           then render (ValentPoint rOrigin) _mapOfOrigins
-                                  <> renderedConnection
-                                       [ p2
-                                           ( rX + defaultBoundingBoxWidth * 0.5
-                                           , y
-                                               - heightInUnits (ValentPoint (p2 (-1.0, -1.0)))
-                                                   * defaultBoundingBoxHeight)
-                                       , p2
-                                           ( rX + defaultBoundingBoxWidth * 0.5
-                                           , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                       , p2
-                                           ( x + defaultBoundingBoxWidth * 0.5
-                                           , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                       ]
-                           else fst (render' rightBranch rOrigin _mapOfOrigins)
-                                  <> position
-                                       [ ( origin
-                                         , if troubleshootingMode
-                                             then boundingBox
-                                                    (widthInUnits fork * defaultBoundingBoxWidth)
-                                                    (heightInUnits fork * defaultBoundingBoxHeight)
-                                             else mempty)
-                                       ]
-                                  <> case rDetourId of
-                                       Nothing ->
-                                         renderedConnection
-                                            [ p2
-                                                ( rX + defaultBoundingBoxWidth * 0.5
-                                                , y - heightInUnits' r * defaultBoundingBoxHeight)
-                                            , p2
-                                                ( rX + defaultBoundingBoxWidth * 0.5
-                                                , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                            , p2
-                                                ( x + defaultBoundingBoxWidth * 0.5
-                                                , y - heightInUnits fork * defaultBoundingBoxHeight)
-                                            ]
-                                       Just _ -> mempty
+          <> fst (render' leftBranch lOrigin _mapOfOrigins)
+          <> renderText
+               "no"
+               (x + widthInUnits question * defaultBoundingBoxWidth * 0.97)
+               (y - heightInUnits question * defaultBoundingBoxHeight * 0.35)
+          <> renderText
+               "yes"
+               (x + widthInUnits question * defaultBoundingBoxWidth * 0.42)
+               (y - heightInUnits question * defaultBoundingBoxHeight * 0.9)
+          <> case lDetourId of
+               Nothing -> renderedConnection
+                   [ p2 (connectionLX, lY - heightInUnits' l * defaultBoundingBoxHeight)
+                   , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
+                   ]
+               Just _ -> mempty
+          <> renderedConnection
+               [ p2
+                   ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                   , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+               , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+               , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+               ]
+          <> fst (render' rightBranch rOrigin _mapOfOrigins)
+          <> position
+               [ ( origin
+                 , if troubleshootingMode
+                     then boundingBox
+                            (widthInUnits fork * defaultBoundingBoxWidth)
+                            (heightInUnits fork * defaultBoundingBoxHeight)
+                     else mempty)]
+          <> case rDetourId of
+               Nothing ->
+                 renderedConnection
+                   [ p2
+                       (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
+                   , p2
+                       ( rX + defaultBoundingBoxWidth * 0.5
+                       , y - heightInUnits fork * defaultBoundingBoxHeight)
+                   , p2
+                       ( x + defaultBoundingBoxWidth * 0.5
+                       , y - heightInUnits fork * defaultBoundingBoxHeight)
+                   ]
+               Just _ -> mempty
   widthInUnits (Action {}) = 1.0
   widthInUnits (Question {}) = 1.0
   widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =

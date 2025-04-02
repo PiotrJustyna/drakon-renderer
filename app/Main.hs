@@ -142,14 +142,14 @@ main = do
               (Content "has a bus arrived?")
               (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
               (ConnectedSkewerBlocks
-                 [Action (ID "11410") (p2 (-1.0, -1.0)) (Content "huh")] -- can't remove huh from here, this needs to be fixed
+                 []
                  (Just (ID "410")))
           , Fork
               (ID "500")
               (p2 (-1.0, -1.0))
               (Content "is it your turn?")
               (ConnectedSkewerBlocks
-                 [] -- maximum causes a runtime exception, empty list
+                 []
                  Nothing)
               (ConnectedSkewerBlocks
                  [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
@@ -159,18 +159,25 @@ main = do
               (p2 (-1.0, -1.0))
               (Content "is it possible to enter the bus?")
               (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
-              (ConnectedSkewerBlocks [Action (ID "810") (p2 (-1.0, -1.0)) (Content "huh")] (Just (ID "410"))) -- can't remove huh from here, this needs to be fixed
+              (ConnectedSkewerBlocks [] (Just (ID "410")))
           , Fork
               (ID "900")
               (p2 (-1.0, -1.0))
               (Content "are any seats available?")
               (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
-              (ConnectedSkewerBlocks [Fork
-                                      (ID "1010")
-                                      (p2 (-1.0, -1.0))
-                                      (Content "do you want to travel standing?")
-                                      (ConnectedSkewerBlocks [Action (ID "1100") (p2 (-1.0, -1.0)) (Content "huh")] Nothing) -- can't remove huh from here, this needs to be fixed
-                                      (ConnectedSkewerBlocks [Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus"), Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")] (Just (ID "300")))] Nothing)
+              (ConnectedSkewerBlocks
+                 [ Fork
+                     (ID "1010")
+                     (p2 (-1.0, -1.0))
+                     (Content "do you want to travel standing?")
+                     (ConnectedSkewerBlocks [] Nothing)
+                     (ConnectedSkewerBlocks
+                        [ Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus")
+                        , Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")
+                        ]
+                        (Just (ID "300")))
+                 ]
+                 Nothing)
           , Fork
               (ID "1200")
               (p2 (-1.0, -1.0))
