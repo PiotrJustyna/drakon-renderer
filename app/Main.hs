@@ -141,17 +141,12 @@ main = do
               (p2 (-1.0, -1.0))
               (Content "has a bus arrived?")
               (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
-              (ConnectedSkewerBlocks
---                 [Action (ID "40000000") (p2 (-1.0, -1.0)) (Content "test")] -- TODO: it works but the lines overlap
-                 []
-                 (Just (ID "410")))
+              (ConnectedSkewerBlocks [] (Just (ID "410")))
           , Fork
               (ID "500")
               (p2 (-1.0, -1.0))
               (Content "is it your turn?")
-              (ConnectedSkewerBlocks
-                 []
-                 Nothing)
+              (ConnectedSkewerBlocks [] Nothing)
               (ConnectedSkewerBlocks
                  [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
                  (Just (ID "500")))
@@ -189,6 +184,7 @@ main = do
           , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
           ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
+--                 [Action (ID "40000000") (p2 (-1.0, -1.0)) (Content "test")] -- TODO: it works but the lines overlap
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

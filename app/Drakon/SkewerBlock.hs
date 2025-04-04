@@ -12,43 +12,57 @@ import Drakon.ValentPoint
 
 renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
 renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigins =
-    case Data.Map.lookup destinationId mapOfOrigins of
-        (Just _destinationOrigin@(P (V2 x2 y2))) ->
-            if x1 > x2 && y1 < y2
-                then renderedConnection [sourceOrigin, (p2 (x1 + defaultBoundingBoxWidth * 0.5, y1)), (p2 (x1 + defaultBoundingBoxWidth * 0.5, y2)), (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))]
-                else if x1 < x2 && y1 > y2
-                    then renderedConnection [sourceOrigin, (p2 (x2 + defaultBoundingBoxWidth, y1)), (p2 (x2 + defaultBoundingBoxWidth, y2)), (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))]
-                    else renderedConnection [sourceOrigin, _destinationOrigin]
-        _ -> mempty
+  case Data.Map.lookup destinationId mapOfOrigins of
+    (Just _destinationOrigin@(P (V2 x2 y2))) ->
+      if x1 > x2 && y1 < y2
+        then renderedConnection
+               [ sourceOrigin
+               , (p2 (x1 + defaultBoundingBoxWidth * 0.5, y1))
+               , (p2 (x1 + defaultBoundingBoxWidth * 0.5, y2))
+               , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))
+               ]
+        else if x1 < x2 && y1 > y2
+               then renderedConnection
+                      [ sourceOrigin
+                      , (p2 (x2 + defaultBoundingBoxWidth, y1))
+                      , (p2 (x2 + defaultBoundingBoxWidth, y2))
+                      , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))
+                      ]
+               else renderedConnection [sourceOrigin, _destinationOrigin]
+    _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
 render' (ConnectedSkewerBlocks skewerBlocks _id) origin@(P (V2 x y)) mapOfOrigins =
-   if null skewerBlocks
-    then
-        (let connectionX = x + defaultBoundingBoxWidth * 0.5
-        in (case _id of
-                Just destinationId -> (renderAdditionalConnection (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5)) destinationId mapOfOrigins)
-                Nothing -> (render (ValentPoint origin) mapOfOrigins), y))
-    else (
-        let connectionX = x + defaultBoundingBoxWidth * 0.5
-            (renderedBlocks, lastY) =
-                 foldl
-                   (\accu singleBlock ->
-                      let diagram = fst accu
-                          preY1 = snd accu
-                          preY2 = preY1 - defaultBoundingBoxHeight * 0.25
-                          postY1 = preY2 - defaultBoundingBoxHeight * 0.5
-                          postY2 = preY1 - defaultBoundingBoxHeight
-                       in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-                              <> diagram
-                              <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-                              <> render singleBlock mapOfOrigins
-                          , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
-                   (mempty, y)
-                   skewerBlocks
-             in case _id of
+  if null skewerBlocks
+    then (let connectionX = x + defaultBoundingBoxWidth * 0.5
+           in ( case _id of
+                  Just destinationId ->
+                    (renderAdditionalConnection
+                       (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
+                       destinationId
+                       mapOfOrigins)
+                  Nothing -> (render (ValentPoint origin) mapOfOrigins)
+              , y))
+    else (let connectionX = x + defaultBoundingBoxWidth * 0.5
+              (renderedBlocks, lastY) =
+                foldl
+                  (\accu singleBlock ->
+                     let diagram = fst accu
+                         preY1 = snd accu
+                         preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+                         postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+                         postY2 = preY1 - defaultBoundingBoxHeight
+                      in ( renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                             <> diagram
+                             <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+                             <> render singleBlock mapOfOrigins
+                         , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+                  (mempty, y)
+                  skewerBlocks
+           in case _id of
                 Just destinationId ->
-                  (renderedBlocks <> renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins, lastY)
+                  ( renderedBlocks <> renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins
+                  , lastY)
                 _ -> (renderedBlocks, lastY))
 
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
@@ -192,29 +206,34 @@ instance Renderer SkewerBlock where
                (x + widthInUnits question * defaultBoundingBoxWidth * 0.42)
                (y - heightInUnits question * defaultBoundingBoxHeight * 0.9)
           <> case lDetourId of
-               Nothing -> renderedConnection
+               Nothing ->
+                 renderedConnection
                    [ p2 (connectionLX, lY - heightInUnits' l * defaultBoundingBoxHeight)
                    , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
                    ]
                Just _ -> mempty
           <> (if null r
-                then
-                    (case rDetourId of
-                            Nothing -> renderedConnection
-                                                          [ p2
-                                                              ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                                                              , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                                                          , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                                                          , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                                                          ]
-                            Just _ -> mempty)
+                then (case rDetourId of
+                        Nothing ->
+                          renderedConnection
+                            [ p2
+                                ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                                , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                            , p2
+                                ( rX + defaultBoundingBoxWidth * 0.5
+                                , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                            , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                            ]
+                        Just _ -> mempty)
                 else renderedConnection
-                   [ p2
-                       ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                       , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                   , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                   , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                   ])
+                       [ p2
+                           ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                           , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                       , p2
+                           ( rX + defaultBoundingBoxWidth * 0.5
+                           , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                       ])
           <> fst (render' rightBranch rOrigin _mapOfOrigins)
           <> position
                [ ( origin
@@ -222,18 +241,14 @@ instance Renderer SkewerBlock where
                      then boundingBox
                             (widthInUnits fork * defaultBoundingBoxWidth)
                             (heightInUnits fork * defaultBoundingBoxHeight)
-                     else mempty)]
+                     else mempty)
+               ]
           <> case rDetourId of
                Nothing ->
                  renderedConnection
-                   [ p2
-                       (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
-                   , p2
-                       ( rX + defaultBoundingBoxWidth * 0.5
-                       , y - heightInUnits fork * defaultBoundingBoxHeight)
-                   , p2
-                       ( x + defaultBoundingBoxWidth * 0.5
-                       , y - heightInUnits fork * defaultBoundingBoxHeight)
+                   [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
+                   , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                   , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
                    ]
                Just _ -> mempty
   widthInUnits (Action {}) = 1.0
