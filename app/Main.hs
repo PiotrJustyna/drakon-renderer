@@ -142,6 +142,7 @@ main = do
               (Content "has a bus arrived?")
               (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
               (ConnectedSkewerBlocks
+--                 [Action (ID "40000000") (p2 (-1.0, -1.0)) (Content "test")] -- TODO: it works but the lines overlap
                  []
                  (Just (ID "410")))
           , Fork

@@ -11,10 +11,14 @@ import Drakon.TypeClasses
 import Drakon.ValentPoint
 
 renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
-renderAdditionalConnection sourceOrigin destinationId mapOfOrigins =
-  let destinationOrigin = Data.Map.lookup destinationId mapOfOrigins
-   in case destinationOrigin of
-        (Just destinationOrigin') -> renderedConnection [sourceOrigin, destinationOrigin']
+renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigins =
+    case Data.Map.lookup destinationId mapOfOrigins of
+        (Just _destinationOrigin@(P (V2 x2 y2))) ->
+            if x1 > x2 && y1 < y2
+                then renderedConnection [sourceOrigin, (p2 (x1 + defaultBoundingBoxWidth * 0.5, y1)), (p2 (x1 + defaultBoundingBoxWidth * 0.5, y2)), (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))]
+                else if x1 < x2 && y1 > y2
+                    then renderedConnection [sourceOrigin, (p2 (x2 + defaultBoundingBoxWidth, y1)), (p2 (x2 + defaultBoundingBoxWidth, y2)), (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))]
+                    else renderedConnection [sourceOrigin, _destinationOrigin]
         _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
@@ -22,11 +26,9 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) origin@(P (V2 x y)) mapOfOrigin
    if null skewerBlocks
     then
         (let connectionX = x + defaultBoundingBoxWidth * 0.5
-             lastY = y - defaultBoundingBoxHeight
-        in ((render (ValentPoint origin) mapOfOrigins)
-            <> (case _id of
-                Just destinationId -> (renderAdditionalConnection (p2 (connectionX, lastY)) destinationId mapOfOrigins)
-                Nothing -> mempty), lastY))
+        in (case _id of
+                Just destinationId -> (renderAdditionalConnection (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5)) destinationId mapOfOrigins)
+                Nothing -> (render (ValentPoint origin) mapOfOrigins), y))
     else (
         let connectionX = x + defaultBoundingBoxWidth * 0.5
             (renderedBlocks, lastY) =
@@ -195,13 +197,24 @@ instance Renderer SkewerBlock where
                    , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
                    ]
                Just _ -> mempty
-          <> renderedConnection
-               [ p2
-                   ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                   , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-               , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-               , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-               ]
+          <> (if null r
+                then
+                    (case rDetourId of
+                            Nothing -> renderedConnection
+                                                          [ p2
+                                                              ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                                                              , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                                                          , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                                                          , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                                                          ]
+                            Just _ -> mempty)
+                else renderedConnection
+                   [ p2
+                       ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                       , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                   , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                   , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                   ])
           <> fst (render' rightBranch rOrigin _mapOfOrigins)
           <> position
                [ ( origin
