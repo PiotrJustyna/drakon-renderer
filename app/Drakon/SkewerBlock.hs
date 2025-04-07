@@ -2,7 +2,7 @@ module Drakon.SkewerBlock where
 
 import Data.Map (Map, empty, insert, lookup)
 import Diagrams.Backend.SVG (B)
-import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, translate)
+import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, translate, triangle, rotateBy)
 import Drakon.Constants
 import Drakon.Content
 import Drakon.HelperDiagrams
@@ -17,17 +17,27 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
       if x1 > x2 && y1 < y2
         then renderedConnection
                [ sourceOrigin
-               , (p2 (x1 + defaultBoundingBoxWidth * 0.5, y1))
-               , (p2 (x1 + defaultBoundingBoxWidth * 0.5, y2))
-               , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))
+               , (p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y1))
+               , (p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y2 - 0.1))
+               , (p2 (x2 + defaultBoundingBoxWidth * 0.5 + 0.087, y2 - 0.1))
                ]
+               -- 0.087:   from Pythegorean theorem
+               -- 0.02:  from line width?
+                <> position [(p2 (x2 + defaultBoundingBoxWidth * 0.5 + (0.087 / 2.0) + 0.02, y2 - 0.1), (rotateBy (1/4) $ triangle 0.1 # drakonStyle))]
         else if x1 < x2 && y1 > y2
                then renderedConnection
                       [ sourceOrigin
-                      , (p2 (x2 + defaultBoundingBoxWidth, y1))
-                      , (p2 (x2 + defaultBoundingBoxWidth, y2))
-                      , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2))
+                      , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y1))
+                      , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1))
+                      , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
                       ]
+               else if x1 > x2 && y1 > y2
+                        then renderedConnection
+                             [ sourceOrigin
+                             , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y1))
+                             , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1))
+                             , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
+                             ]
                else renderedConnection [sourceOrigin, _destinationOrigin]
     _ -> mempty
 

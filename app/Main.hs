@@ -141,7 +141,7 @@ main = do
               (p2 (-1.0, -1.0))
               (Content "has a bus arrived?")
               (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
-              (ConnectedSkewerBlocks [] (Just (ID "410")))
+              (ConnectedSkewerBlocks [] (Just (ID "500")))
           , Fork
               (ID "500")
               (p2 (-1.0, -1.0))
