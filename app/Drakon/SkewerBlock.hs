@@ -227,25 +227,25 @@ instance Renderer SkewerBlock where
                Just _ -> mempty
           <> (if null r
                 then (case rDetourId of
-                        Nothing -> renderedConnection
+                        Nothing ->
+                          renderedConnection
                             [ p2
                                 ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
                                 , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                            , p2
-                                ( rX - 0.1
-                                , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                            , p2 (rX - 0.1, y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                             , p2 (rX - 0.1, rY - defaultBoundingBoxHeight * 0.25)
                             ]
                         Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
                 else (renderedConnection
-                       [ p2
-                           ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                           , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                       , p2
-                           ( rX + defaultBoundingBoxWidth * 0.5
-                           , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                       ]) <> fst (render' rightBranch rOrigin _mapOfOrigins))
+                        [ p2
+                            ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
+                            , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                        , p2
+                            ( rX + defaultBoundingBoxWidth * 0.5
+                            , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
+                        , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                        ])
+                       <> fst (render' rightBranch rOrigin _mapOfOrigins))
           <> position
                [ ( origin
                  , if troubleshootingMode
@@ -255,17 +255,18 @@ instance Renderer SkewerBlock where
                      else mempty)
                ]
           <> case rDetourId of
-               Nothing -> (if null r
-                                    then renderedConnection
-                                            [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * 1.25)
-                                            , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                            , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                            ]
-                                    else renderedConnection
-                                           [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
-                                           , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                           , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                                           ])
+               Nothing ->
+                 (if null r
+                    then renderedConnection
+                           [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * 1.25)
+                           , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
+                           , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                           ]
+                    else renderedConnection
+                           [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
+                           , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                           , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                           ])
                Just _ -> mempty
   widthInUnits (Action {}) = 1.0
   widthInUnits (Question {}) = 1.0
