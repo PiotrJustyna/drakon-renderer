@@ -2,7 +2,7 @@ module Drakon.SkewerBlock where
 
 import Data.Map (Map, empty, insert, lookup)
 import Diagrams.Backend.SVG (B)
-import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, translate, triangle, rotateBy)
+import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, rotateBy, translate, triangle)
 import Drakon.Constants
 import Drakon.Content
 import Drakon.HelperDiagrams
@@ -21,9 +21,10 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
                , (p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y2 - 0.1))
                , (p2 (x2 + defaultBoundingBoxWidth * 0.5 + 0.087, y2 - 0.1))
                ]
-               -- 0.087:   from Pythegorean theorem
-               -- 0.02:  from line width?
-                <> position [(p2 (x2 + defaultBoundingBoxWidth * 0.5 + (0.087 / 2.0) + 0.02, y2 - 0.1), (rotateBy (1/4) $ triangle 0.1 # drakonStyle))]
+               <> position
+                    [ ( p2 (x2 + defaultBoundingBoxWidth * 0.5 + (0.087 / 2.0) + 0.02, y2 - 0.1)
+                      , (rotateBy (1 / 4) $ triangle 0.1 # drakonStyle))
+                    ]
         else if x1 < x2 && y1 > y2
                then renderedConnection
                       [ sourceOrigin
@@ -32,13 +33,15 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
                       , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
                       ]
                else if x1 > x2 && y1 > y2
-                        then renderedConnection
+                      then renderedConnection
                              [ sourceOrigin
                              , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y1))
                              , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1))
                              , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
                              ]
-               else renderedConnection [sourceOrigin, _destinationOrigin]
+                      else renderedConnection [sourceOrigin, _destinationOrigin]
+               -- 0.087:   from Pythegorean theorem
+               -- 0.02:  from line width?
     _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
@@ -224,18 +227,17 @@ instance Renderer SkewerBlock where
                Just _ -> mempty
           <> (if null r
                 then (case rDetourId of
-                        Nothing ->
-                          renderedConnection
+                        Nothing -> renderedConnection
                             [ p2
                                 ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
                                 , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                             , p2
-                                ( rX + defaultBoundingBoxWidth * 0.5
+                                ( rX - 0.1
                                 , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                            , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                            , p2 (rX - 0.1, rY - defaultBoundingBoxHeight * 0.25)
                             ]
-                        Just _ -> mempty)
-                else renderedConnection
+                        Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
+                else (renderedConnection
                        [ p2
                            ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
                            , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
@@ -243,8 +245,7 @@ instance Renderer SkewerBlock where
                            ( rX + defaultBoundingBoxWidth * 0.5
                            , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                        , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                       ])
-          <> fst (render' rightBranch rOrigin _mapOfOrigins)
+                       ]) <> fst (render' rightBranch rOrigin _mapOfOrigins))
           <> position
                [ ( origin
                  , if troubleshootingMode
@@ -254,12 +255,17 @@ instance Renderer SkewerBlock where
                      else mempty)
                ]
           <> case rDetourId of
-               Nothing ->
-                 renderedConnection
-                   [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
-                   , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                   , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                   ]
+               Nothing -> (if null r
+                                    then renderedConnection
+                                            [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * 1.25)
+                                            , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
+                                            , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                                            ]
+                                    else renderedConnection
+                                           [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
+                                           , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                                           , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                                           ])
                Just _ -> mempty
   widthInUnits (Action {}) = 1.0
   widthInUnits (Question {}) = 1.0
