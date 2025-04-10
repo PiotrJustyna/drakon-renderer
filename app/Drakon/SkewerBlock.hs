@@ -46,14 +46,14 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
 render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
   if null skewerBlocks
-    then (case _id of
-              Just destinationId ->
-                renderAdditionalConnection
-                   (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
-                   destinationId
-                   mapOfOrigins
-              Nothing -> mempty
-              , y)
+    then ( case _id of
+             Just destinationId ->
+               renderAdditionalConnection
+                 (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
+                 destinationId
+                 mapOfOrigins
+             Nothing -> mempty
+         , y)
     else (let connectionX = x + defaultBoundingBoxWidth * 0.5
               (renderedBlocks, lastY) =
                 foldl
@@ -142,8 +142,7 @@ changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content
 changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l leftId) (ConnectedSkewerBlocks r rightId)) newOrigin@(P (V2 x y)) =
   let lOrigin = P (V2 x (y - defaultBoundingBoxHeight))
-      rOrigin =
-        P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
+      rOrigin = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
       newL = ConnectedSkewerBlocks (position' l lOrigin) leftId
       newR = ConnectedSkewerBlocks (position' r rOrigin) rightId
    in Fork forkId newOrigin content newL newR
@@ -157,20 +156,22 @@ instance Show SkewerBlock where
 
 renderQuestion :: ID -> Point V2 Double -> Content -> Map ID (Point V2 Double) -> Diagram B
 renderQuestion questionId origin (Content content) _mapOfOrigins =
-    position
-      [ ( origin
-        , renderText
-            ((if troubleshootingMode
-                then "[" <> show questionId <> " | " <> show origin <> "] "
-                else "")
-               <> content)
-            (0.0 + defaultBoundingBoxWidth * 0.5)
-            (0.0 - defaultBoundingBoxHeight * 0.5)
-            <> hex' (defaultBoundingBoxWidth * widthRatio) (defaultBoundingBoxHeight * 0.5)
-                 # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, defaultBoundingBoxHeight * (-0.25)))
-            <> if troubleshootingMode
-                 then boundingBox defaultBoundingBoxWidth defaultBoundingBoxHeight
-                 else mempty)]
+  position
+    [ ( origin
+      , renderText
+          ((if troubleshootingMode
+              then "[" <> show questionId <> " | " <> show origin <> "] "
+              else "")
+             <> content)
+          (0.0 + defaultBoundingBoxWidth * 0.5)
+          (0.0 - defaultBoundingBoxHeight * 0.5)
+          <> hex' (defaultBoundingBoxWidth * widthRatio) (defaultBoundingBoxHeight * 0.5)
+               # translate
+                   (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, defaultBoundingBoxHeight * (-0.25)))
+          <> if troubleshootingMode
+               then boundingBox defaultBoundingBoxWidth defaultBoundingBoxHeight
+               else mempty)
+    ]
 
 instance Renderer SkewerBlock where
   render action@(Action actionId origin (Content actionContent)) _mapOfOrigins =
@@ -194,19 +195,12 @@ instance Renderer SkewerBlock where
           ]
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let lOrigin@(P (V2 _ lY)) = P (V2 x (y - defaultBoundingBoxHeight))
-        rOrigin@(P (V2 rX rY)) =
-          P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
+        rOrigin@(P (V2 rX rY)) = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
         connectionLX = x + defaultBoundingBoxWidth * 0.5
      in renderQuestion forkId origin content _mapOfOrigins
           <> fst (render' leftBranch lOrigin _mapOfOrigins)
-          <> renderText
-               "no"
-               (x + defaultBoundingBoxWidth * 0.97)
-               (y - defaultBoundingBoxHeight * 0.35)
-          <> renderText
-               "yes"
-               (x + defaultBoundingBoxWidth * 0.42)
-               (y - defaultBoundingBoxHeight * 0.9)
+          <> renderText "no" (x + defaultBoundingBoxWidth * 0.97) (y - defaultBoundingBoxHeight * 0.35)
+          <> renderText "yes" (x + defaultBoundingBoxWidth * 0.42) (y - defaultBoundingBoxHeight * 0.9)
           <> case lDetourId of
                Nothing ->
                  renderedConnection
@@ -226,14 +220,10 @@ instance Renderer SkewerBlock where
                             ]
                         Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
                 else renderedConnection
-                        [ p2
-                            ( x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                            , y - defaultBoundingBoxHeight * 0.5)
-                        , p2
-                            ( rX + defaultBoundingBoxWidth * 0.5
-                            , y - defaultBoundingBoxHeight * 0.5)
-                        , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                        ]
+                       [ p2 (x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0, y - defaultBoundingBoxHeight * 0.5)
+                       , p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight * 0.5)
+                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                       ]
                        <> fst (render' rightBranch rOrigin _mapOfOrigins))
           <> position
                [ ( origin
@@ -267,7 +257,7 @@ instance Renderer SkewerBlock where
            else widthInUnits' r)
   heightInUnits (Action {}) = 1.0
   heightInUnits (Fork _forkId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
-      defaultBoundingBoxHeight
+    defaultBoundingBoxHeight
       + max
           (if null l
              then defaultBoundingBoxHeight
