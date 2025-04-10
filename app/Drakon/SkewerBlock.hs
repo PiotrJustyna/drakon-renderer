@@ -8,7 +8,6 @@ import Drakon.Content
 import Drakon.HelperDiagrams
 import Drakon.ID
 import Drakon.TypeClasses
-import Drakon.ValentPoint
 
 renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
 renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigins =
@@ -45,17 +44,16 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
     _ -> mempty
 
 render' :: ConnectedSkewerBlocks -> Point V2 Double -> Map ID (Point V2 Double) -> (Diagram B, Double)
-render' (ConnectedSkewerBlocks skewerBlocks _id) origin@(P (V2 x y)) mapOfOrigins =
+render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
   if null skewerBlocks
-    then (let connectionX = x + defaultBoundingBoxWidth * 0.5
-           in ( case _id of
-                  Just destinationId ->
-                    (renderAdditionalConnection
-                       (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
-                       destinationId
-                       mapOfOrigins)
-                  Nothing -> (render (ValentPoint origin) mapOfOrigins)
-              , y))
+    then (case _id of
+              Just destinationId ->
+                (renderAdditionalConnection
+                   (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
+                   destinationId
+                   mapOfOrigins)
+              Nothing -> mempty
+              , y)
     else (let connectionX = x + defaultBoundingBoxWidth * 0.5
               (renderedBlocks, lastY) =
                 foldl
@@ -272,10 +270,10 @@ instance Renderer SkewerBlock where
   widthInUnits (Question {}) = 1.0
   widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     (if null l
-       then widthInUnits (ValentPoint (p2 (-1.0, -1.0)))
+       then defaultBoundingBoxWidth
        else widthInUnits' l)
       + (if null r
-           then widthInUnits (ValentPoint (p2 (-1.0, -1.0)))
+           then defaultBoundingBoxWidth
            else widthInUnits' r)
   heightInUnits (Action {}) = 1.0
   heightInUnits (Question {}) = 1.0
@@ -283,8 +281,8 @@ instance Renderer SkewerBlock where
     heightInUnits (Question _questionId _origin (Content content))
       + max
           (if null l
-             then heightInUnits (ValentPoint (p2 (-1.0, -1.0)))
+             then defaultBoundingBoxHeight
              else heightInUnits' l)
           (if null r
-             then heightInUnits (ValentPoint (p2 (-1.0, -1.0)))
+             then defaultBoundingBoxHeight
              else heightInUnits' r)
