@@ -48,10 +48,10 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
   if null skewerBlocks
     then (case _id of
               Just destinationId ->
-                (renderAdditionalConnection
+                renderAdditionalConnection
                    (p2 (x - defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, y + defaultBoundingBoxHeight * 0.5))
                    destinationId
-                   mapOfOrigins)
+                   mapOfOrigins
               Nothing -> mempty
               , y)
     else (let connectionX = x + defaultBoundingBoxWidth * 0.5
@@ -161,6 +161,23 @@ instance Show SkewerBlock where
     "[ID: " <> forkId <> " | Origin: " <> show origin <> "] " <> content
   show _ = ""
 
+renderQuestion :: ID -> Point V2 Double -> Content -> Map ID (Point V2 Double) -> Diagram B
+renderQuestion questionId origin (Content content) _mapOfOrigins =
+    position
+      [ ( origin
+        , renderText
+            ((if troubleshootingMode
+                then "[" <> show questionId <> " | " <> show origin <> "] "
+                else "")
+               <> content)
+            (0.0 + defaultBoundingBoxWidth * 0.5)
+            (0.0 - defaultBoundingBoxHeight * 0.5)
+            <> hex' (defaultBoundingBoxWidth * widthRatio) (defaultBoundingBoxHeight * 0.5)
+                 # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, defaultBoundingBoxHeight * (-0.25)))
+            <> if troubleshootingMode
+                 then boundingBox defaultBoundingBoxWidth defaultBoundingBoxHeight
+                 else mempty)]
+
 instance Renderer SkewerBlock where
   render action@(Action actionId origin (Content actionContent)) _mapOfOrigins =
     let iconHeight = heightInUnits action * defaultBoundingBoxHeight * 0.5
@@ -181,25 +198,8 @@ instance Renderer SkewerBlock where
                             (heightInUnits action * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render question@(Question questionId origin (Content content)) _mapOfOrigins =
-    let iconHeight = heightInUnits question * defaultBoundingBoxHeight * 0.5
-     in position
-          [ ( origin
-            , renderText
-                ((if troubleshootingMode
-                    then "[" <> show questionId <> " | " <> show origin <> "] "
-                    else "")
-                   <> content)
-                (0.0 + widthInUnits question * defaultBoundingBoxWidth * 0.5)
-                (0.0 - heightInUnits question * defaultBoundingBoxHeight * 0.5)
-                <> hex' (widthInUnits question * defaultBoundingBoxWidth * widthRatio) iconHeight
-                     # translate (r2 (0.1 + defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
-                <> if troubleshootingMode
-                     then boundingBox
-                            (widthInUnits question * defaultBoundingBoxWidth)
-                            (heightInUnits question * defaultBoundingBoxHeight)
-                     else mempty)
-          ]
+  render (Question questionId origin content) mapOfOrigins =
+    renderQuestion questionId origin content mapOfOrigins
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let question = Question forkId origin content
         lOrigin@(P (V2 _ lY)) = P (V2 x (y - heightInUnits question * defaultBoundingBoxHeight))
@@ -234,7 +234,7 @@ instance Renderer SkewerBlock where
                             , p2 (rX - 0.1, rY - defaultBoundingBoxHeight * 0.25)
                             ]
                         Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
-                else (renderedConnection
+                else renderedConnection
                         [ p2
                             ( x + widthInUnits question * defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
                             , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
@@ -242,7 +242,7 @@ instance Renderer SkewerBlock where
                             ( rX + defaultBoundingBoxWidth * 0.5
                             , y - heightInUnits question * defaultBoundingBoxHeight * 0.5)
                         , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
-                        ])
+                        ]
                        <> fst (render' rightBranch rOrigin _mapOfOrigins))
           <> position
                [ ( origin
