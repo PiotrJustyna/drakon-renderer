@@ -7,12 +7,12 @@ import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth)
 import Drakon.EndTerminator (EndTerminator, changeOrigin)
 import Drakon.HelperDiagrams (renderedConnection)
 import Drakon.ID (ID)
-import Drakon.SkewerBlock (SkewerBlock, heightInUnits', position', renderIcons, toMap)
+import Drakon.SkewerBlock (SkewerBlock, heightInUnits', widthInUnits', position', renderIcons, toMap)
 import Drakon.StartTerminator (StartTerminator, changeOrigin)
 import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
 data DrakonDiagram =
-  DrakonDiagram StartTerminator [SkewerBlock] EndTerminator
+  DrakonDiagram StartTerminator [[SkewerBlock]] EndTerminator
 
 instance Show DrakonDiagram where
   show diagram =
@@ -23,8 +23,9 @@ instance Show DrakonDiagram where
       <> show (heightInUnits diagram)
 
 instance Renderer DrakonDiagram where
-  render (DrakonDiagram startTerminator skewerBlocks endTerminator) _ =
-    let origin@(P (V2 x y)) = p2 (0.0, 0.0)
+  render (DrakonDiagram startTerminator allSkewers endTerminator) _ =
+    let skewerBlocks = head allSkewers
+        origin@(P (V2 x y)) = p2 (0.0, 0.0)
         connectionX = x + widthInUnits startTerminator * defaultBoundingBoxWidth * 0.5
         skewerY = heightInUnits startTerminator * defaultBoundingBoxHeight
         startY1 = y - skewerY * 0.75
@@ -39,7 +40,7 @@ instance Renderer DrakonDiagram where
           <> renderedSkewerBlocks
           <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)]
           <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 x finishY1))) mapOfOrigins
-  widthInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator) =
-    maximum $ widthInUnits startTerminator : map widthInUnits skewerBlocks ++ [widthInUnits endTerminator]
-  heightInUnits (DrakonDiagram startTerminator skewerBlocks endTerminator) =
-    sum $ heightInUnits startTerminator : map heightInUnits skewerBlocks ++ [heightInUnits endTerminator]
+  widthInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
+    maximum $ widthInUnits startTerminator : map widthInUnits' allSkewers ++ [widthInUnits endTerminator]
+  heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
+    sum $ heightInUnits startTerminator : map heightInUnits' allSkewers ++ [heightInUnits endTerminator]

@@ -39,7 +39,7 @@ parse' (t:ts) =
               Right
                 ( DrakonDiagram
                     (Title (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - title"))
-                    skewerBlocks
+                    [skewerBlocks]
                     endTerminator
                 , [])
     _ -> Left $ "unexpected token: " <> t
@@ -135,7 +135,7 @@ main = do
   let newDiagram@(DrakonDiagram _ _ _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
-          [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
+          [[ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
           , Fork
               (ID "300")
               (p2 (-1.0, -1.0))
@@ -182,7 +182,7 @@ main = do
               (ConnectedSkewerBlocks [] Nothing)
           , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
           , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
-          ]
+          ]]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
 --                 [Action (ID "40000000") (p2 (-1.0, -1.0)) (Content "test")] -- TODO: it works but the lines overlap
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty

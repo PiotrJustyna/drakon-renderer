@@ -38,7 +38,7 @@ troubleshootingMode :: Bool
 troubleshootingMode = False
 
 defaultFontSize :: Double
-defaultFontSize = defaultBoundingBoxHeight / 10.0
+defaultFontSize = defaultBoundingBoxHeight / 8.0
 
 drakonStyle :: Diagram B -> Diagram B
 drakonStyle = lw veryThin # lc lineColour # fc fillColour
