@@ -20,7 +20,7 @@ changeOrigin :: EndTerminator -> Point V2 Double -> EndTerminator
 changeOrigin (End endId _ content) newOrigin = End endId newOrigin content
 
 instance Renderer EndTerminator where
-  render end@(End endId origin content) _mapOfOrigins =
+  render end@(End endId origin content) _ =
     position
       [ ( origin
         , renderText

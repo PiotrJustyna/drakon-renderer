@@ -44,7 +44,7 @@ changeOrigin (CyclicStartWithParameters startId _ content) newOrigin =
   CyclicStartWithParameters startId newOrigin content
 
 instance Renderer StartTerminator where
-  render title@(Title titleId origin content) _mapOfOrigins =
+  render title@(Title titleId origin content) _ =
     position
       [ ( origin
         , renderText
