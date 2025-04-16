@@ -13,10 +13,11 @@ import Drakon.SkewerBlock
   , SkewerBlock(Action, Fork)
   , insertToMap
   , position'
+  , widthInUnits'
   , toMap
   )
 import Drakon.StartTerminator (StartTerminator(Title))
-import Drakon.TypeClasses (render)
+import Drakon.TypeClasses (render, widthInUnits)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -132,59 +133,61 @@ main = do
 --   ]
 --   (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
 -- Fig.6:
-  let newDiagram@(DrakonDiagram _ _ _) =
+  let newDiagram@(DrakonDiagram _ allSkewers _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
-          [[ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
-          , Fork
-              (ID "300")
-              (p2 (-1.0, -1.0))
-              (Content "has a bus arrived?")
-              (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
-              (ConnectedSkewerBlocks [] (Just (ID "500")))
-          , Fork
-              (ID "500")
-              (p2 (-1.0, -1.0))
-              (Content "is it your turn?")
-              (ConnectedSkewerBlocks [] Nothing)
-              (ConnectedSkewerBlocks
-                 [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
-                 (Just (ID "500")))
-          , Fork
-              (ID "700")
-              (p2 (-1.0, -1.0))
-              (Content "is it possible to enter the bus?")
-              (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
-              (ConnectedSkewerBlocks [] (Just (ID "410")))
-          , Fork
-              (ID "900")
-              (p2 (-1.0, -1.0))
-              (Content "are any seats available?")
-              (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
-              (ConnectedSkewerBlocks
-                 [ Fork
-                     (ID "1010")
-                     (p2 (-1.0, -1.0))
-                     (Content "do you want to travel standing?")
-                     (ConnectedSkewerBlocks [] Nothing)
-                     (ConnectedSkewerBlocks
-                        [ Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus")
-                        , Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")
-                        ]
-                        (Just (ID "300")))
-                 ]
-                 Nothing)
-          , Fork
-              (ID "1200")
-              (p2 (-1.0, -1.0))
-              (Content "do you have money for a ticket?")
-              (ConnectedSkewerBlocks [Action (ID "1300") (p2 (-1.0, -1.0)) (Content "buy a ticket")] Nothing)
-              (ConnectedSkewerBlocks [] Nothing)
-          , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
-          , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
-          ],
-          [Action (ID "1600") (p2 (-1.0, -1.0)) (Content "this is on skewer 2")]]
+          [ [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
+            , Fork
+                (ID "300")
+                (p2 (-1.0, -1.0))
+                (Content "has a bus arrived?")
+                (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
+                (ConnectedSkewerBlocks [] (Just (ID "500")))
+            , Fork
+                (ID "500")
+                (p2 (-1.0, -1.0))
+                (Content "is it your turn?")
+                (ConnectedSkewerBlocks [] Nothing)
+                (ConnectedSkewerBlocks
+                   [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
+                   (Just (ID "500")))
+            , Fork
+                (ID "700")
+                (p2 (-1.0, -1.0))
+                (Content "is it possible to enter the bus?")
+                (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
+                (ConnectedSkewerBlocks [] (Just (ID "410")))
+            , Fork
+                (ID "900")
+                (p2 (-1.0, -1.0))
+                (Content "are any seats available?")
+                (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
+                (ConnectedSkewerBlocks
+                   [ Fork
+                       (ID "1010")
+                       (p2 (-1.0, -1.0))
+                       (Content "do you want to travel standing?")
+                       (ConnectedSkewerBlocks [] Nothing)
+                       (ConnectedSkewerBlocks
+                          [ Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus")
+                          , Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")
+                          ]
+                          (Just (ID "300")))
+                   ]
+                   Nothing)
+            , Fork
+                (ID "1200")
+                (p2 (-1.0, -1.0))
+                (Content "do you have money for a ticket?")
+                (ConnectedSkewerBlocks [Action (ID "1300") (p2 (-1.0, -1.0)) (Content "buy a ticket")] Nothing)
+                (ConnectedSkewerBlocks [] Nothing)
+            , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
+            , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
+            ]
+          , [Action (ID "1600") (p2 (-1.0, -1.0)) (Content "this is on skewer 2")]
+          ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
+--  print $ widthInUnits' (head allSkewers)
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

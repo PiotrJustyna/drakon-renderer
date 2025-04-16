@@ -249,19 +249,19 @@ instance Renderer SkewerBlock where
                Just _ -> mempty
   widthInUnits (Action {}) = 1.0
   widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
-    (if null l
-       then defaultBoundingBoxWidth
-       else widthInUnits' l)
-      + (if null r
-           then defaultBoundingBoxWidth
-           else widthInUnits' r)
+        (if null l
+           then 1.0
+           else widthInUnits' l)
+          + (if null r
+               then 0.0
+               else widthInUnits' r)
   heightInUnits (Action {}) = 1.0
   heightInUnits (Fork _forkId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
-    defaultBoundingBoxHeight
+    1.0
       + max
           (if null l
-             then defaultBoundingBoxHeight
+             then 0.0
              else heightInUnits' l)
           (if null r
-             then defaultBoundingBoxHeight
+             then 0.0
              else heightInUnits' r)
