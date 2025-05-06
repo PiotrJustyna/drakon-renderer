@@ -41,15 +41,20 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) =
 instance Renderer DrakonDiagram where
   render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) _ =
     let (result, finishY1, finishX) =
-          foldl
-            (\(accuResult, _, newSkewerOriginX) singleSkewer ->
-               let (newResult, finishY) = renderSingleSkewer singleSkewer (p2 (newSkewerOriginX, 0.0))
-                in (accuResult <> newResult, finishY, newSkewerOriginX + defaultBoundingBoxWidth * (widthInUnits' singleSkewer)))
-            (mempty, 0.0, 0.0)
-            allSkewers
+          if length allSkewers > 1
+            then
+              foldl
+                (\(accuResult, _, newSkewerOriginX) singleSkewer ->
+                  let (newResult, finishY) = renderSingleSkewer singleSkewer (p2 (newSkewerOriginX, 0.0))
+                    in (accuResult <> newResult, finishY, newSkewerOriginX + defaultBoundingBoxWidth * (widthInUnits' singleSkewer)))
+                (mempty, 0.0, 0.0)
+                allSkewers
+            else
+              let (newResult, finishY) = renderSingleSkewer (head allSkewers) (p2 (0.0, 0.0))
+              in (newResult, finishY, 0.0)
      in render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
           <> result
-          <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 (finishX - defaultBoundingBoxWidth * (widthInUnits' (last allSkewers))) finishY1))) empty
+          <> render (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 (finishX - defaultBoundingBoxWidth * (if length allSkewers > 1 then widthInUnits' (last allSkewers) else 0.0)) finishY1))) empty
   widthInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
     maximum $ map widthInUnits' allSkewers
   heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =

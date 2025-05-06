@@ -10,7 +10,7 @@ import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock
   ( ConnectedSkewerBlocks(ConnectedSkewerBlocks)
-  , SkewerBlock(Action, Fork)
+  , SkewerBlock(Action, Header, Address, Fork)
   , insertToMap
   , position'
   , widthInUnits'
@@ -184,7 +184,9 @@ main = do
             , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
             , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
             ]
-          , [Action (ID "1600") (p2 (-1.0, -1.0)) (Content "this is on skewer 2")]
+          , [Header (ID "1599") (p2 (-1.0, -1.0)) (Content "skewer 2 header"),
+            Action (ID "1600") (p2 (-1.0, -1.0)) (Content "skewer 2 action"),
+            Address (ID "1700") (p2 (-1.0, -1.0)) (Content "skewer 2 address")]
           ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
 --  print $ widthInUnits' (head allSkewers)
