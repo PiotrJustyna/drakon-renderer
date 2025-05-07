@@ -24,21 +24,14 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
                     [ ( p2 (x2 + defaultBoundingBoxWidth * 0.5 + (0.087 / 2.0) + 0.02, y2 - 0.1)
                       , (rotateBy (1 / 4) $ triangle 0.1 # drakonStyle))
                     ]
-        else if x1 < x2 && y1 > y2
-               then renderedConnection
+        else (if (x1 < x2 && y1 > y2) || (x1 > x2 && y1 > y2)
+                then renderedConnection
                       [ sourceOrigin
-                      , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y1))
-                      , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1))
-                      , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
+                      , p2 (x2 + defaultBoundingBoxWidth - 0.1, y1)
+                      , p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1)
+                      , p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1)
                       ]
-               else if x1 > x2 && y1 > y2
-                      then renderedConnection
-                             [ sourceOrigin
-                             , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y1))
-                             , (p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1))
-                             , (p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1))
-                             ]
-                      else renderedConnection [sourceOrigin, _destinationOrigin]
+                else renderedConnection [sourceOrigin, _destinationOrigin])
                -- 0.087:   from Pythegorean theorem
                -- 0.02:  from line width?
     _ -> mempty
@@ -293,9 +286,6 @@ instance Renderer SkewerBlock where
                            , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
                            ])
                Just _ -> mempty
-  widthInUnits (Action {}) = 1.0
-  widthInUnits (Header {}) = 1.0
-  widthInUnits (Address {}) = 1.0
   widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
         (if null l
            then 1.0
@@ -303,9 +293,8 @@ instance Renderer SkewerBlock where
           + (if null r
                then 0.0
                else widthInUnits' r)
-  heightInUnits (Action {}) = 1.0
-  heightInUnits (Header {}) = 1.0
-  heightInUnits (Address {}) = 1.0
+  widthInUnits _ = 1.0
+
   heightInUnits (Fork _forkId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     1.0
       + max
@@ -315,3 +304,4 @@ instance Renderer SkewerBlock where
           (if null r
              then 0.0
              else heightInUnits' r)
+  heightInUnits _ = 1.0
