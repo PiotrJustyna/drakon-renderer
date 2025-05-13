@@ -75,7 +75,7 @@ renderIcons skewerBlocks mapOfOrigins =
     (\accu singleBlock ->
        let (P (V2 x preY1)) = getOrigin singleBlock
            connectionX = x + defaultBoundingBoxWidth * 0.5
-           preY2 = preY1 - defaultBoundingBoxHeight * 0.25
+           preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
            postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
            postY2 = preY1 - defaultBoundingBoxHeight
         in renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
@@ -214,22 +214,22 @@ instance Renderer SkewerBlock where
           ]
   render address@(Address addressId origin (Content addressContent)) _mapOfOrigins =
     let iconHeight = heightInUnits address * defaultBoundingBoxHeight * 0.5
-     in position
+    in position
           [ ( origin
             , renderText
                 ((if troubleshootingMode
                     then "[" <> show addressId <> " | " <> show origin <> "] "
                     else "")
-                   <> addressContent)
+                  <> addressContent)
                 (0.0 + widthInUnits address * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits address * defaultBoundingBoxHeight * 0.5)
-                <> rect' (widthInUnits address * defaultBoundingBoxWidth * widthRatio) iconHeight
-                     # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                <> addressShape (widthInUnits address * defaultBoundingBoxWidth * widthRatio) iconHeight
+                    # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
-                     then boundingBox
+                    then boundingBox
                             (widthInUnits address * defaultBoundingBoxWidth)
                             (heightInUnits address * defaultBoundingBoxHeight)
-                     else mempty)
+                    else mempty)
           ]
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let lOrigin@(P (V2 _ lY)) = P (V2 x (y - defaultBoundingBoxHeight))
@@ -307,4 +307,9 @@ instance Renderer SkewerBlock where
 
 blockHeightInUnits :: SkewerBlock -> Double
 blockHeightInUnits Headline {} = 0.6
+blockHeightInUnits Address {} = 0.6
 blockHeightInUnits _ = 0.5
+
+blockHeightOffsetInUnits :: SkewerBlock -> Double
+blockHeightOffsetInUnits Address {} = 0.15
+blockHeightOffsetInUnits _ = 0.25
