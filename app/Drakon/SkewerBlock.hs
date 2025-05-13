@@ -16,21 +16,21 @@ renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigin
       if x1 > x2 && y1 < y2
         then renderedConnection
                [ sourceOrigin
-               , (p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y1))
-               , (p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y2 - 0.1))
-               , (p2 (x2 + defaultBoundingBoxWidth * 0.5 + 0.087, y2 - 0.1))
+               , p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y1)
+               , p2 (x1 + defaultBoundingBoxWidth * 0.5 + 0.1, y2 - 0.1)
+               , p2 (x2 + defaultBoundingBoxWidth * 0.5 + 0.087, y2 - 0.1)
                ]
                <> position
                     [ ( p2 (x2 + defaultBoundingBoxWidth * 0.5 + (0.087 / 2.0) + 0.02, y2 - 0.1)
-                      , (rotateBy (1 / 4) $ triangle 0.1 # drakonStyle))
+                      , rotateBy (1 / 4) $ triangle 0.1 # drakonStyle)
                     ]
         else (if (x1 < x2 && y1 > y2) || (x1 > x2 && y1 > y2)
                 then renderedConnection
-                      [ sourceOrigin
-                      , p2 (x2 + defaultBoundingBoxWidth - 0.1, y1)
-                      , p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1)
-                      , p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1)
-                      ]
+                       [ sourceOrigin
+                       , p2 (x2 + defaultBoundingBoxWidth - 0.1, y1)
+                       , p2 (x2 + defaultBoundingBoxWidth - 0.1, y2 + 0.1)
+                       , p2 (x2 + defaultBoundingBoxWidth * 0.5, y2 + 0.1)
+                       ]
                 else renderedConnection [sourceOrigin, _destinationOrigin])
                -- 0.087:   from Pythegorean theorem
                -- 0.02:  from line width?
@@ -114,19 +114,19 @@ data ConnectedSkewerBlocks =
 
 data SkewerBlock
   = Action ID (Point V2 Double) Content
-  | Header ID (Point V2 Double) Content
+  | Headline ID (Point V2 Double) Content
   | Address ID (Point V2 Double) Content
   | Fork ID (Point V2 Double) Content ConnectedSkewerBlocks ConnectedSkewerBlocks
 
 getOrigin :: SkewerBlock -> Point V2 Double
 getOrigin (Action _ origin _) = origin
-getOrigin (Header _ origin _) = origin
+getOrigin (Headline _ origin _) = origin
 getOrigin (Address _ origin _) = origin
 getOrigin (Fork _ origin _ _ _) = origin
 
 insertToMap :: SkewerBlock -> Map ID (Point V2 Double) -> Map ID (Point V2 Double)
 insertToMap skewerBlock@(Action actionId _ _) startingMap = insert actionId (getOrigin skewerBlock) startingMap
-insertToMap skewerBlock@(Header headerId _ _) startingMap = insert headerId (getOrigin skewerBlock) startingMap
+insertToMap skewerBlock@(Headline headlineId _ _) startingMap = insert headlineId (getOrigin skewerBlock) startingMap
 insertToMap skewerBlock@(Address addressId _ _) startingMap = insert addressId (getOrigin skewerBlock) startingMap
 insertToMap skewerBlock@(Fork forkId _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) startingMap =
   let leftMap = toMap l
@@ -135,7 +135,7 @@ insertToMap skewerBlock@(Fork forkId _ _ (ConnectedSkewerBlocks l _) (ConnectedS
 
 changeOrigin :: SkewerBlock -> Point V2 Double -> SkewerBlock
 changeOrigin (Action actionId _ content) newOrigin = Action actionId newOrigin content
-changeOrigin (Header headerId _ content) newOrigin = Header headerId newOrigin content
+changeOrigin (Headline headlineId _ content) newOrigin = Headline headlineId newOrigin content
 changeOrigin (Address addressId _ content) newOrigin = Address addressId newOrigin content
 changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l leftId) (ConnectedSkewerBlocks r rightId)) newOrigin@(P (V2 x y)) =
   let lOrigin = P (V2 x (y - defaultBoundingBoxHeight))
@@ -147,8 +147,8 @@ changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l leftId) (ConnectedS
 instance Show SkewerBlock where
   show (Action (ID actionId) origin (Content content)) =
     "[ID: " <> actionId <> " | Origin: " <> show origin <> "] " <> content
-  show (Header (ID headerId) origin (Content content)) =
-    "[ID: " <> headerId <> " | Origin: " <> show origin <> "] " <> content
+  show (Headline (ID headlineId) origin (Content content)) =
+    "[ID: " <> headlineId <> " | Origin: " <> show origin <> "] " <> content
   show (Address (ID addressId) origin (Content content)) =
     "[ID: " <> addressId <> " | Origin: " <> show origin <> "] " <> content
   show (Fork (ID forkId) origin (Content content) _ _) =
@@ -194,43 +194,43 @@ instance Renderer SkewerBlock where
                             (heightInUnits action * defaultBoundingBoxHeight)
                      else mempty)
           ]
-  render header@(Header headerId origin (Content headerContent)) _mapOfOrigins =
-    let iconHeight = heightInUnits header * defaultBoundingBoxHeight * 0.5
-      in position
+  render headline@(Headline headlineId origin (Content headlineContent)) _mapOfOrigins =
+    let iconHeight = heightInUnits headline * defaultBoundingBoxHeight * 0.5
+     in position
           [ ( origin
             , renderText
                 ((if troubleshootingMode
-                    then "[" <> show headerId <> " | " <> show origin <> "] "
+                    then "[" <> show headlineId <> " | " <> show origin <> "] "
                     else "")
-                    <> headerContent)
-                (0.0 + widthInUnits header * defaultBoundingBoxWidth * 0.5)
-                (0.0 - heightInUnits header * defaultBoundingBoxHeight * 0.5)
-                <> rect' (widthInUnits header * defaultBoundingBoxWidth * widthRatio) iconHeight
-                      # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                   <> headlineContent)
+                (0.0 + widthInUnits headline * defaultBoundingBoxWidth * 0.5)
+                (0.0 - heightInUnits headline * defaultBoundingBoxHeight * 0.5)
+                <> headlineShape (widthInUnits headline * defaultBoundingBoxWidth * widthRatio) iconHeight
+                     # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
-                      then boundingBox
-                            (widthInUnits header * defaultBoundingBoxWidth)
-                            (heightInUnits header * defaultBoundingBoxHeight)
-                      else mempty)
+                     then boundingBox
+                            (widthInUnits headline * defaultBoundingBoxWidth)
+                            (heightInUnits headline * defaultBoundingBoxHeight)
+                     else mempty)
           ]
   render address@(Address addressId origin (Content addressContent)) _mapOfOrigins =
     let iconHeight = heightInUnits address * defaultBoundingBoxHeight * 0.5
-      in position
+     in position
           [ ( origin
             , renderText
                 ((if troubleshootingMode
                     then "[" <> show addressId <> " | " <> show origin <> "] "
                     else "")
-                    <> addressContent)
+                   <> addressContent)
                 (0.0 + widthInUnits address * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits address * defaultBoundingBoxHeight * 0.5)
                 <> rect' (widthInUnits address * defaultBoundingBoxWidth * widthRatio) iconHeight
-                      # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                     # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
-                      then boundingBox
+                     then boundingBox
                             (widthInUnits address * defaultBoundingBoxWidth)
                             (heightInUnits address * defaultBoundingBoxHeight)
-                      else mempty)
+                     else mempty)
           ]
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let lOrigin@(P (V2 _ lY)) = P (V2 x (y - defaultBoundingBoxHeight))
@@ -287,14 +287,13 @@ instance Renderer SkewerBlock where
                            ])
                Just _ -> mempty
   widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
-        (if null l
-           then 1.0
-           else widthInUnits' l)
-          + (if null r
-               then 0.0
-               else widthInUnits' r)
+    (if null l
+       then 1.0
+       else widthInUnits' l)
+      + (if null r
+           then 0.0
+           else widthInUnits' r)
   widthInUnits _ = 1.0
-
   heightInUnits (Fork _forkId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     1.0
       + max
@@ -304,4 +303,5 @@ instance Renderer SkewerBlock where
           (if null r
              then 0.0
              else heightInUnits' r)
+  heightInUnits Headline {} = 1.0
   heightInUnits _ = 1.0

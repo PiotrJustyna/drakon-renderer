@@ -28,6 +28,10 @@ rect' :: Double -> Double -> Diagram B
 rect' x y =
   fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y] # closeLine # strokeLoop # drakonStyle
 
+headlineShape :: Double -> Double -> Diagram B
+headlineShape x y =
+  fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-0.5)) (- 0.1), V2 (x * (-0.5)) 0.1, V2 0.0 y] # closeLine # strokeLoop # drakonStyle
+
 boundingBox :: Double -> Double -> Diagram B
 boundingBox x y =
   fromOffsets [V2 x 0.0, V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0, V2 0.0 y]
