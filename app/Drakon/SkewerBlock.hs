@@ -76,7 +76,7 @@ renderIcons skewerBlocks mapOfOrigins =
        let (P (V2 x preY1)) = getOrigin singleBlock
            connectionX = x + defaultBoundingBoxWidth * 0.5
            preY2 = preY1 - defaultBoundingBoxHeight * 0.25
-           postY1 = preY2 - defaultBoundingBoxHeight * 0.5
+           postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
            postY2 = preY1 - defaultBoundingBoxHeight
         in renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
              <> accu
@@ -153,7 +153,6 @@ instance Show SkewerBlock where
     "[ID: " <> addressId <> " | Origin: " <> show origin <> "] " <> content
   show (Fork (ID forkId) origin (Content content) _ _) =
     "[ID: " <> forkId <> " | Origin: " <> show origin <> "] " <> content
-  show _ = ""
 
 renderQuestion :: ID -> Point V2 Double -> Content -> Map ID (Point V2 Double) -> Diagram B
 renderQuestion questionId origin (Content content) _mapOfOrigins =
@@ -294,7 +293,7 @@ instance Renderer SkewerBlock where
            then 0.0
            else widthInUnits' r)
   widthInUnits _ = 1.0
-  heightInUnits (Fork _forkId _origin (Content content) (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
+  heightInUnits (Fork _forkId _origin _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     1.0
       + max
           (if null l
@@ -305,3 +304,7 @@ instance Renderer SkewerBlock where
              else heightInUnits' r)
   heightInUnits Headline {} = 1.0
   heightInUnits _ = 1.0
+
+blockHeightInUnits :: SkewerBlock -> Double
+blockHeightInUnits Headline {} = 0.6
+blockHeightInUnits _ = 0.5
