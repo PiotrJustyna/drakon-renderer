@@ -17,7 +17,7 @@ import Drakon.SkewerBlock
   , widthInUnits'
   )
 import Drakon.StartTerminator (StartTerminator(Title))
-import Drakon.TypeClasses (render, widthInUnits)
+import Drakon.TypeClasses (render, widthInUnits, heightInUnits)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -203,7 +203,7 @@ main = do
             ]
           ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
---  print $ widthInUnits' (head allSkewers)
+  -- print $ heightInUnits newDiagram
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

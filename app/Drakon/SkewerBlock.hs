@@ -90,9 +90,15 @@ position' skewerBlocks (P (V2 x y)) =
   fst
     $ foldl
         (\accu singleBlock ->
-           let positionedSkewerBlocks = fst accu
-            in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (snd accu)))]
-               , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+            case singleBlock of
+              Address {} ->
+                let positionedSkewerBlocks = fst accu
+                  in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (-17.0)))]
+                    , (-17.0) - heightInUnits singleBlock * defaultBoundingBoxHeight)
+              _ ->
+                let positionedSkewerBlocks = fst accu
+                in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (snd accu)))]
+                    , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
         ([], y)
         skewerBlocks
 
