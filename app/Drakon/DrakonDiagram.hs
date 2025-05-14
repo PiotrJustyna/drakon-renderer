@@ -26,7 +26,7 @@ renderSingleSkewer :: [SkewerBlock] -> Point V2 Double -> (Diagram B, Double)
 renderSingleSkewer skewerBlocks origin@(P (V2 x y)) =
   let connectionX = x + defaultBoundingBoxWidth * 0.5
       skewerY = defaultBoundingBoxHeight
-      startY1 = y - skewerY * 0.75
+      startY1 = y - skewerY
       startY2 = y - defaultBoundingBoxHeight
       positionedSkewerBlocks = position' skewerBlocks (p2 (x, y - skewerY))
       mapOfOrigins = toMap positionedSkewerBlocks
@@ -40,19 +40,22 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) =
 
 instance Renderer DrakonDiagram where
   render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) _ =
-    let (result, finishY1, finishX) =
+    let (result, _, finishY1, finishX) =
           if length allSkewers > 1
             then foldl
-                   (\(accuResult, _, newSkewerOriginX) singleSkewer ->
-                      let (newResult, finishY) = renderSingleSkewer singleSkewer (p2 (newSkewerOriginX, 0.0))
-                       in ( accuResult <> newResult
+                   (\(accuResult, connectionToPreviousSkewer, _, skewerOriginX) singleSkewer ->
+                      let (newResult, finishY) = renderSingleSkewer singleSkewer (p2 (skewerOriginX, 0.0))
+                          nextSkewerOriginX = skewerOriginX + defaultBoundingBoxWidth * widthInUnits' singleSkewer
+                       in ( accuResult <> newResult <> connectionToPreviousSkewer
+                          , renderedConnection [p2 (skewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0)), p2 (nextSkewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))]
                           , finishY
-                          , newSkewerOriginX + defaultBoundingBoxWidth * widthInUnits' singleSkewer))
-                   (mempty, 0.0, 0.0)
+                          , nextSkewerOriginX))
+                   (mempty, mempty, 0.0, 0.0)
                    allSkewers
             else let (newResult, finishY) = renderSingleSkewer (head allSkewers) (p2 (0.0, 0.0))
-                  in (newResult, finishY, 0.0)
+                  in (newResult, mempty, finishY, 0.0)
      in render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
+          <> (renderedConnection [p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75)), p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))])
           <> result
           <> render
                (Drakon.EndTerminator.changeOrigin

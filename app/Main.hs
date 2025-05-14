@@ -136,7 +136,8 @@ main = do
   let newDiagram@(DrakonDiagram _ allSkewers _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
-          [ [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
+          [ [ Headline (ID "101") (p2 (-1.0, -1.0)) (Content "skewer 1 headline")
+            , Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
             , Fork
                 (ID "300")
                 (p2 (-1.0, -1.0))
@@ -183,6 +184,7 @@ main = do
                 (ConnectedSkewerBlocks [] Nothing)
             , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
             , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
+            , Address (ID "1501") (p2 (-1.0, -1.0)) (Content "skewer 1 address")
             ]
           , [ Headline (ID "1599") (p2 (-1.0, -1.0)) (Content "skewer 2 headline")
             , Action (ID "1600") (p2 (-1.0, -1.0)) (Content "skewer 2 action")
