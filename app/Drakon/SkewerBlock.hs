@@ -71,44 +71,41 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
 
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
 renderIcons skewerBlocks mapOfOrigins =
-  fst $ foldl
-    (\accu singleBlock ->
-       let (P (V2 x preY1)) = getOrigin singleBlock
-           connectionX = x + defaultBoundingBoxWidth * 0.5
-           preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
-           postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
-           postY2 = preY1 - defaultBoundingBoxHeight
-           currentDiagram = fst accu
-           lastBlocksDepth = snd accu
-        in case singleBlock of
-                  Address {} -> (fst accu
-                        <> renderedConnection [p2 (connectionX, lastBlocksDepth), p2 (connectionX, preY1)]
-                        <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-                        <> render singleBlock mapOfOrigins
-                        <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-                       , postY2)
-                  _ -> (fst accu
-                          <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-                          <> render singleBlock mapOfOrigins
-                          <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-                        , postY2))
-    (mempty, 0.0)
-    skewerBlocks
+  fst
+    $ foldl
+        (\accu singleBlock ->
+           let (P (V2 x preY1)) = getOrigin singleBlock
+               connectionX = x + defaultBoundingBoxWidth * 0.5
+               preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
+               postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
+               postY2 = preY1 - defaultBoundingBoxHeight
+               currentDiagram = fst accu
+               lastBlocksDepth = snd accu
+            in ( fst accu
+                   <> (case singleBlock of
+                         Address {} -> renderedConnection [p2 (connectionX, lastBlocksDepth), p2 (connectionX, preY1)]
+                         _ -> mempty)
+                   <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                   <> render singleBlock mapOfOrigins
+                   <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+               , postY2))
+        (mempty, 0.0)
+        skewerBlocks
 
 position' :: [SkewerBlock] -> Point V2 Double -> Double -> [SkewerBlock]
 position' skewerBlocks (P (V2 x y)) addressDepth =
   fst
     $ foldl
         (\accu singleBlock ->
-            case singleBlock of
-              Address {} ->
-                let positionedSkewerBlocks = fst accu
-                  in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x addressDepth))]
-                    , addressDepth - heightInUnits singleBlock * defaultBoundingBoxHeight)
-              _ ->
-                let positionedSkewerBlocks = fst accu
+           case singleBlock of
+             Address {} ->
+               let positionedSkewerBlocks = fst accu
+                in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x addressDepth))]
+                   , addressDepth - heightInUnits singleBlock * defaultBoundingBoxHeight)
+             _ ->
+               let positionedSkewerBlocks = fst accu
                 in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (snd accu)))]
-                    , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
+                   , snd accu - heightInUnits singleBlock * defaultBoundingBoxHeight))
         ([], y)
         skewerBlocks
 
@@ -230,22 +227,22 @@ instance Renderer SkewerBlock where
           ]
   render address@(Address addressId origin (Content addressContent)) _mapOfOrigins =
     let iconHeight = heightInUnits address * defaultBoundingBoxHeight * 0.5
-    in position
+     in position
           [ ( origin
             , renderText
                 ((if troubleshootingMode
                     then "[" <> show addressId <> " | " <> show origin <> "] "
                     else "")
-                  <> addressContent)
+                   <> addressContent)
                 (0.0 + widthInUnits address * defaultBoundingBoxWidth * 0.5)
                 (0.0 - heightInUnits address * defaultBoundingBoxHeight * 0.5)
                 <> addressShape (widthInUnits address * defaultBoundingBoxWidth * widthRatio) iconHeight
-                    # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                     # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
                 <> if troubleshootingMode
-                    then boundingBox
+                     then boundingBox
                             (widthInUnits address * defaultBoundingBoxWidth)
                             (heightInUnits address * defaultBoundingBoxHeight)
-                    else mempty)
+                     else mempty)
           ]
   render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
     let lOrigin@(P (V2 _ lY)) = P (V2 x (y - defaultBoundingBoxHeight))

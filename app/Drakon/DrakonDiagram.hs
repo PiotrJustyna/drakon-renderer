@@ -33,8 +33,7 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
       renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins
       finishY1 = y - skewerY - heightInUnits' positionedSkewerBlocks
       finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
-   in ( renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)]
-          <> renderedSkewerBlocks
+   in ( renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)] <> renderedSkewerBlocks
           -- <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)] -- TODO: I don't think it belongs here but anxious to remove it yet.
       , finishY1)
 
@@ -47,26 +46,41 @@ instance Renderer DrakonDiagram where
                       let (newResult, finishY) = renderSingleSkewer singleSkewer (p2 (skewerOriginX, 0.0)) (-19.0)
                           nextSkewerOriginX = skewerOriginX + defaultBoundingBoxWidth * widthInUnits' singleSkewer
                        in ( accuResult <> newResult <> connectionToPreviousSkewer
-                          , renderedConnection [p2 (skewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0)), p2 (nextSkewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))]
+                          , renderedConnection
+                              [ p2 (skewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
+                              , p2
+                                  (nextSkewerOriginX + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
+                              ]
+                            <> renderedConnection
+                                [ p2 (skewerOriginX + defaultBoundingBoxWidth * 0.5, -19.0 - 1.0)
+                                , p2 (nextSkewerOriginX + defaultBoundingBoxWidth * 0.5, -19.0 - 1.0)]
                           , finishY
                           , nextSkewerOriginX))
                    (mempty, mempty, 0.0, 0.0)
                    allSkewers
             else let (newResult, finishY) = renderSingleSkewer (head allSkewers) (p2 (0.0, 0.0)) (-19.0) -- TODO: this probably should be made optional or we need another function for silhouette diagrams
                   in (newResult, mempty, finishY, 0.0)
+        endTerminatorXCoordinate = (finishX
+           - defaultBoundingBoxWidth
+               * (if length allSkewers > 1
+                    then widthInUnits' (last allSkewers)
+                    else 0.0))
      in render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
-          <> (renderedConnection [p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75)), p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))])
+          <> (renderedConnection
+                [ p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75))
+                , p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
+                ])
           <> result
+          <> (renderedConnection
+                [ p2 (endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-19.0 - 1.0))
+                , p2 (endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-19.0 - 1.25))
+                ])
           <> render
                (Drakon.EndTerminator.changeOrigin
                   endTerminator
                   (P (V2
-                        (finishX
-                           - defaultBoundingBoxWidth
-                               * (if length allSkewers > 1
-                                    then widthInUnits' (last allSkewers)
-                                    else 0.0))
-                        finishY1)))
+                        endTerminatorXCoordinate
+                        (-19.0 - 1.0))))
                empty
   widthInUnits (DrakonDiagram _ allSkewers _) = maximum $ map widthInUnits' allSkewers
   heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =

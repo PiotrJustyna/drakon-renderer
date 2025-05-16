@@ -17,7 +17,7 @@ import Drakon.SkewerBlock
   , widthInUnits'
   )
 import Drakon.StartTerminator (StartTerminator(Title))
-import Drakon.TypeClasses (render, widthInUnits, heightInUnits)
+import Drakon.TypeClasses (heightInUnits, render, widthInUnits)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -195,7 +195,7 @@ main = do
             , Action (ID "1601a") (p2 (-1.0, -1.0)) (Content "skewer 3 action")
             , Address (ID "1700a") (p2 (-1.0, -1.0)) (Content "skewer 3 address")
             ]
-            , [ Headline (ID "1599b") (p2 (-1.0, -1.0)) (Content "skewer 4 headline")
+          , [ Headline (ID "1599b") (p2 (-1.0, -1.0)) (Content "skewer 4 headline")
             , Action (ID "1600b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
             , Action (ID "1601b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
             , Action (ID "1602b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
