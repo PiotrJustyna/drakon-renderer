@@ -71,30 +71,40 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
 
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
 renderIcons skewerBlocks mapOfOrigins =
-  foldl
+  fst $ foldl
     (\accu singleBlock ->
        let (P (V2 x preY1)) = getOrigin singleBlock
            connectionX = x + defaultBoundingBoxWidth * 0.5
            preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
            postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
            postY2 = preY1 - defaultBoundingBoxHeight
-        in renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-             <> accu
-             <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-             <> render singleBlock mapOfOrigins)
-    mempty
+           currentDiagram = fst accu
+           lastBlocksDepth = snd accu
+        in case singleBlock of
+                  Address {} -> (fst accu
+                        <> renderedConnection [p2 (connectionX, lastBlocksDepth), p2 (connectionX, preY1)]
+                        <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                        <> render singleBlock mapOfOrigins
+                        <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+                       , postY2)
+                  _ -> (fst accu
+                          <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                          <> render singleBlock mapOfOrigins
+                          <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+                        , postY2))
+    (mempty, 0.0)
     skewerBlocks
 
-position' :: [SkewerBlock] -> Point V2 Double -> [SkewerBlock]
-position' skewerBlocks (P (V2 x y)) =
+position' :: [SkewerBlock] -> Point V2 Double -> Double -> [SkewerBlock]
+position' skewerBlocks (P (V2 x y)) addressDepth =
   fst
     $ foldl
         (\accu singleBlock ->
             case singleBlock of
               Address {} ->
                 let positionedSkewerBlocks = fst accu
-                  in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (-17.0)))]
-                    , (-17.0) - heightInUnits singleBlock * defaultBoundingBoxHeight)
+                  in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x addressDepth))]
+                    , addressDepth - heightInUnits singleBlock * defaultBoundingBoxHeight)
               _ ->
                 let positionedSkewerBlocks = fst accu
                 in ( positionedSkewerBlocks <> [changeOrigin singleBlock (P (V2 x (snd accu)))]
@@ -146,8 +156,8 @@ changeOrigin (Address addressId _ content) newOrigin = Address addressId newOrig
 changeOrigin (Fork forkId _ content (ConnectedSkewerBlocks l leftId) (ConnectedSkewerBlocks r rightId)) newOrigin@(P (V2 x y)) =
   let lOrigin = P (V2 x (y - defaultBoundingBoxHeight))
       rOrigin = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
-      newL = ConnectedSkewerBlocks (position' l lOrigin) leftId
-      newR = ConnectedSkewerBlocks (position' r rOrigin) rightId
+      newL = ConnectedSkewerBlocks (position' l lOrigin (-18.0)) leftId
+      newR = ConnectedSkewerBlocks (position' r rOrigin (-18.0)) rightId
    in Fork forkId newOrigin content newL newR
 
 instance Show SkewerBlock where
