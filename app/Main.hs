@@ -203,7 +203,8 @@ main = do
             ]
           ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
-  -- print $ heightInUnits newDiagram
+  print $ heightInUnits newDiagram
+  print $ widthInUnits newDiagram
   renderSVG' svgOutputPath svgOptions $ render newDiagram empty
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"

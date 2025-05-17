@@ -82,6 +82,6 @@ instance Renderer DrakonDiagram where
                         endTerminatorXCoordinate
                         (-19.0 - 1.0))))
                empty
-  widthInUnits (DrakonDiagram _ allSkewers _) = maximum $ map widthInUnits' allSkewers
+  widthInUnits (DrakonDiagram _ allSkewers _) = sum $ map widthInUnits' allSkewers
   heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
-    sum $ heightInUnits startTerminator : heightInUnits endTerminator : map heightInUnits' allSkewers
+    (heightInUnits startTerminator) + (heightInUnits endTerminator) + (maximum $ map heightInUnits' allSkewers)
