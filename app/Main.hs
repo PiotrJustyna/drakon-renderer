@@ -3,9 +3,9 @@ module Main where
 import Data.Map (empty)
 import Diagrams.Backend.SVG (renderSVG')
 import Diagrams.Prelude (Point(..), V2(..), p2)
-import Drakon.Constants (svgOptions, svgOutputPath)
+import Drakon.Constants (svgOptions, svgOutputPath, defaultBoundingBoxHeight)
 import Drakon.Content (Content(Content))
-import Drakon.DrakonDiagram (DrakonDiagram(..))
+import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, widthInUnits, render)
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock
@@ -203,9 +203,10 @@ main = do
             ]
           ]
           (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
-  print $ heightInUnits newDiagram
-  print $ widthInUnits newDiagram
-  renderSVG' svgOutputPath svgOptions $ render newDiagram empty
+  print $ Drakon.DrakonDiagram.heightInUnits newDiagram
+  print $ Drakon.DrakonDiagram.widthInUnits newDiagram
+  let addressY = (-1.0) * Drakon.DrakonDiagram.heightInUnits newDiagram + defaultBoundingBoxHeight * 2.0 -- ignore the heights of start and end terminators
+  renderSVG' svgOutputPath svgOptions $ Drakon.DrakonDiagram.render newDiagram addressY
   -- let diagramInput =
   --       "Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End"
   -- case parse diagramInput of
