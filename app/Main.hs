@@ -3,9 +3,9 @@ module Main where
 import Data.Map (empty)
 import Diagrams.Backend.SVG (renderSVG')
 import Diagrams.Prelude (Point(..), V2(..), p2)
-import Drakon.Constants (svgOptions, svgOutputPath, defaultBoundingBoxHeight)
+import Drakon.Constants (defaultBoundingBoxHeight, svgOptions, svgOutputPath)
 import Drakon.Content (Content(Content))
-import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, widthInUnits, render)
+import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, render, widthInUnits)
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock
