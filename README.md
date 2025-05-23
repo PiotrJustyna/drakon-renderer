@@ -8,11 +8,12 @@ This is work in progress and, while progress is being made every week, the rende
 
 Sample diagrams the renderer can produce today:
 
-| name | input | output |
-| --- | --- | --- |
-| primitive diagram 1 | ```Title [ Action Fork [ Action Action Action ] [ Action Action Fork [ Action ] [ Action Action ] ] Action ] End``` | ![primitive-diagram-1](./diagrams/primitive-diagram-1.svg) |
-| primitive diagram 2 | ```Title [ Fork [ Action Action ] [ ] ] End``` | ![primitive-diagram-1](./diagrams/primitive-diagram-2.svg) |
-| primitive diagram 3 | ```Title [ Fork [ Action Action Action Action ] [ Fork [ Action ] [ Action ] ] ] End``` | ![primitive-diagram-3](./diagrams/primitive-diagram-3.svg) |
+| name | output |
+| --- | --- |
+| primitive diagram 1 | ![primitive-diagram-1](./diagrams/primitive-diagram-1.svg) |
+| primitive diagram 2 | ![primitive-diagram-2](./diagrams/primitive-diagram-2.svg) |
+| primitive diagram 3 | ![primitive-diagram-3](./diagrams/primitive-diagram-3.svg) |
+| silhouette diagram 1 | ![silhouette-diagram-1](./diagrams/silhouette-diagram-1.svg) |
 
 ## development environment
 
