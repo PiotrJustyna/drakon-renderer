@@ -1,23 +1,14 @@
 module Main where
 
-import Data.Map (empty)
 import Diagrams.Backend.SVG (renderSVG')
-import Diagrams.Prelude (Point(..), V2(..), p2)
+import Diagrams.Prelude (p2)
 import Drakon.Constants (defaultBoundingBoxHeight, svgOptions, svgOutputPath)
 import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, render, widthInUnits)
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock
-  ( ConnectedSkewerBlocks(ConnectedSkewerBlocks)
-  , SkewerBlock(Action, Address, Fork, Headline)
-  , insertToMap
-  , position'
-  , toMap
-  , widthInUnits'
-  )
+import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Address, Fork, Headline))
 import Drakon.StartTerminator (StartTerminator(Title))
-import Drakon.TypeClasses (heightInUnits, render, widthInUnits)
 
 parse :: String -> Either String DrakonDiagram
 parse x =
@@ -103,37 +94,7 @@ parseEndTerminator (t:ts) =
 
 main :: IO ()
 main = do
--- just a test
--- DrakonDiagram
---   (Title (ID "100") (p2 (-1.0, -1.0)) (Content "custom content - title"))
---   [ Action (ID "200") (p2 (-1.0, -1.0)) (Content "custom content - action")
---   , Action (ID "201") (p2 (-1.0, -1.0)) (Content "custom content - action")
---   , Fork
---       (ID "210")
---       (p2 (-1.0, -1.0))
---       (Content "custom content - fork test 1")
---       (ConnectedSkewerBlocks
---          [Action (ID "220") (p2 (-1.0, -1.0)) (Content "custom content - action")]
---          Nothing)
---       (ConnectedSkewerBlocks
---          [Action (ID "221") (p2 (-1.0, -1.0)) (Content "custom content - action 221"),
---           Action (ID "222") (p2 (-1.0, -1.0)) (Content "custom content - action 222"),
---           Fork
---               (ID "223")
---               (p2 (-1.0, -1.0))
---               (Content "custom content - fork test 2")
---               (ConnectedSkewerBlocks
---                  [Action (ID "224") (p2 (-1.0, -1.0)) (Content "custom content - action")]
---                  (Just (ID "200")))
---               (ConnectedSkewerBlocks
---                  [Action (ID "225") (p2 (-1.0, -1.0)) (Content "custom content - action 225"),
---                   Action (ID "226") (p2 (-1.0, -1.0)) (Content "custom content - action 226")]
---                  (Just (ID "200")))]
---          Nothing)
---   ]
---   (End (ID "300") (p2 (-1.0, -1.0)) (Content "custom content - end"))
--- Fig.6:
-  let newDiagram@(DrakonDiagram _ allSkewers _) =
+  let newDiagram@(DrakonDiagram _ _ _) =
         DrakonDiagram
           (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
           [ [ Headline (ID "101") (p2 (-1.0, -1.0)) (Content "skewer 1 headline")

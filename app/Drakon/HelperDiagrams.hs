@@ -37,7 +37,7 @@ headlineShape x y =
 
 addressShape :: Double -> Double -> Diagram B
 addressShape x y =
-  fromOffsets [V2 (x * (0.5)) 0.1, V2 (x * (0.5)) (-0.1), V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0]
+  fromOffsets [V2 (x * 0.5) 0.1, V2 (x * 0.5) (-0.1), V2 0.0 (y * (-1.0)), V2 (x * (-1.0)) 0.0]
     # closeLine
     # strokeLoop
     # drakonStyle

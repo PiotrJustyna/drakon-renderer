@@ -29,6 +29,7 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
           -- <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)] -- TODO: I don't think it belongs here but anxious to remove it yet.
       , finishY1)
 
+render :: DrakonDiagram -> Double -> Diagram B
 render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) addressY =
   let (result, _, finishY1, finishX) =
         if length allSkewers > 1
@@ -58,26 +59,27 @@ render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) addressY
                     then widthInUnits' (last allSkewers)
                     else 0.0))
    in Drakon.TypeClasses.render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
-        <> (renderedConnection
-              [ p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75))
-              , p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
-              ])
+        <> renderedConnection
+             [ p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75))
+             , p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
+             ]
         <> result
-        <> (renderedConnection
-              [ p2
-                  ( endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5
-                  , defaultBoundingBoxHeight * (addressY - 1.0))
-              , p2
-                  ( endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5
-                  , defaultBoundingBoxHeight * (addressY - 1.25))
-              ])
+        <> renderedConnection
+             [ p2
+                 (endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (addressY - 1.0))
+             , p2
+                 ( endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5
+                 , defaultBoundingBoxHeight * (addressY - 1.25))
+             ]
         <> Drakon.TypeClasses.render
              (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 endTerminatorXCoordinate (addressY - 1.0))))
              empty
 
+widthInUnits :: DrakonDiagram -> Double
 widthInUnits (DrakonDiagram _ allSkewers _) = sum $ map widthInUnits' allSkewers
 
+heightInUnits :: DrakonDiagram -> Double
 heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
-  (Drakon.TypeClasses.heightInUnits startTerminator)
-    + (Drakon.TypeClasses.heightInUnits endTerminator)
-    + (maximum $ map heightInUnits' allSkewers)
+  Drakon.TypeClasses.heightInUnits startTerminator
+    + Drakon.TypeClasses.heightInUnits endTerminator
+    + maximum (map heightInUnits' allSkewers)
