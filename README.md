@@ -51,6 +51,10 @@ Sample diagrams the renderer can produce today:
 
   * [default palette](https://colorkit.co/palette/642915-963e20-c7522a-e5c185-fbf2c4-74a892-008585-006464-004343/)
 
+* [alex](https://haskell-alex.readthedocs.io/en/latest/index.html)
+
+* [lexing with alex](https://serokell.io/blog/lexing-with-alex#our-first-lexer)
+
 * useful haskell modules:
 
   * [GHC.Data.Graph.Directed](https://hackage.haskell.org/package/ghc-9.4.7/docs/GHC-Data-Graph-Directed.html)
