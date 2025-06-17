@@ -605,55 +605,15 @@ alex_gscan stop__ p c bs inp__ (sc,state__) =
 alex_tab_size :: Int
 alex_tab_size = 8
 alex_base :: Data.Array.Array Int Int
-alex_base = Data.Array.listArray (0 :: Int, 3)
+alex_base = Data.Array.listArray (0 :: Int, 2)
   [ -8
-  , 50
-  , -42
-  , 7
+  , 76
+  , -3
   ]
 
 alex_table :: Data.Array.Array Int Int
-alex_table = Data.Array.listArray (0 :: Int, 305)
+alex_table = Data.Array.listArray (0 :: Int, 331)
   [ 0
-  , 3
-  , 3
-  , 3
-  , 3
-  , 3
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 3
-  , 3
-  , 3
-  , 3
-  , 3
-  , 0
-  , 0
-  , 0
-  , 3
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 3
   , 2
   , 2
   , 2
@@ -671,6 +631,45 @@ alex_table = Data.Array.listArray (0 :: Int, 305)
   , 0
   , 0
   , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 2
+  , 0
+  , 0
+  , 0
+  , 0
+  , 2
+  , 0
+  , 1
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 1
+  , 0
+  , 0
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
   , 1
   , 1
   , 1
@@ -729,6 +728,32 @@ alex_table = Data.Array.listArray (0 :: Int, 305)
   , 1
   , 1
   , 1
+  , 1
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 1
+  , 0
+  , 0
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
   , 1
   , 1
   , 1
@@ -923,23 +948,13 @@ alex_table = Data.Array.listArray (0 :: Int, 305)
   ]
 
 alex_check :: Data.Array.Array Int Int
-alex_check = Data.Array.listArray (0 :: Int, 305)
+alex_check = Data.Array.listArray (0 :: Int, 331)
   [ -1
   , 9
   , 10
   , 11
   , 12
   , 13
-  , 48
-  , 49
-  , 50
-  , 51
-  , 52
-  , 53
-  , 54
-  , 55
-  , 56
-  , 57
   , 9
   , 10
   , 11
@@ -948,22 +963,32 @@ alex_check = Data.Array.listArray (0 :: Int, 305)
   , -1
   , -1
   , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
   , 32
   , -1
   , -1
   , -1
   , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
   , 32
+  , -1
+  , 39
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , 45
+  , -1
+  , -1
   , 48
   , 49
   , 50
@@ -1039,6 +1064,32 @@ alex_check = Data.Array.listArray (0 :: Int, 305)
   , 120
   , 121
   , 122
+  , 39
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , 45
+  , -1
+  , -1
+  , 48
+  , 49
+  , 50
+  , 51
+  , 52
+  , 53
+  , 54
+  , 55
+  , 56
+  , 57
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
   , 65
   , 66
   , 67
@@ -1233,29 +1284,23 @@ alex_check = Data.Array.listArray (0 :: Int, 305)
   ]
 
 alex_deflt :: Data.Array.Array Int Int
-alex_deflt = Data.Array.listArray (0 :: Int, 3)
+alex_deflt = Data.Array.listArray (0 :: Int, 2)
   [ -1
   , -1
   , -1
-  , -1
   ]
 
-alex_accept = Data.Array.listArray (0 :: Int, 3)
+alex_accept = Data.Array.listArray (0 :: Int, 2)
   [ AlexAccNone
-  , AlexAcc 2
-  , AlexAcc 1
   , AlexAcc 0
+  , AlexAccSkip
   ]
 
-alex_actions = Data.Array.array (0 :: Int, 3)
-  [ (2,alex_action_2)
-  , (1,alex_action_1)
-  , (0,alex_action_0)
+alex_actions = Data.Array.array (0 :: Int, 1)
+  [ (0,alex_action_1)
   ]
 
-alex_action_0 = \s -> "here is your whitespace!"
-alex_action_1 = \s -> "here is your number!"
-alex_action_2 = \s -> "here is your token!"
+alex_action_1 = \s -> "word: " <> s
 
 #define ALEX_NOPRED 1
 -- -----------------------------------------------------------------------------
@@ -1484,7 +1529,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 13 "Lexer.x" #-}
+{-# LINE 12 "Lexer.x" #-}
 main = do
- s <- getContents
- print (length (alexScanTokens s))
+    s <- getContents
+    print (length (alexScanTokens s))

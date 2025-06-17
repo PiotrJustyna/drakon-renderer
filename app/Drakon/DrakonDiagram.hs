@@ -22,11 +22,10 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
       startY2 = y - defaultBoundingBoxHeight
       positionedSkewerBlocks = position' skewerBlocks (p2 (x, y - skewerY)) addressDepth
       mapOfOrigins = toMap positionedSkewerBlocks
-      renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins
+      renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins addressDepth
       finishY1 = y - skewerY - heightInUnits' positionedSkewerBlocks
       finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
    in ( renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)] <> renderedSkewerBlocks
-          -- <> renderedConnection [p2 (connectionX, finishY1), p2 (connectionX, finishY2)] -- TODO: I don't think it belongs here but anxious to remove it yet.
       , finishY1)
 
 render :: DrakonDiagram -> Double -> Diagram B

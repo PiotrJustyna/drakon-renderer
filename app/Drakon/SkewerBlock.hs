@@ -69,28 +69,31 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
                   , lastY)
                 _ -> (renderedBlocks, lastY))
 
-renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Diagram B
-renderIcons skewerBlocks mapOfOrigins =
-  fst
-    $ foldl
-        (\accu singleBlock ->
-           let (P (V2 x preY1)) = getOrigin singleBlock
-               connectionX = x + defaultBoundingBoxWidth * 0.5
-               preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
-               postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
-               postY2 = preY1 - defaultBoundingBoxHeight
-               currentDiagram = fst accu
-               lastBlocksDepth = snd accu
-            in ( fst accu
-                   <> (case singleBlock of
-                         Address {} -> renderedConnection [p2 (connectionX, lastBlocksDepth), p2 (connectionX, preY1)]
-                         _ -> mempty)
-                   <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
-                   <> render singleBlock mapOfOrigins
-                   <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
-               , postY2))
-        (mempty, 0.0)
-        skewerBlocks
+renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Double -> Diagram B
+renderIcons skewerBlocks mapOfOrigins addressDepth =
+  let (P (V2 firstBlockX _)) = getOrigin $ head skewerBlocks
+      renderedIcons = foldl
+          (\accu singleBlock ->
+             let (P (V2 x preY1)) = getOrigin singleBlock
+                 connectionX = x + defaultBoundingBoxWidth * 0.5
+                 preY2 = preY1 - defaultBoundingBoxHeight * blockHeightOffsetInUnits singleBlock
+                 postY1 = preY2 - defaultBoundingBoxHeight * blockHeightInUnits singleBlock
+                 postY2 = preY1 - defaultBoundingBoxHeight
+                 currentDiagram = fst accu
+                 lastBlocksDepth = snd accu
+              in ( fst accu
+                     <> (case singleBlock of
+                           Address {} -> renderedConnection [p2 (connectionX, lastBlocksDepth), p2 (connectionX, preY1)]
+                           _ -> mempty)
+                     <> renderedConnection [p2 (connectionX, preY1), p2 (connectionX, preY2)]
+                     <> render singleBlock mapOfOrigins
+                     <> renderedConnection [p2 (connectionX, postY1), p2 (connectionX, postY2)]
+                 , postY2))
+          (mempty, 0.0)
+          skewerBlocks
+      connectionForMissingAddress = if (snd renderedIcons < addressDepth) then mempty else renderedConnection [p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, snd renderedIcons), p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, addressDepth - defaultBoundingBoxHeight)]
+  in (fst renderedIcons) <> connectionForMissingAddress
+
 
 position' :: [SkewerBlock] -> Point V2 Double -> Double -> [SkewerBlock]
 position' skewerBlocks (P (V2 x y)) addressDepth =

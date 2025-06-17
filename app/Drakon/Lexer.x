@@ -6,12 +6,11 @@ module Main (main) where
 
 words :-
 
-$white+   { \s -> "here is your whitespace!" }
-[0-9]+    { \s -> "here is your number!" }
-[A-Za-z]+	{ \s -> "here is your token!" }
+$white+ ;
+[A-Za-z0-9\'\-]+	{ \s -> "word: " <> s }
 
 {
-main = do
- s <- getContents
- print (length (alexScanTokens s))
+  main = do
+    s <- getContents
+    print (length (alexScanTokens s))
 }
