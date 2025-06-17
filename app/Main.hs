@@ -95,116 +95,75 @@ parseEndTerminator (t:ts) =
 main :: IO ()
 main = do
   let newDiagram@(DrakonDiagram _ _ _) =
-        -- "start" -- Title: no id, no block name, just text
-        -- 2 "Hello, World!"
-        -- "end" -- End: id optional, no block name, text
-        -- primitive drakon diagram 1:
-        -- DrakonDiagram
-        --   (Title (ID "1") (p2 (-1.0, -1.0)) (Content "start"))
-        --   [[Action (ID "2") (p2 (-1.0, -1.0)) (Content "Hello, World!")]]
-        --   (End (ID "3") (p2 (-1.0, -1.0)) (Content "end"))
-
-        -- "start" -- Title: no id, no block name, just text
-        -- 2 "Hello, World!" -- id optional, no block name, just text
-        -- - 3 "option 1"
-        -- -
-        -- - 4 "option 2"
-        -- - 5 "lorem impsum"
-        -- "end" -- End: id optional, no block name, just text
-        -- --- cleaned up: ---
-        -- "start"
-        -- 2 "Hello, World!"
-        -- - 3 "option 1"
-        -- -
-        -- - 4 "option 2"
-        -- - 5 "lorem ipsum"
-        -- "end"
-        -- primitive drakon diagram 2:
-        DrakonDiagram
-          (Title (ID "1") (p2 (-1.0, -1.0)) (Content "start"))
-          [[Fork
-            (ID "2")
-            (p2 (-1.0, -1.0))
-            (Content "Hello, World!")
-            (ConnectedSkewerBlocks [Action (ID "3") (p2 (-1.0, -1.0)) (Content "option 1")] Nothing)
-            (ConnectedSkewerBlocks [Action (ID "4") (p2 (-1.0, -1.0)) (Content "option 2"), Action (ID "5") (p2 (-1.0, -1.0)) (Content "lorem ipsum")] Nothing)]]
-          (End (ID "6") (p2 (-1.0, -1.0)) (Content "end"))
-
-        -- silhouette:
-        -- just like fork but:
-        -- * 3+ options
-        -- * the only skewer block between start and end terminators
-
         -- silhouette diagram 1:
-        -- DrakonDiagram
-        --   (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
-        --   [ [ Headline (ID "101") (p2 (-1.0, -1.0)) (Content "skewer 1 headline")
-        --     , Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
-        --     , Fork
-        --         (ID "300")
-        --         (p2 (-1.0, -1.0))
-        --         (Content "has a bus arrived?")
-        --         (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
-        --         (ConnectedSkewerBlocks [] (Just (ID "500")))
-        --     , Fork
-        --         (ID "500")
-        --         (p2 (-1.0, -1.0))
-        --         (Content "is it your turn?")
-        --         (ConnectedSkewerBlocks [] Nothing)
-        --         (ConnectedSkewerBlocks
-        --            [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
-        --            (Just (ID "500")))
-        --     , Fork
-        --         (ID "700")
-        --         (p2 (-1.0, -1.0))
-        --         (Content "is it possible to enter the bus?")
-        --         (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
-        --         (ConnectedSkewerBlocks [] (Just (ID "410")))
-        --     , Fork
-        --         (ID "900")
-        --         (p2 (-1.0, -1.0))
-        --         (Content "are any seats available?")
-        --         (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
-        --         (ConnectedSkewerBlocks
-        --            [ Fork
-        --                (ID "1010")
-        --                (p2 (-1.0, -1.0))
-        --                (Content "do you want to travel standing?")
-        --                (ConnectedSkewerBlocks [] Nothing)
-        --                (ConnectedSkewerBlocks
-        --                   [ Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus")
-        --                   , Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")
-        --                   ]
-        --                   (Just (ID "300")))
-        --            ]
-        --            Nothing)
-        --     , Fork
-        --         (ID "1200")
-        --         (p2 (-1.0, -1.0))
-        --         (Content "do you have money for a ticket?")
-        --         (ConnectedSkewerBlocks [Action (ID "1300") (p2 (-1.0, -1.0)) (Content "buy a ticket")] Nothing)
-        --         (ConnectedSkewerBlocks [] Nothing)
-        --     , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
-        --     , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
-        --     , Address (ID "1501") (p2 (-1.0, -1.0)) (Content "skewer 1 address")
-        --     ]
-        --   , [ Headline (ID "1599") (p2 (-1.0, -1.0)) (Content "skewer 2 headline")
-        --     , Action (ID "1600") (p2 (-1.0, -1.0)) (Content "skewer 2 action")
-        --     , Address (ID "1700") (p2 (-1.0, -1.0)) (Content "skewer 2 address")
-        --     ]
-        --   , [ Headline (ID "1599a") (p2 (-1.0, -1.0)) (Content "skewer 3 headline")
-        --     , Action (ID "1600a") (p2 (-1.0, -1.0)) (Content "skewer 3 action")
-        --     , Action (ID "1601a") (p2 (-1.0, -1.0)) (Content "skewer 3 action")
-        --     , Address (ID "1700a") (p2 (-1.0, -1.0)) (Content "skewer 3 address")
-        --     ]
-        --   , [ Headline (ID "1599b") (p2 (-1.0, -1.0)) (Content "skewer 4 headline")
-        --     , Action (ID "1600b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
-        --     , Action (ID "1601b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
-        --     , Action (ID "1602b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
-        --     , Address (ID "1700b") (p2 (-1.0, -1.0)) (Content "skewer 4 address")
-        --     ]
-        --   ]
-        --   (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
+        DrakonDiagram
+          (Title (ID "100") (p2 (-1.0, -1.0)) (Content "bus journey"))
+          [ [ Headline (ID "101") (p2 (-1.0, -1.0)) (Content "skewer 1 headline")
+            , Action (ID "200") (p2 (-1.0, -1.0)) (Content "find a bus stop")
+            , Fork
+                (ID "300")
+                (p2 (-1.0, -1.0))
+                (Content "has a bus arrived?")
+                (ConnectedSkewerBlocks [Action (ID "400") (p2 (-1.0, -1.0)) (Content "passengers boarding")] Nothing)
+                (ConnectedSkewerBlocks [] (Just (ID "500")))
+            , Fork
+                (ID "500")
+                (p2 (-1.0, -1.0))
+                (Content "is it your turn?")
+                (ConnectedSkewerBlocks [] Nothing)
+                (ConnectedSkewerBlocks
+                   [Action (ID "610") (p2 (-1.0, -1.0)) (Content "wait for your turn")]
+                   (Just (ID "500")))
+            , Fork
+                (ID "700")
+                (p2 (-1.0, -1.0))
+                (Content "is it possible to enter the bus?")
+                (ConnectedSkewerBlocks [Action (ID "800") (p2 (-1.0, -1.0)) (Content "enter the bus")] Nothing)
+                (ConnectedSkewerBlocks [] (Just (ID "410")))
+            , Fork
+                (ID "900")
+                (p2 (-1.0, -1.0))
+                (Content "are any seats available?")
+                (ConnectedSkewerBlocks [Action (ID "1000") (p2 (-1.0, -1.0)) (Content "take a seat")] Nothing)
+                (ConnectedSkewerBlocks
+                   [ Fork
+                       (ID "1010")
+                       (p2 (-1.0, -1.0))
+                       (Content "do you want to travel standing?")
+                       (ConnectedSkewerBlocks [] Nothing)
+                       (ConnectedSkewerBlocks
+                          [ Action (ID "1010") (p2 (-1.0, -1.0)) (Content "leave the bus")
+                          , Action (ID "410") (p2 (-1.0, -1.0)) (Content "wait for the next bus")
+                          ]
+                          (Just (ID "300")))
+                   ]
+                   Nothing)
+            , Fork
+                (ID "1200")
+                (p2 (-1.0, -1.0))
+                (Content "do you have money for a ticket?")
+                (ConnectedSkewerBlocks [Action (ID "1300") (p2 (-1.0, -1.0)) (Content "buy a ticket")] Nothing)
+                (ConnectedSkewerBlocks [] Nothing)
+            , Action (ID "1400") (p2 (-1.0, -1.0)) (Content "travel to the required stop")
+            , Action (ID "1500") (p2 (-1.0, -1.0)) (Content "leave the bus")
+            , Address (ID "1501") (p2 (-1.0, -1.0)) (Content "skewer 1 address")
+            ]
+          , [ Headline (ID "1599") (p2 (-1.0, -1.0)) (Content "skewer 2 headline")
+            , Action (ID "1600") (p2 (-1.0, -1.0)) (Content "skewer 2 action")
+            , Address (ID "1700") (p2 (-1.0, -1.0)) (Content "skewer 2 address")
+            ]
+          , [ Headline (ID "1599a") (p2 (-1.0, -1.0)) (Content "skewer 3 headline")
+            , Action (ID "1600a") (p2 (-1.0, -1.0)) (Content "skewer 3 action")
+            , Action (ID "1601a") (p2 (-1.0, -1.0)) (Content "skewer 3 action")
+            , Address (ID "1700a") (p2 (-1.0, -1.0)) (Content "skewer 3 address")
+            ]
+          , [ Headline (ID "1599b") (p2 (-1.0, -1.0)) (Content "skewer 4 headline")
+            , Action (ID "1600b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
+            , Action (ID "1601b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
+            , Action (ID "1602b") (p2 (-1.0, -1.0)) (Content "skewer 4 action")
+            ]
+          ]
+          (End (ID "1000000") (p2 (-1.0, -1.0)) (Content "end"))
   print $ Drakon.DrakonDiagram.heightInUnits newDiagram
   print $ Drakon.DrakonDiagram.widthInUnits newDiagram
   let addressY = (-1.0) * Drakon.DrakonDiagram.heightInUnits newDiagram + defaultBoundingBoxHeight * 2.0 -- ignore the heights of start and end terminators

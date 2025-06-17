@@ -25,8 +25,6 @@ Sample diagrams the renderer can produce today:
 | `./format.sh` | formats all `*.hs` files located in the `./app` directory using [hindent](https://github.com/mihaimaruseac/hindent) |
 | `exit` | terminates development environment |
 
-* `hlint` installation is removed from the dockerfile as it causes an error during the image build process (apologies, did not take a note what exactly is failing). To install `hlint` locally, run `cabal install hlint`.
-
 ## community
 
 * [youtube](https://www.youtube.com/playlist?list=PL9-WsOrOzOxSqWNqzhzyBGZsN0sOxEF6Q)
