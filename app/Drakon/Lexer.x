@@ -1,16 +1,24 @@
 {
-module Main (main) where
+module Lexer (alexScanTokens) where
 }
 
 %wrapper "basic"
 
-words :-
+$digit        = 0-9
+$alpha        = [a-zA-Z]
 
-$white+ ;
-[A-Za-z0-9\'\-]+	{ \s -> "word: " <> s }
+$idChar       = [$alpha $digit \']
+$contentChar  = [$alpha $digit $white \' \, \! \-]
 
-{
-  main = do
-    s <- getContents
-    print (length (alexScanTokens s))
-}
+@id           = $idChar+
+@content      = $contentChar+
+
+tokens :-
+
+  $white+                     ;
+  @id [$white]+ \"@content\"  { \s -> ("block", s) }
+  L                           { \s -> ("left branch identifier", s) }
+  R                           { \s -> ("right branch identifier", s) }
+  \{                          { \s -> ("opening curly bracket", s) }
+  \}                          { \s -> ("closing curly bracket", s) }
+  @id                         { \s -> ("solo identifier", s) }
