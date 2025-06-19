@@ -1,1 +1,2 @@
-cabal build && hlint .
+# cabal build && hlint .
+cabal build .

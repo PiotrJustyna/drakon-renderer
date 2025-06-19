@@ -57,6 +57,7 @@ executable drakon-renderer
                         Drakon.SkewerBlock
                         Drakon.StartTerminator
                         Drakon.TypeClasses
+                        Lexer
 
     default-extensions: LambdaCase
 
@@ -66,7 +67,9 @@ executable drakon-renderer
                         diagrams-lib,
                         diagrams-svg,
                         text,
+                        array
 
-    hs-source-dirs:     app
+    hs-source-dirs:     app,
+                        app/Drakon
 
     default-language:   Haskell2010
