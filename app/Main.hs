@@ -10,6 +10,7 @@ import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Address, Fork, Headline))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Lexer (alexScanTokens)
+import Parser (parserMain)
 
 -- 2025-06-19 PJ:
 -- --------------
@@ -66,12 +67,12 @@ parseEndTerminator :: (String, String) -> Either String EndTerminator
 parseEndTerminator (x, y) = Right (End (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - end"))
 
 main :: IO ()
-main = do
-  fileContent <- readFile "./app/Drakon/input.txt"
-  let possiblyDiagram = parse $ alexScanTokens fileContent
+main = parserMain "5"
+  -- fileContent <- readFile "./app/Drakon/input.txt"
+  -- let possiblyDiagram = parse $ alexScanTokens fileContent
 
-  case possiblyDiagram of
-    Left e -> print e
-    Right (diagram, _) -> do
-      let addressY = (-1.0) * Drakon.DrakonDiagram.heightInUnits diagram + defaultBoundingBoxHeight * 2.0 -- ignore the heights of start and end terminators
-      renderSVG' svgOutputPath svgOptions $ Drakon.DrakonDiagram.render diagram addressY
+  -- case possiblyDiagram of
+  --   Left e -> print e
+  --   Right (diagram, _) -> do
+  --     let addressY = (-1.0) * Drakon.DrakonDiagram.heightInUnits diagram + defaultBoundingBoxHeight * 2.0 -- ignore the heights of start and end terminators
+  --     renderSVG' svgOutputPath svgOptions $ Drakon.DrakonDiagram.render diagram addressY
