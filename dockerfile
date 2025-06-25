@@ -26,6 +26,8 @@ RUN \
   && \
   cabal install alex \
   && \
+  cabal install happy \
+  && \
   echo "PROMPT='%F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
 
 # 2024-12-02 PJ:

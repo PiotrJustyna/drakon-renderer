@@ -58,6 +58,7 @@ executable drakon-renderer
                         Drakon.StartTerminator
                         Drakon.TypeClasses
                         Lexer
+                        Parser
 
     default-extensions: LambdaCase
 
