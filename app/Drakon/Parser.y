@@ -102,5 +102,5 @@ lexVar cs =
       ("in",rest)  -> TokenIn : lexer rest
       (var,rest)   -> TokenVar var : lexer rest
 
-main = getContents >>= print . calc . lexer
+parserMain = print . calc . lexer
 }
