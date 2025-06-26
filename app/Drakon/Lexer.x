@@ -1,5 +1,12 @@
 {
-module Lexer (alexScanTokens) where
+module Lexer
+  (alexScanTokens,
+  Token(TokenBlock,
+  TokenLeftBranchIdentifier,
+  TokenRightBranchIdentifier,
+  TokenSoloIdentifier,
+  TokenOCB,
+  TokenCCB)) where
 }
 
 %wrapper "basic"
@@ -16,9 +23,20 @@ $contentChar  = [$alpha $digit $white \' \, \! \-]
 tokens :-
 
   $white+                     ;
-  @id [$white]+ \"@content\"  { \s -> ("block", s) }
-  L                           { \s -> ("left branch identifier", s) }
-  R                           { \s -> ("right branch identifier", s) }
-  \{                          { \s -> ("opening curly bracket", s) }
-  \}                          { \s -> ("closing curly bracket", s) }
-  @id                         { \s -> ("solo identifier", s) }
+  @id [$white]+ \"@content\"  { \s -> TokenBlock s }
+  L                           { \s -> TokenLeftBranchIdentifier s }
+  R                           { \s -> TokenRightBranchIdentifier s }
+  @id                         { \s -> TokenSoloIdentifier s }
+  \{                          { \_ -> TokenOCB }
+  \}                          { \_ -> TokenCCB }
+
+{
+data Token
+  = TokenBlock String
+  | TokenLeftBranchIdentifier String
+  | TokenRightBranchIdentifier String
+  | TokenSoloIdentifier String
+  | TokenOCB
+  | TokenCCB
+  deriving Show
+}

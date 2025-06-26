@@ -10,7 +10,7 @@ import Drakon.ID (ID(ID))
 import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Address, Fork, Headline))
 import Drakon.StartTerminator (StartTerminator(Title))
 import Lexer (alexScanTokens)
-import Parser (parserMain)
+import Parser (diagram, Block(..))
 
 -- 2025-06-19 PJ:
 -- --------------
@@ -67,8 +67,10 @@ parseEndTerminator :: (String, String) -> Either String EndTerminator
 parseEndTerminator (x, y) = Right (End (ID "-1") (p2 (-1.0, -1.0)) (Content "custom content - end"))
 
 main :: IO ()
-main = parserMain "5"
-  -- fileContent <- readFile "./app/Drakon/input.txt"
+main = do
+  -- parserMain "1 \"start\""
+  fileContent <- readFile "./app/Drakon/input.txt"
+  print . diagram $ alexScanTokens fileContent
   -- let possiblyDiagram = parse $ alexScanTokens fileContent
 
   -- case possiblyDiagram of
