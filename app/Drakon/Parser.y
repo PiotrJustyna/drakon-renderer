@@ -18,7 +18,9 @@ import Lexer
 
 %%
 
-PrimitiveDiagram  : block { Block $1 }
+prods : {- empty -}       { [] }
+        | block           { [Block $1] }
+        | prods block     { (Block $2) : $1 }
 
 {
 parseError :: [Token] -> a
