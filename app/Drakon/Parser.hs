@@ -57,12 +57,13 @@ happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x00\x00\x
 happyTable :: HappyAddr
 happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
-happyReduceArr = Happy_Data_Array.array (1, 1) [
-        (1 , happyReduce_1)
+happyReduceArr = Happy_Data_Array.array (1, 2) [
+        (1 , happyReduce_1),
+        (2 , happyReduce_2)
         ]
 
 happyRuleArr :: HappyAddr
-happyRuleArr = HappyA# "\x00\x00\x00\x00\x01\x00\x00\x00"#
+happyRuleArr = HappyA# "\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00"#
 
 happyCatchStates :: [Happy_Prelude.Int]
 happyCatchStates = []
@@ -80,6 +81,14 @@ happyReduction_1 (HappyTerminal (TokenBlock happy_var_1))
                  (Block happy_var_1
         )
 happyReduction_1 _  = notHappyAtAll 
+
+#if __GLASGOW_HASKELL__ >= 710
+#endif
+happyReduce_2 = happySpecReduce_1  0# happyReduction_2
+happyReduction_2 _
+         =  HappyAbsSyn5
+                 (Block "hello"
+        )
 
 happyTerminalToTok term = case term of {
         TokenBlock happy_dollar_dollar -> 2#;
