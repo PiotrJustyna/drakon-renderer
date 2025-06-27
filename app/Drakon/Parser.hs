@@ -34,61 +34,83 @@ import Control.Monad (ap)
 
 -- parser produced by Happy Version 2.1.5
 
-data HappyAbsSyn t5
+data HappyAbsSyn t5 t6
         = HappyTerminal (Token)
         | HappyErrorToken Happy_Prelude.Int
         | HappyAbsSyn5 t5
+        | HappyAbsSyn6 t6
 
 {-# NOINLINE happyTokenStrings #-}
 happyTokenStrings = ["block","leftBranchIdentifier","rightBranchIdentifier","soloIdentifier","'{'","'}'","%eof"]
 
 happyActOffsets :: HappyAddr
-happyActOffsets = HappyA# "\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xfa\xff\xff\xff\x00\x00\x00\x00"#
+happyActOffsets = HappyA# "\xff\xff\xff\xff\xff\xff\xff\xff\x01\x00\x00\x00\xfa\xff\xff\xff\xfd\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyGotoOffsets :: HappyAddr
-happyGotoOffsets = HappyA# "\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyGotoOffsets = HappyA# "\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyDefActions :: HappyAddr
-happyDefActions = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00"#
+happyDefActions = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff"#
 
 happyCheck :: HappyAddr
-happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
+happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x06\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 happyTable :: HappyAddr
-happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x06\x00\x00\x00\x05\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
-happyReduceArr = Happy_Data_Array.array (1, 2) [
+happyReduceArr = Happy_Data_Array.array (1, 4) [
         (1 , happyReduce_1),
-        (2 , happyReduce_2)
+        (2 , happyReduce_2),
+        (3 , happyReduce_3),
+        (4 , happyReduce_4)
         ]
 
 happyRuleArr :: HappyAddr
-happyRuleArr = HappyA# "\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00"#
+happyRuleArr = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00"#
 
 happyCatchStates :: [Happy_Prelude.Int]
 happyCatchStates = []
 
 happy_n_terms = 9 :: Happy_Prelude.Int
-happy_n_nonterms = 1 :: Happy_Prelude.Int
+happy_n_nonterms = 2 :: Happy_Prelude.Int
 
 happy_n_starts = 1 :: Happy_Prelude.Int
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_1 = happySpecReduce_1  0# happyReduction_1
-happyReduction_1 (HappyTerminal (TokenBlock happy_var_1))
+happyReduce_1 = happySpecReduce_3  0# happyReduction_1
+happyReduction_1 _
+        _
+        _
          =  HappyAbsSyn5
-                 (Block happy_var_1
+                 (ForkBlock "hello!"
         )
-happyReduction_1 _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_2 = happySpecReduce_1  0# happyReduction_2
-happyReduction_2 _
-         =  HappyAbsSyn5
-                 (Block "hello"
+happyReduce_2 = happySpecReduce_0  1# happyReduction_2
+happyReduction_2  =  HappyAbsSyn6
+                 ([]
         )
+
+#if __GLASGOW_HASKELL__ >= 710
+#endif
+happyReduce_3 = happySpecReduce_1  1# happyReduction_3
+happyReduction_3 (HappyTerminal (TokenBlock happy_var_1))
+         =  HappyAbsSyn6
+                 ([ForkBlock happy_var_1]
+        )
+happyReduction_3 _  = notHappyAtAll 
+
+#if __GLASGOW_HASKELL__ >= 710
+#endif
+happyReduce_4 = happySpecReduce_2  1# happyReduction_4
+happyReduction_4 (HappyTerminal (TokenBlock happy_var_2))
+        (HappyAbsSyn6  happy_var_1)
+         =  HappyAbsSyn6
+                 ((ForkBlock happy_var_2) : happy_var_1
+        )
+happyReduction_4 _ _  = notHappyAtAll 
 
 happyTerminalToTok term = case term of {
         TokenBlock happy_dollar_dollar -> 2#;
@@ -149,7 +171,8 @@ parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
 data Block
-  = Block String
+  = ActionBlock String
+  | ForkBlock String
   deriving Show
 -- $Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp $
 

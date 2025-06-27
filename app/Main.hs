@@ -70,6 +70,7 @@ main :: IO ()
 main = do
   -- parserMain "1 \"start\""
   fileContent <- readFile "./app/Drakon/input.txt"
+  print $ alexScanTokens fileContent
   print . diagram $ alexScanTokens fileContent
   -- let possiblyDiagram = parse $ alexScanTokens fileContent
 

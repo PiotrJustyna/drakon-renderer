@@ -2,9 +2,9 @@
 module Lexer
   (alexScanTokens,
   Token(TokenBlock,
-  TokenLeftBranchIdentifier,
-  TokenRightBranchIdentifier,
   TokenSoloIdentifier,
+  TokenLeftBranch,
+  TokenRightBranch,
   TokenOCB,
   TokenCCB)) where
 }
@@ -24,8 +24,8 @@ tokens :-
 
   $white+                     ;
   @id [$white]+ \"@content\"  { \s -> TokenBlock s }
-  L                           { \s -> TokenLeftBranchIdentifier s }
-  R                           { \s -> TokenRightBranchIdentifier s }
+  L                           { \_ -> TokenLeftBranch }
+  R                           { \_ -> TokenRightBranch }
   @id                         { \s -> TokenSoloIdentifier s }
   \{                          { \_ -> TokenOCB }
   \}                          { \_ -> TokenCCB }
@@ -33,9 +33,9 @@ tokens :-
 {
 data Token
   = TokenBlock String
-  | TokenLeftBranchIdentifier String
-  | TokenRightBranchIdentifier String
   | TokenSoloIdentifier String
+  | TokenLeftBranch
+  | TokenRightBranch
   | TokenOCB
   | TokenCCB
   deriving Show

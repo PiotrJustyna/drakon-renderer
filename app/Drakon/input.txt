@@ -1,6 +1,10 @@
-1 "start"
-2 "Hello"
-3 ","
-4 "World"
-5 "!"
-6 "end"
+3  "fork"
+  L {
+    3l1 "left branch - action 1"
+    3l2 "left branch - action 2"
+    3l3 "left branch - action 3"
+  }
+  R {
+    3r1 "right branch - action 1"
+    3r2 "right branch - action 2"
+  }
