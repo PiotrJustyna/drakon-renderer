@@ -18,11 +18,11 @@ import Lexer
 
 %%
 
-fork : block leftBranch '{' prods '}' rightBranch '{' prods '}' { ForkBlock $1 [ActionBlock "hello from left branch!"] [ActionBlock "hello from right branch!"] }
+fork : block leftBranch '{' prods '}' rightBranch '{' prods '}' { ForkBlock $1 $4 $8 }
 
 prods : {- empty -}                                             { [] }
-        | block                                                 { [ForkBlock $1] }
-        | prods block                                           { (ForkBlock $2) : $1 }
+        | block                                                 { [ActionBlock $1] }
+        | prods block                                           { (ActionBlock $2) : $1 }
 
 {
 parseError :: [Token] -> a
