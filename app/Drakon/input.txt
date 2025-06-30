@@ -1,4 +1,6 @@
-3  "fork"
+1 "action 1"
+2 "action 2"
+3 "fork"
   L {
     3l1 "left branch - action 1"
     3l2 "left branch - action 2"
@@ -8,3 +10,4 @@
     3r1 "right branch - action 1"
     3r2 "right branch - action 2"
   }
+4 "action 4"

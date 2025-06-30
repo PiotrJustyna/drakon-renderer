@@ -7,26 +7,28 @@ rule 2 is unused
 rule 3 is unused
 rule 4 is unused
 
-terminal rightBranchIdentifier is unused
 terminal soloIdentifier is unused
+terminal leftBranch is unused
+terminal rightBranch is unused
+terminal '{' is unused
 terminal '}' is unused
 
 -----------------------------------------------------------------------------
 Grammar
 -----------------------------------------------------------------------------
-	%start_diagram -> fork                             (0)
-	fork -> block leftBranchIdentifier '{'             (1)
+	%start_diagram -> testBlock                        (0)
+	testBlock -> block                                 (1)
 	prods ->                                           (2)
-	prods -> block                                     (3)
-	prods -> prods block                               (4)
+	prods -> testBlock                                 (3)
+	prods -> prods testBlock                           (4)
 
 -----------------------------------------------------------------------------
 Terminals
 -----------------------------------------------------------------------------
 	block          { TokenBlock $$ }
-	leftBranchIdentifier{ TokenLeftBranchIdentifier $$ }
-	rightBranchIdentifier{ TokenRightBranchIdentifier $$ }
 	soloIdentifier { TokenSoloIdentifier $$ }
+	leftBranch     { TokenLeftBranch }
+	rightBranch    { TokenRightBranch }
 	'{'            { TokenOCB }
 	'}'            { TokenCCB }
 
@@ -34,7 +36,7 @@ Terminals
 Non-terminals
 -----------------------------------------------------------------------------
 	%start_diagram  rule  0
-	fork            rule  1
+	testBlock       rule  1
 	prods           rules 2, 3, 4
 
 -----------------------------------------------------------------------------
@@ -42,45 +44,31 @@ States
 -----------------------------------------------------------------------------
 State 0
 
-	%start_diagram -> . fork                            (rule 0)
+	%start_diagram -> . testBlock                       (rule 0)
 
 	block          shift, and enter state 2
 
-	fork           goto state 3
+	testBlock      goto state 3
 
 State 1
 
-	fork -> . block leftBranchIdentifier '{'            (rule 1)
+	testBlock -> . block                                (rule 1)
 
 	block          shift, and enter state 2
 
 
 State 2
 
-	fork -> block . leftBranchIdentifier '{'            (rule 1)
+	testBlock -> block .                                (rule 1)
 
-	leftBranchIdentifiershift, and enter state 4
+	%eof           reduce using rule 1
 
 
 State 3
 
-	%start_diagram -> fork .                            (rule 0)
+	%start_diagram -> testBlock .                       (rule 0)
 
 	%eof           accept
-
-
-State 4
-
-	fork -> block leftBranchIdentifier . '{'            (rule 1)
-
-	'{'            shift, and enter state 5
-
-
-State 5
-
-	fork -> block leftBranchIdentifier '{' .            (rule 1)
-
-	%eof           reduce using rule 1
 
 
 -----------------------------------------------------------------------------
@@ -89,4 +77,4 @@ Grammar Totals
 Number of rules: 5
 Number of terminals: 6
 Number of non-terminals: 3
-Number of states: 6
+Number of states: 4
