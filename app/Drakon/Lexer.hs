@@ -8,9 +8,9 @@
 module Lexer
   (alexScanTokens,
   Token(TokenBlock,
-  TokenLeftBranchIdentifier,
-  TokenRightBranchIdentifier,
   TokenSoloIdentifier,
+  TokenLeftBranch,
+  TokenRightBranch,
   TokenOCB,
   TokenCCB)) where
 #include "ghcconfig.h"
@@ -655,8 +655,8 @@ alex_actions = Data.Array.array (0 :: Int, 6)
   ]
 
 alex_action_1 = \s -> TokenBlock s
-alex_action_2 = \s -> TokenLeftBranchIdentifier s
-alex_action_3 = \s -> TokenRightBranchIdentifier s
+alex_action_2 = \_ -> TokenLeftBranch
+alex_action_3 = \_ -> TokenRightBranch
 alex_action_4 = \s -> TokenSoloIdentifier s
 alex_action_5 = \_ -> TokenOCB
 alex_action_6 = \_ -> TokenCCB
@@ -892,9 +892,9 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
 {-# LINE 33 "./app/Drakon/Lexer.x" #-}
 data Token
   = TokenBlock String
-  | TokenLeftBranchIdentifier String
-  | TokenRightBranchIdentifier String
   | TokenSoloIdentifier String
+  | TokenLeftBranch
+  | TokenRightBranch
   | TokenOCB
   | TokenCCB
   deriving Show

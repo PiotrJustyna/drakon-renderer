@@ -11,7 +11,7 @@
 #if __GLASGOW_HASKELL__ >= 710
 {-# LANGUAGE PartialTypeSignatures #-}
 #endif
-module Parser (diagram, Block) where
+module Parser where
 import Data.Char
 import Lexer
 import qualified Data.Function as Happy_Prelude
@@ -41,22 +41,22 @@ data HappyAbsSyn t5 t6
         | HappyAbsSyn6 t6
 
 {-# NOINLINE happyTokenStrings #-}
-happyTokenStrings = ["block","leftBranchIdentifier","rightBranchIdentifier","soloIdentifier","'{'","'}'","%eof"]
+happyTokenStrings = ["block","soloIdentifier","leftBranch","rightBranch","'{'","'}'","%eof"]
 
 happyActOffsets :: HappyAddr
-happyActOffsets = HappyA# "\xff\xff\xff\xff\xff\xff\xff\xff\x01\x00\x00\x00\xfa\xff\xff\xff\xfd\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyActOffsets = HappyA# "\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xfa\xff\xff\xff\x00\x00\x00\x00"#
 
 happyGotoOffsets :: HappyAddr
-happyGotoOffsets = HappyA# "\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyGotoOffsets = HappyA# "\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyDefActions :: HappyAddr
-happyDefActions = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff"#
+happyDefActions = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00"#
 
 happyCheck :: HappyAddr
-happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x06\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
+happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 happyTable :: HappyAddr
-happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x06\x00\x00\x00\x05\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyReduceArr = Happy_Data_Array.array (1, 4) [
         (1 , happyReduce_1),
@@ -66,7 +66,7 @@ happyReduceArr = Happy_Data_Array.array (1, 4) [
         ]
 
 happyRuleArr :: HappyAddr
-happyRuleArr = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00"#
+happyRuleArr = HappyA# "\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00"#
 
 happyCatchStates :: [Happy_Prelude.Int]
 happyCatchStates = []
@@ -78,13 +78,12 @@ happy_n_starts = 1 :: Happy_Prelude.Int
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_1 = happySpecReduce_3  0# happyReduction_1
-happyReduction_1 _
-        _
-        _
+happyReduce_1 = happySpecReduce_1  0# happyReduction_1
+happyReduction_1 (HappyTerminal (TokenBlock happy_var_1))
          =  HappyAbsSyn5
-                 (ForkBlock "hello!"
+                 ([ActionBlock happy_var_1]
         )
+happyReduction_1 _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
@@ -96,27 +95,27 @@ happyReduction_2  =  HappyAbsSyn6
 #if __GLASGOW_HASKELL__ >= 710
 #endif
 happyReduce_3 = happySpecReduce_1  1# happyReduction_3
-happyReduction_3 (HappyTerminal (TokenBlock happy_var_1))
+happyReduction_3 (HappyAbsSyn5  happy_var_1)
          =  HappyAbsSyn6
-                 ([ForkBlock happy_var_1]
+                 ([happy_var_1]
         )
 happyReduction_3 _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
 happyReduce_4 = happySpecReduce_2  1# happyReduction_4
-happyReduction_4 (HappyTerminal (TokenBlock happy_var_2))
+happyReduction_4 (HappyAbsSyn5  happy_var_2)
         (HappyAbsSyn6  happy_var_1)
          =  HappyAbsSyn6
-                 ((ForkBlock happy_var_2) : happy_var_1
+                 (happy_var_2 : happy_var_1
         )
 happyReduction_4 _ _  = notHappyAtAll 
 
 happyTerminalToTok term = case term of {
         TokenBlock happy_dollar_dollar -> 2#;
-        TokenLeftBranchIdentifier happy_dollar_dollar -> 3#;
-        TokenRightBranchIdentifier happy_dollar_dollar -> 4#;
-        TokenSoloIdentifier happy_dollar_dollar -> 5#;
+        TokenSoloIdentifier happy_dollar_dollar -> 3#;
+        TokenLeftBranch -> 4#;
+        TokenRightBranch -> 5#;
         TokenOCB -> 6#;
         TokenCCB -> 7#;
         _ -> -1#;
@@ -133,47 +132,65 @@ happyReport 8# tk explist resume tks = happyReport' tks explist resume
 happyReport _ tk explist resume tks = happyReport' (tk:tks) explist (\tks -> resume (Happy_Prelude.tail tks))
 
 
-newtype HappyIdentity a = HappyIdentity a
-happyIdentity = HappyIdentity
-happyRunIdentity (HappyIdentity a) = a
-
-instance Happy_Prelude.Functor HappyIdentity where
-    fmap f (HappyIdentity a) = HappyIdentity (f a)
-
-instance Applicative HappyIdentity where
-    pure  = HappyIdentity
-    (<*>) = ap
-instance Happy_Prelude.Monad HappyIdentity where
-    return = pure
-    (HappyIdentity p) >>= q = q p
-
-happyThen :: () => (HappyIdentity a) -> (a -> (HappyIdentity b)) -> (HappyIdentity b)
-happyThen = (Happy_Prelude.>>=)
-happyReturn :: () => a -> (HappyIdentity a)
-happyReturn = (Happy_Prelude.return)
-happyThen1 m k tks = (Happy_Prelude.>>=) m (\a -> k a tks)
+happyThen :: () => (P a) -> (a -> (P b)) -> (P b)
+happyThen = (thenP)
+happyReturn :: () => a -> (P a)
+happyReturn = (returnP)
+happyThen1 m k tks = (thenP) m (\a -> k a tks)
 happyFmap1 f m tks = happyThen (m tks) (\a -> happyReturn (f a))
-happyReturn1 :: () => a -> b -> (HappyIdentity a)
-happyReturn1 = \a tks -> (Happy_Prelude.return) a
-happyReport' :: () => [(Token)] -> [Happy_Prelude.String] -> ([(Token)] -> (HappyIdentity a)) -> (HappyIdentity a)
-happyReport' = (\tokens expected resume -> HappyIdentity Happy_Prelude.$ (parseError) tokens)
+happyReturn1 :: () => a -> b -> (P a)
+happyReturn1 = \a tks -> (returnP) a
+happyReport' :: () => [(Token)] -> [Happy_Prelude.String] -> ([(Token)] -> (P a)) -> (P a)
+happyReport' = (\tokens expected resume -> happyError tokens)
 
-happyAbort :: () => [(Token)] -> (HappyIdentity a)
+happyAbort :: () => [(Token)] -> (P a)
 happyAbort = Happy_Prelude.error "Called abort handler in non-resumptive parser"
 
-diagram tks = happyRunIdentity happySomeParser where
+diagram tks = happySomeParser where
  happySomeParser = happyThen (happyParse 0# tks) (\x -> case x of {HappyAbsSyn5 z -> happyReturn z; _other -> notHappyAtAll })
 
 happySeq = happyDontSeq
 
 
-parseError :: [Token] -> a
-parseError _ = error "Parse error"
+happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
+
+data ParseResult a
+  = ParseOk a
+  | ParseFail String
+
+type P a = Int -> ParseResult a
+
+thenP :: P a -> (a -> P b) -> P b
+m `thenP` k = \l ->
+  case m l of
+    ParseFail s -> ParseFail s
+    ParseOk a -> k a l
+
+returnP :: a -> P a
+returnP a = \l -> ParseOk a
+
+-- fork : block leftBranch '{' prods '}' rightBranch '{' prods '}' { ForkBlock $1 $4 $8 }
+
+-- 1 "action 1"
+-- 2 "action 2"
+-- 3 "fork"
+--   L {
+--     3l1 "left branch - action 1"
+--     3l2 "left branch - action 2"
+--     3l3 "left branch - action 3"
+--   }
+--   R {
+--     3r1 "right branch - action 1"
+--     3r2 "right branch - action 2"
+--   }
 
 data Block
   = ActionBlock String
-  | ForkBlock String
+  | ForkBlock String [Block] [Block]
   deriving Show
+
+buildForkBlock :: Block -> Block
+buildForkBlock _ = ForkBlock "" [] []
 -- $Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp $
 
 #if !defined(__GLASGOW_HASKELL__)
