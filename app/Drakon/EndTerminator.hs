@@ -15,6 +15,7 @@ import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
 data EndTerminator =
   End ID (Point V2 Double) Content
+  deriving Show
 
 changeOrigin :: EndTerminator -> Point V2 Double -> EndTerminator
 changeOrigin (End endId _ content) newOrigin = End endId newOrigin content

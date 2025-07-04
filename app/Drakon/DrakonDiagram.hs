@@ -13,6 +13,7 @@ import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
 data DrakonDiagram =
   DrakonDiagram StartTerminator [[SkewerBlock]] EndTerminator
+  deriving Show
 
 renderSingleSkewer :: [SkewerBlock] -> Point V2 Double -> Double -> (Diagram B, Double)
 renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
