@@ -94,7 +94,6 @@ renderIcons skewerBlocks mapOfOrigins addressDepth =
       connectionForMissingAddress = if (snd renderedIcons < addressDepth) then mempty else renderedConnection [p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, snd renderedIcons), p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, addressDepth - defaultBoundingBoxHeight)]
   in (fst renderedIcons) <> connectionForMissingAddress
 
-
 position' :: [SkewerBlock] -> Point V2 Double -> Double -> [SkewerBlock]
 position' skewerBlocks (P (V2 x y)) addressDepth =
   fst
@@ -126,13 +125,28 @@ toMap = foldl (flip insertToMap) empty
 
 data ConnectedSkewerBlocks =
   ConnectedSkewerBlocks [SkewerBlock] (Maybe ID)
-  deriving (Show)
+  deriving Show
 
 data SkewerBlock
   = Action ID (Point V2 Double) Content
   | Headline ID (Point V2 Double) Content
   | Address ID (Point V2 Double) Content
   | Fork ID (Point V2 Double) Content ConnectedSkewerBlocks ConnectedSkewerBlocks
+
+toId :: String -> ID
+toId x = ID (head $ words x)
+
+toContent :: String -> Content
+toContent text =
+  let start = 1
+      end = 4
+  in Content (take (end - start) (drop start text))
+
+toAction :: String -> SkewerBlock
+toAction x = Action (toId x) (p2 (-1.0, -1.0)) (toContent x)
+
+toFork :: String -> ConnectedSkewerBlocks -> ConnectedSkewerBlocks -> SkewerBlock
+toFork x l r = Fork (toId x) (p2 (-1.0, -1.0)) (toContent x) l r
 
 getOrigin :: SkewerBlock -> Point V2 Double
 getOrigin (Action _ origin _) = origin
@@ -276,7 +290,7 @@ instance Renderer SkewerBlock where
                 else renderedConnection
                        [ p2 (x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0, y - defaultBoundingBoxHeight * 0.5)
                        , p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight * 0.5)
-                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY - defaultBoundingBoxHeight * 0.25)
+                       , p2 (rX + defaultBoundingBoxWidth * 0.5, rY)
                        ]
                        <> fst (render' rightBranch rOrigin _mapOfOrigins))
           <> position
