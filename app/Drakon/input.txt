@@ -1,9 +1,19 @@
 1 "action 1"
 2 "action 2"
-3 "fork"
+3 "fork 1"
   L {
     3l1 "left branch - action 1"
     3l2 "left branch - action 2"
+    3l2a "fork 2"
+      L {
+        3l1a "left branch - action 1"
+        3l2a "left branch - action 2"
+        3l3a "left branch - action 3"
+      }
+      R {
+        3r1a "right branch - action 1"
+        3r2a "right branch - action 2"
+      }
     3l3 "left branch - action 3"
   }
   R {

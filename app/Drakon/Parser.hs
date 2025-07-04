@@ -92,7 +92,7 @@ happyReduction_1  =  HappyAbsSyn5
 happyReduce_2 = happySpecReduce_1  0# happyReduction_2
 happyReduction_2 (HappyTerminal (TokenBlock happy_var_1))
          =  HappyAbsSyn5
-                 ([Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1)]
+                 ([toAction happy_var_1]
         )
 happyReduction_2 _  = notHappyAtAll 
 
@@ -100,17 +100,17 @@ happyReduction_2 _  = notHappyAtAll
 #endif
 happyReduce_3 = happyReduce 9# 0# happyReduction_3
 happyReduction_3 (_ `HappyStk`
+        (HappyAbsSyn5  happy_var_8) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
+        (HappyAbsSyn5  happy_var_4) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1)]
+                 ([Fork (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1) (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 Nothing)]
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -127,18 +127,18 @@ happyReduction_4 _ _  = notHappyAtAll
 #endif
 happyReduce_5 = happyReduce 10# 0# happyReduction_5
 happyReduction_5 (_ `HappyStk`
+        (HappyAbsSyn5  happy_var_9) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
+        (HappyAbsSyn5  happy_var_5) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ((Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2)) : happy_var_1
+                 ((Fork (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2) (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_9 Nothing)) : happy_var_1
         ) `HappyStk` happyRest
 
 happyTerminalToTok term = case term of {

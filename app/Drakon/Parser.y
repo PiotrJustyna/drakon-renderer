@@ -23,10 +23,10 @@ import Diagrams.Prelude (Point(..), V2(..), p2)
 %%
 
 prods : {- empty -}                                                       { [] }
-        | block                                                           { [Action (ID "-1") (p2 (-1.0, -1.0)) (Content $1)] }
-        | block leftBranch '{' prods '}' rightBranch '{' prods '}'        { [Action (ID "-1") (p2 (-1.0, -1.0)) (Content $1)] }
-        | prods block                                                     { (Action (ID "-1") (p2 (-1.0, -1.0)) (Content $2)) : $1 }
-        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'  { (Action (ID "-1") (p2 (-1.0, -1.0)) (Content $2)) : $1 }
+        | block                                                           { [toAction $1] }
+        | block leftBranch '{' prods '}' rightBranch '{' prods '}'        { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 Nothing)] }
+        | prods block                                                     { (toAction $2) : $1 }
+        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'  { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 Nothing)) : $1 }
 
 {
 happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
