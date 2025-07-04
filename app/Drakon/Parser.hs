@@ -14,6 +14,10 @@
 module Parser where
 import Data.Char
 import Lexer
+import Drakon.Content
+import Drakon.ID
+import Drakon.SkewerBlock
+import Diagrams.Prelude (Point(..), V2(..), p2)
 import qualified Data.Function as Happy_Prelude
 import qualified Data.Bool as Happy_Prelude
 import qualified Data.Function as Happy_Prelude
@@ -34,82 +38,108 @@ import Control.Monad (ap)
 
 -- parser produced by Happy Version 2.1.5
 
-data HappyAbsSyn t5 t6
+data HappyAbsSyn t5
         = HappyTerminal (Token)
         | HappyErrorToken Happy_Prelude.Int
         | HappyAbsSyn5 t5
-        | HappyAbsSyn6 t6
 
 {-# NOINLINE happyTokenStrings #-}
 happyTokenStrings = ["block","soloIdentifier","leftBranch","rightBranch","'{'","'}'","%eof"]
 
 happyActOffsets :: HappyAddr
-happyActOffsets = HappyA# "\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xfa\xff\xff\xff\x00\x00\x00\x00"#
+happyActOffsets = HappyA# "\x0a\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xfe\xff\xff\xff\x07\x00\x00\x00\x0b\x00\x00\x00\x08\x00\x00\x00\x0e\x00\x00\x00\x01\x00\x00\x00\x0e\x00\x00\x00\x02\x00\x00\x00\x0c\x00\x00\x00\x0d\x00\x00\x00\x0f\x00\x00\x00\x10\x00\x00\x00\x13\x00\x00\x00\x03\x00\x00\x00\x13\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyGotoOffsets :: HappyAddr
-happyGotoOffsets = HappyA# "\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyGotoOffsets = HappyA# "\x12\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x17\x00\x00\x00\x00\x00\x00\x00\x18\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x19\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyDefActions :: HappyAddr
-happyDefActions = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00"#
+happyDefActions = HappyA# "\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\xfd\xff\xff\xff\x00\x00\x00\x00\xfb\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfc\xff\xff\xff\xfa\xff\xff\xff"#
 
 happyCheck :: HappyAddr
-happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
+happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x08\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x05\x00\x00\x00\x02\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 happyTable :: HappyAddr
-happyTable = HappyA# "\x00\x00\x00\x00\x03\x00\x00\x00\xff\xff\xff\xff\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyTable = HappyA# "\x00\x00\x00\x00\x06\x00\x00\x00\x05\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\xff\xff\xff\xff\x0c\x00\x00\x00\x0e\x00\x00\x00\x14\x00\x00\x00\x15\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x0a\x00\x00\x00\x07\x00\x00\x00\x04\x00\x00\x00\x0d\x00\x00\x00\x02\x00\x00\x00\x10\x00\x00\x00\x0f\x00\x00\x00\x04\x00\x00\x00\x12\x00\x00\x00\x08\x00\x00\x00\x0a\x00\x00\x00\x10\x00\x00\x00\x12\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
-happyReduceArr = Happy_Data_Array.array (1, 4) [
+happyReduceArr = Happy_Data_Array.array (1, 5) [
         (1 , happyReduce_1),
         (2 , happyReduce_2),
         (3 , happyReduce_3),
-        (4 , happyReduce_4)
+        (4 , happyReduce_4),
+        (5 , happyReduce_5)
         ]
 
 happyRuleArr :: HappyAddr
-happyRuleArr = HappyA# "\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00"#
+happyRuleArr = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x0a\x00\x00\x00"#
 
 happyCatchStates :: [Happy_Prelude.Int]
 happyCatchStates = []
 
 happy_n_terms = 9 :: Happy_Prelude.Int
-happy_n_nonterms = 2 :: Happy_Prelude.Int
+happy_n_nonterms = 1 :: Happy_Prelude.Int
 
 happy_n_starts = 1 :: Happy_Prelude.Int
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_1 = happySpecReduce_1  0# happyReduction_1
-happyReduction_1 (HappyTerminal (TokenBlock happy_var_1))
-         =  HappyAbsSyn5
-                 ([ActionBlock happy_var_1]
-        )
-happyReduction_1 _  = notHappyAtAll 
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_2 = happySpecReduce_0  1# happyReduction_2
-happyReduction_2  =  HappyAbsSyn6
+happyReduce_1 = happySpecReduce_0  0# happyReduction_1
+happyReduction_1  =  HappyAbsSyn5
                  ([]
         )
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_3 = happySpecReduce_1  1# happyReduction_3
-happyReduction_3 (HappyAbsSyn5  happy_var_1)
-         =  HappyAbsSyn6
-                 ([happy_var_1]
+happyReduce_2 = happySpecReduce_1  0# happyReduction_2
+happyReduction_2 (HappyTerminal (TokenBlock happy_var_1))
+         =  HappyAbsSyn5
+                 ([Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1)]
         )
-happyReduction_3 _  = notHappyAtAll 
+happyReduction_2 _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_4 = happySpecReduce_2  1# happyReduction_4
-happyReduction_4 (HappyAbsSyn5  happy_var_2)
-        (HappyAbsSyn6  happy_var_1)
-         =  HappyAbsSyn6
-                 (happy_var_2 : happy_var_1
+happyReduce_3 = happyReduce 9# 0# happyReduction_3
+happyReduction_3 (_ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
+        happyRest)
+         = HappyAbsSyn5
+                 ([Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1)]
+        ) `HappyStk` happyRest
+
+#if __GLASGOW_HASKELL__ >= 710
+#endif
+happyReduce_4 = happySpecReduce_2  0# happyReduction_4
+happyReduction_4 (HappyTerminal (TokenBlock happy_var_2))
+        (HappyAbsSyn5  happy_var_1)
+         =  HappyAbsSyn5
+                 ((Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2)) : happy_var_1
         )
 happyReduction_4 _ _  = notHappyAtAll 
+
+#if __GLASGOW_HASKELL__ >= 710
+#endif
+happyReduce_5 = happyReduce 10# 0# happyReduction_5
+happyReduction_5 (_ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        _ `HappyStk`
+        (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
+        (HappyAbsSyn5  happy_var_1) `HappyStk`
+        happyRest)
+         = HappyAbsSyn5
+                 ((Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2)) : happy_var_1
+        ) `HappyStk` happyRest
 
 happyTerminalToTok term = case term of {
         TokenBlock happy_dollar_dollar -> 2#;
@@ -168,29 +198,6 @@ m `thenP` k = \l ->
 
 returnP :: a -> P a
 returnP a = \l -> ParseOk a
-
--- fork : block leftBranch '{' prods '}' rightBranch '{' prods '}' { ForkBlock $1 $4 $8 }
-
--- 1 "action 1"
--- 2 "action 2"
--- 3 "fork"
---   L {
---     3l1 "left branch - action 1"
---     3l2 "left branch - action 2"
---     3l3 "left branch - action 3"
---   }
---   R {
---     3r1 "right branch - action 1"
---     3r2 "right branch - action 2"
---   }
-
-data Block
-  = ActionBlock String
-  | ForkBlock String [Block] [Block]
-  deriving Show
-
-buildForkBlock :: Block -> Block
-buildForkBlock _ = ForkBlock "" [] []
 -- $Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp $
 
 #if !defined(__GLASGOW_HASKELL__)

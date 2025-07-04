@@ -2,6 +2,10 @@
 module Parser where
 import Data.Char
 import Lexer
+import Drakon.Content
+import Drakon.ID
+import Drakon.SkewerBlock
+import Diagrams.Prelude (Point(..), V2(..), p2)
 }
 
 %name                                                                     diagram
@@ -19,10 +23,10 @@ import Lexer
 %%
 
 prods : {- empty -}                                                       { [] }
-        | block                                                           { [ActionBlock $1] }
-        | block leftBranch '{' prods '}' rightBranch '{' prods '}'        { [ForkBlock $1 $4 $8] }
-        | prods block                                                     { (ActionBlock $2) : $1 }
-        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'  { (ForkBlock $2 $5 $9) : $1 }
+        | block                                                           { [Action (ID "-1") (p2 (-1.0, -1.0)) (Content $1)] }
+        | block leftBranch '{' prods '}' rightBranch '{' prods '}'        { [Action (ID "-1") (p2 (-1.0, -1.0)) (Content $1)] }
+        | prods block                                                     { (Action (ID "-1") (p2 (-1.0, -1.0)) (Content $2)) : $1 }
+        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'  { (Action (ID "-1") (p2 (-1.0, -1.0)) (Content $2)) : $1 }
 
 {
 happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
@@ -41,25 +45,4 @@ m `thenP` k = \l ->
 
 returnP :: a -> P a
 returnP a = \l -> ParseOk a
-
--- 1 "action 1"
--- 2 "action 2"
--- 3 "fork"
---   L {
---     3l1 "left branch - action 1"
---     3l2 "left branch - action 2"
---     3l3 "left branch - action 3"
---   }
---   R {
---     3r1 "right branch - action 1"
---     3r2 "right branch - action 2"
---   }
-
-data Block
-  = ActionBlock String
-  | ForkBlock String [Block] [Block]
-  deriving Show
-
-buildForkBlock :: Block -> Block
-buildForkBlock _ = ForkBlock "" [] []
 }
