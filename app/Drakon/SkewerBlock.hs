@@ -138,8 +138,9 @@ toId x = ID (head $ words x)
 
 toContent :: String -> Content
 toContent text =
-  let start = 1
-      end = 4
+  let id = head $ words text
+      start = length id + 2
+      end = length text - 1
   in Content (take (end - start) (drop start text))
 
 toAction :: String -> SkewerBlock

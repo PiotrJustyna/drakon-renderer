@@ -110,7 +110,7 @@ happyReduction_3 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([Fork (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_1) (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 Nothing)]
+                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 Nothing)]
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -119,7 +119,7 @@ happyReduce_4 = happySpecReduce_2  0# happyReduction_4
 happyReduction_4 (HappyTerminal (TokenBlock happy_var_2))
         (HappyAbsSyn5  happy_var_1)
          =  HappyAbsSyn5
-                 ((Action (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2)) : happy_var_1
+                 ((toAction happy_var_2) : happy_var_1
         )
 happyReduction_4 _ _  = notHappyAtAll 
 
@@ -138,7 +138,7 @@ happyReduction_5 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ((Fork (ID "-1") (p2 (-1.0, -1.0)) (Content happy_var_2) (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_9 Nothing)) : happy_var_1
+                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_9 Nothing)) : happy_var_1
         ) `HappyStk` happyRest
 
 happyTerminalToTok term = case term of {

@@ -25,7 +25,7 @@ import Diagrams.Prelude
   , veryThin
   )
 import Drakon.Constants
-import Drakon.Content (Content)
+import Drakon.Content (Content(..))
 import Drakon.HelperDiagrams
 import Drakon.ID (ID)
 import Drakon.TypeClasses
@@ -45,14 +45,14 @@ changeOrigin (CyclicStartWithParameters startId _ content) newOrigin =
   CyclicStartWithParameters startId newOrigin content
 
 instance Renderer StartTerminator where
-  render title@(Title titleId origin content) _ =
+  render title@(Title titleId origin (Content content)) _ =
     position
       [ ( origin
         , renderText
             ((if troubleshootingMode
                 then "[" <> show titleId <> " | " <> show origin <> "] "
                 else "")
-               <> show content)
+               <> content)
             (0.0 + widthInUnits title * defaultBoundingBoxWidth * 0.5)
             (0.0 - heightInUnits title * defaultBoundingBoxHeight * 0.5)
             <> (drakonStyle
