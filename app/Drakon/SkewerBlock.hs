@@ -120,6 +120,12 @@ widthInUnits' x =
 heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 
+reverse' :: [SkewerBlock] -> [SkewerBlock]
+reverse' = foldl (\accu x ->
+  case x of
+    Fork id origin content (ConnectedSkewerBlocks l lId) (ConnectedSkewerBlocks r rId) -> (Fork id origin content (ConnectedSkewerBlocks (reverse' l) lId) (ConnectedSkewerBlocks (reverse' r) rId)) : accu
+    _ -> x : accu) []
+
 toMap :: [SkewerBlock] -> Map ID (Point V2 Double)
 toMap = foldl (flip insertToMap) empty
 

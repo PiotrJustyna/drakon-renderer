@@ -7,7 +7,7 @@ import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, render, widthInUnits)
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Address, Fork, Headline))
+import Drakon.SkewerBlock (ConnectedSkewerBlocks(ConnectedSkewerBlocks), SkewerBlock(Action, Address, Fork, Headline), reverse')
 import Drakon.StartTerminator (StartTerminator(Title))
 import Lexer (alexScanTokens)
 import Parser (diagram, ParseResult(..))
@@ -22,7 +22,7 @@ main = do
 
   case diagram tokens 1 of
     ParseOk d ->
-      let blocks = reverse d
+      let blocks = reverse' d
           drakonDiagram = DrakonDiagram (Title (ID "-1") (p2 (-1.0, -1.0)) (Content "start")) [blocks] (End (ID "-1") (p2 (-1.0, -1.0)) (Content "end"))
           addressY = (-1.0) * Drakon.DrakonDiagram.heightInUnits drakonDiagram + defaultBoundingBoxHeight * 2.0 -- ignore the heights of start and end terminators
       in renderSVG' svgOutputPath svgOptions $ Drakon.DrakonDiagram.render drakonDiagram addressY
