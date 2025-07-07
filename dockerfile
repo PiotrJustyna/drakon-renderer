@@ -2,11 +2,9 @@ FROM alpine:3.21.3
 
 WORKDIR "/root/code/drakon-renderer"
 
-RUN \
-  apk update \
-  && \
-  apk add \
-    zsh \
+RUN apk update
+RUN apk add \
+    bash \
     git \
     openssh \
     curl \
@@ -14,21 +12,13 @@ RUN \
     g++ \
     ghc \
     cabal \
-    ncurses-dev \
-  && \
-  git config --global --add safe.directory "/root/code/drakon-renderer" \
-  && \
-  cabal update \
-  && \
-  cabal install hindent \
-  && \
-  cabal install hlint \
-  && \
-  cabal install alex \
-  && \
-  cabal install happy \
-  && \
-  echo "PROMPT='%F{cyan}%n%f %F{magenta}%~%f $ '" >> ~/.zshrc
+    ncurses-dev
+RUN git config --global --add safe.directory "/root/code/drakon-renderer"
+RUN cabal update
+RUN cabal install hindent
+RUN cabal install hlint
+RUN cabal install alex
+RUN cabal install happy
 
 # 2024-12-02 PJ:
 # --------------
@@ -36,4 +26,4 @@ RUN \
 # installed with cabal install are located
 ENV PATH="${PATH}:/root/.local/bin"
 
-CMD [ "/bin/zsh" ]
+CMD [ "/bin/bash" ]

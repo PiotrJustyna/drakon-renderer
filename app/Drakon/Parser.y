@@ -8,25 +8,31 @@ import Drakon.SkewerBlock
 import Diagrams.Prelude (Point(..), V2(..), p2)
 }
 
-%name                                                                     diagram
-%tokentype                                                                { Token }
-%monad                                                                    { P } { thenP } { returnP }
+%name                                                                                                   diagram
+%tokentype                                                                                              { Token }
+%monad                                                                                                  { P } { thenP } { returnP }
 
 %token
-  block                                                                   { TokenBlock $$ }
-  soloIdentifier                                                          { TokenSoloIdentifier $$ }
-  leftBranch                                                              { TokenLeftBranch }
-  rightBranch                                                             { TokenRightBranch }
-  '{'                                                                     { TokenOCB }
-  '}'                                                                     { TokenCCB }
+  block                                                                                                 { TokenBlock $$ }
+  soloIdentifier                                                                                        { TokenSoloIdentifier $$ }
+  leftBranch                                                                                            { TokenLeftBranch }
+  rightBranch                                                                                           { TokenRightBranch }
+  '{'                                                                                                   { TokenOCB }
+'}'                                                                                                     { TokenCCB }
 
 %%
 
-prods : {- empty -}                                                       { [] }
-        | block                                                           { [toAction $1] }
-        | block leftBranch '{' prods '}' rightBranch '{' prods '}'        { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 Nothing)] }
-        | prods block                                                     { (toAction $2) : $1 }
-        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'  { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 Nothing)) : $1 }
+prods : {- empty -}                                                                                     { [] }
+        | block                                                                                         { [toAction $1] }
+        | block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'        { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $9 Nothing)] }
+        | block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'                       { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $9 Nothing)] }
+        | block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'                       { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 Nothing)] }
+        | block leftBranch '{' prods '}' rightBranch '{' prods '}'                                      { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 Nothing)] }
+        | prods block                                                                                   { (toAction $2) : $1 }
+        | prods block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'  { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $10 Nothing)) : $1 }
+        | prods block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'                 { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $10 Nothing)) : $1 }
+        | prods block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'                 { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 Nothing)) : $1 }
+        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'                                { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 Nothing)) : $1 }
 
 {
 happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
