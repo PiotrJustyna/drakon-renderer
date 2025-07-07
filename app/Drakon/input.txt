@@ -13,12 +13,13 @@
       R {
         3r1a "right branch - action 1"
         3r2a "right branch - action 2"
+        3l1
       }
     3l3 "left branch - action 3"
   }
   R {
     3r1 "right branch - action 1"
     3r2 "right branch - action 2"
-    321
+    3
   }
 4 "action 41"
