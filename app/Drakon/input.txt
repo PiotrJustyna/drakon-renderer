@@ -19,5 +19,6 @@
   R {
     3r1 "right branch - action 1"
     3r2 "right branch - action 2"
+    321
   }
 4 "action 41"

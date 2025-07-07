@@ -22,13 +22,13 @@ $contentChar  = [$alpha $digit $white \' \, \! \-]
 
 tokens :-
 
-  $white+                     ;
-  @id [$white]+ \"@content\"  { \s -> TokenBlock s }
-  L                           { \_ -> TokenLeftBranch }
-  R                           { \_ -> TokenRightBranch }
-  @id                         { \s -> TokenSoloIdentifier s }
-  \{                          { \_ -> TokenOCB }
-  \}                          { \_ -> TokenCCB }
+  $white+                         ;
+  @id [$white]+ \"@content\"      { \s -> TokenBlock s }
+  L                               { \_ -> TokenLeftBranch }
+  R                               { \_ -> TokenRightBranch }
+  @id                             { \s -> TokenSoloIdentifier s }
+  \{                              { \_ -> TokenOCB }
+  \}                              { \_ -> TokenCCB }
 
 {
 data Token
