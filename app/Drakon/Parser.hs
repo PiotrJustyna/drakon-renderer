@@ -143,7 +143,7 @@ happyReduction_4 (_ `HappyStk`
 #endif
 happyReduce_5 = happyReduce 10# 0# happyReduction_5
 happyReduction_5 (_ `HappyStk`
-        _ `HappyStk`
+        (HappyTerminal (TokenSoloIdentifier happy_var_9)) `HappyStk`
         (HappyAbsSyn5  happy_var_8) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
@@ -154,7 +154,7 @@ happyReduction_5 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 Nothing)]
+                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 (Just (ID happy_var_9)))]
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -188,7 +188,7 @@ happyReduction_7 _ _  = notHappyAtAll
 #endif
 happyReduce_8 = happyReduce 12# 0# happyReduction_8
 happyReduction_8 (_ `HappyStk`
-        _ `HappyStk`
+        (HappyTerminal (TokenSoloIdentifier happy_var_11)) `HappyStk`
         (HappyAbsSyn5  happy_var_10) `HappyStk`
         _ `HappyStk`
         _ `HappyStk`
@@ -201,7 +201,7 @@ happyReduction_8 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_10 Nothing)) : happy_var_1
+                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_10 (Just (ID happy_var_11)))) : happy_var_1
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
