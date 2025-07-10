@@ -120,6 +120,9 @@ widthInUnits' x =
 heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 
+reverse'' :: [[SkewerBlock]] -> [[SkewerBlock]]
+reverse'' = foldr (\x accu -> (reverse' x) : accu) []
+
 reverse' :: [SkewerBlock] -> [SkewerBlock]
 reverse' = foldl (\accu x ->
   case x of
@@ -148,6 +151,12 @@ toContent text =
       start = length id + 2
       end = length text - 1
   in Content (take (end - start) (drop start text))
+
+toHeadline :: String -> SkewerBlock
+toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
+
+toAddress :: String -> SkewerBlock
+toAddress x = Address (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
 
 toAction :: String -> SkewerBlock
 toAction x = Action (toId x) (p2 (-1.0, -1.0)) (toContent x)

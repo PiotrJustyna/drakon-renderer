@@ -44,44 +44,39 @@ data HappyAbsSyn t5
         | HappyAbsSyn5 t5
 
 {-# NOINLINE happyTokenStrings #-}
-happyTokenStrings = ["block","soloIdentifier","leftBranch","rightBranch","'{'","'}'","%eof"]
+happyTokenStrings = ["block","soloIdentifier","leftBranch","rightBranch","'{'","'}'","'#'","%eof"]
 
 happyActOffsets :: HappyAddr
-happyActOffsets = HappyA# "\x07\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xfe\xff\xff\xff\x15\x00\x00\x00\x0d\x00\x00\x00\x16\x00\x00\x00\x17\x00\x00\x00\x01\x00\x00\x00\x17\x00\x00\x00\x03\x00\x00\x00\x08\x00\x00\x00\x12\x00\x00\x00\x18\x00\x00\x00\x1a\x00\x00\x00\x19\x00\x00\x00\x1c\x00\x00\x00\x1d\x00\x00\x00\x1f\x00\x00\x00\x20\x00\x00\x00\x1b\x00\x00\x00\x09\x00\x00\x00\x1b\x00\x00\x00\x21\x00\x00\x00\x23\x00\x00\x00\x0b\x00\x00\x00\x23\x00\x00\x00\x11\x00\x00\x00\x22\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x24\x00\x00\x00\x00\x00\x00\x00\x13\x00\x00\x00\x25\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x26\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyActOffsets = HappyA# "\x0a\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xfd\xff\xff\xff\x0a\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x0a\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyGotoOffsets :: HappyAddr
-happyGotoOffsets = HappyA# "\x28\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2a\x00\x00\x00\x00\x00\x00\x00\x2e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2f\x00\x00\x00\x00\x00\x00\x00\x30\x00\x00\x00\x00\x00\x00\x00\x31\x00\x00\x00\x00\x00\x00\x00\x32\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyGotoOffsets = HappyA# "\x0f\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x11\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
 happyDefActions :: HappyAddr
-happyDefActions = HappyA# "\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\xfd\xff\xff\xff\x00\x00\x00\x00\xf8\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\xf9\xff\xff\xff\xfa\xff\xff\xff\x00\x00\x00\x00\xfb\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\xf4\xff\xff\xff\xf5\xff\xff\xff\x00\x00\x00\x00\xf6\xff\xff\xff\xfc\xff\xff\xff\xf7\xff\xff\xff"#
+happyDefActions = HappyA# "\xfe\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\xfd\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\xfb\xff\xff\xff\x00\x00\x00\x00\xfe\xff\xff\xff\x00\x00\x00\x00\xfc\xff\xff\xff\x00\x00\x00\x00\xfa\xff\xff\xff\x00\x00\x00\x00\xf9\xff\xff\xff"#
 
 happyCheck :: HappyAddr
-happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x08\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x04\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x05\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x07\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\x02\x00\x00\x00\x06\x00\x00\x00\x05\x00\x00\x00\x07\x00\x00\x00\x05\x00\x00\x00\xff\xff\xff\xff\x06\x00\x00\x00\x05\x00\x00\x00\x02\x00\x00\x00\x06\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
+happyCheck = HappyA# "\xff\xff\xff\xff\x02\x00\x00\x00\x03\x00\x00\x00\x06\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x09\x00\x00\x00\x07\x00\x00\x00\x08\x00\x00\x00\x07\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 happyTable :: HappyAddr
-happyTable = HappyA# "\x00\x00\x00\x00\x06\x00\x00\x00\x05\x00\x00\x00\x06\x00\x00\x00\x0c\x00\x00\x00\x06\x00\x00\x00\x10\x00\x00\x00\xff\xff\xff\xff\x0d\x00\x00\x00\x04\x00\x00\x00\x11\x00\x00\x00\x06\x00\x00\x00\x1d\x00\x00\x00\x06\x00\x00\x00\x23\x00\x00\x00\x0f\x00\x00\x00\x1e\x00\x00\x00\x07\x00\x00\x00\x24\x00\x00\x00\x06\x00\x00\x00\x20\x00\x00\x00\x06\x00\x00\x00\x26\x00\x00\x00\x0e\x00\x00\x00\x21\x00\x00\x00\x04\x00\x00\x00\x27\x00\x00\x00\x08\x00\x00\x00\x0a\x00\x00\x00\x04\x00\x00\x00\x15\x00\x00\x00\x14\x00\x00\x00\x13\x00\x00\x00\x12\x00\x00\x00\x00\x00\x00\x00\x19\x00\x00\x00\x18\x00\x00\x00\x04\x00\x00\x00\x17\x00\x00\x00\x1b\x00\x00\x00\x02\x00\x00\x00\x1f\x00\x00\x00\x08\x00\x00\x00\x28\x00\x00\x00\x25\x00\x00\x00\x29\x00\x00\x00\x0a\x00\x00\x00\x15\x00\x00\x00\x1b\x00\x00\x00\x19\x00\x00\x00\x21\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
+happyTable = HappyA# "\x00\x00\x00\x00\x07\x00\x00\x00\x08\x00\x00\x00\x06\x00\x00\x00\x07\x00\x00\x00\x08\x00\x00\x00\x07\x00\x00\x00\x08\x00\x00\x00\xff\xff\xff\xff\x0d\x00\x00\x00\x0e\x00\x00\x00\x0b\x00\x00\x00\x04\x00\x00\x00\x05\x00\x00\x00\x09\x00\x00\x00\x02\x00\x00\x00\x0f\x00\x00\x00\x09\x00\x00\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
-happyReduceArr = Happy_Data_Array.array (1, 11) [
+happyReduceArr = Happy_Data_Array.array (1, 6) [
         (1 , happyReduce_1),
         (2 , happyReduce_2),
         (3 , happyReduce_3),
         (4 , happyReduce_4),
         (5 , happyReduce_5),
-        (6 , happyReduce_6),
-        (7 , happyReduce_7),
-        (8 , happyReduce_8),
-        (9 , happyReduce_9),
-        (10 , happyReduce_10),
-        (11 , happyReduce_11)
+        (6 , happyReduce_6)
         ]
 
 happyRuleArr :: HappyAddr
-happyRuleArr = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x0a\x00\x00\x00"#
+happyRuleArr = HappyA# "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00"#
 
 happyCatchStates :: [Happy_Prelude.Int]
 happyCatchStates = []
 
-happy_n_terms = 9 :: Happy_Prelude.Int
+happy_n_terms = 10 :: Happy_Prelude.Int
 happy_n_nonterms = 1 :: Happy_Prelude.Int
 
 happy_n_starts = 1 :: Happy_Prelude.Int
@@ -90,7 +85,7 @@ happy_n_starts = 1 :: Happy_Prelude.Int
 #endif
 happyReduce_1 = happySpecReduce_0  0# happyReduction_1
 happyReduction_1  =  HappyAbsSyn5
-                 ([]
+                 ([[]]
         )
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -98,166 +93,57 @@ happyReduction_1  =  HappyAbsSyn5
 happyReduce_2 = happySpecReduce_1  0# happyReduction_2
 happyReduction_2 (HappyTerminal (TokenBlock happy_var_1))
          =  HappyAbsSyn5
-                 ([toAction happy_var_1]
+                 ([[toAction happy_var_1]]
         )
 happyReduction_2 _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_3 = happyReduce 11# 0# happyReduction_3
+happyReduce_3 = happyReduce 4# 0# happyReduction_3
 happyReduction_3 (_ `HappyStk`
-        (HappyTerminal (TokenSoloIdentifier happy_var_10)) `HappyStk`
-        (HappyAbsSyn5  happy_var_9) `HappyStk`
+        (HappyAbsSyn5  happy_var_3) `HappyStk`
         _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_4) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
+        (HappyTerminal (TokenSoloIdentifier happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_9 (Just (ID happy_var_10)))]
+                 ([(toAddress happy_var_1) : (head happy_var_3) <> [toHeadline happy_var_1]] <> (tail happy_var_3)
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_4 = happyReduce 10# 0# happyReduction_4
-happyReduction_4 (_ `HappyStk`
-        (HappyAbsSyn5  happy_var_9) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_4) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
-        happyRest)
-         = HappyAbsSyn5
-                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_9 Nothing)]
-        ) `HappyStk` happyRest
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_5 = happyReduce 10# 0# happyReduction_5
-happyReduction_5 (_ `HappyStk`
-        (HappyTerminal (TokenSoloIdentifier happy_var_9)) `HappyStk`
-        (HappyAbsSyn5  happy_var_8) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_4) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
-        happyRest)
-         = HappyAbsSyn5
-                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 (Just (ID happy_var_9)))]
-        ) `HappyStk` happyRest
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_6 = happyReduce 9# 0# happyReduction_6
-happyReduction_6 (_ `HappyStk`
-        (HappyAbsSyn5  happy_var_8) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_4) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
-        happyRest)
-         = HappyAbsSyn5
-                 ([toFork happy_var_1 (ConnectedSkewerBlocks happy_var_4 Nothing) (ConnectedSkewerBlocks happy_var_8 Nothing)]
-        ) `HappyStk` happyRest
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_7 = happySpecReduce_2  0# happyReduction_7
-happyReduction_7 (HappyTerminal (TokenBlock happy_var_2))
+happyReduce_4 = happySpecReduce_2  0# happyReduction_4
+happyReduction_4 (HappyTerminal (TokenBlock happy_var_2))
         (HappyAbsSyn5  happy_var_1)
          =  HappyAbsSyn5
-                 ((toAction happy_var_2) : happy_var_1
+                 ([(toAction happy_var_2) : (head happy_var_1)] <> (tail happy_var_1)
         )
-happyReduction_7 _ _  = notHappyAtAll 
+happyReduction_4 _ _  = notHappyAtAll 
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_8 = happyReduce 12# 0# happyReduction_8
-happyReduction_8 (_ `HappyStk`
-        (HappyTerminal (TokenSoloIdentifier happy_var_11)) `HappyStk`
-        (HappyAbsSyn5  happy_var_10) `HappyStk`
+happyReduce_5 = happyReduce 5# 0# happyReduction_5
+happyReduction_5 (_ `HappyStk`
+        (HappyAbsSyn5  happy_var_4) `HappyStk`
         _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_5) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
+        (HappyTerminal (TokenSoloIdentifier happy_var_2)) `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_10 (Just (ID happy_var_11)))) : happy_var_1
+                 (happy_var_1 <> [(toAddress happy_var_2) : (head happy_var_4) <> [toHeadline happy_var_2]]
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
 #endif
-happyReduce_9 = happyReduce 11# 0# happyReduction_9
-happyReduction_9 (_ `HappyStk`
-        (HappyAbsSyn5  happy_var_10) `HappyStk`
+happyReduce_6 = happyReduce 6# 0# happyReduction_6
+happyReduction_6 (_ `HappyStk`
         _ `HappyStk`
+        (HappyAbsSyn5  happy_var_4) `HappyStk`
         _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_5) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
+        (HappyTerminal (TokenSoloIdentifier happy_var_2)) `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_10 Nothing)) : happy_var_1
-        ) `HappyStk` happyRest
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_10 = happyReduce 11# 0# happyReduction_10
-happyReduction_10 (_ `HappyStk`
-        (HappyTerminal (TokenSoloIdentifier happy_var_10)) `HappyStk`
-        (HappyAbsSyn5  happy_var_9) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_5) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
-        (HappyAbsSyn5  happy_var_1) `HappyStk`
-        happyRest)
-         = HappyAbsSyn5
-                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_9 (Just (ID happy_var_10)))) : happy_var_1
-        ) `HappyStk` happyRest
-
-#if __GLASGOW_HASKELL__ >= 710
-#endif
-happyReduce_11 = happyReduce 10# 0# happyReduction_11
-happyReduction_11 (_ `HappyStk`
-        (HappyAbsSyn5  happy_var_9) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyAbsSyn5  happy_var_5) `HappyStk`
-        _ `HappyStk`
-        _ `HappyStk`
-        (HappyTerminal (TokenBlock happy_var_2)) `HappyStk`
-        (HappyAbsSyn5  happy_var_1) `HappyStk`
-        happyRest)
-         = HappyAbsSyn5
-                 ((toFork happy_var_2 (ConnectedSkewerBlocks happy_var_5 Nothing) (ConnectedSkewerBlocks happy_var_9 Nothing)) : happy_var_1
+                 (happy_var_1 <> [(toAddress happy_var_2) : (head happy_var_4) <> [toHeadline happy_var_2]]
         ) `HappyStk` happyRest
 
 happyTerminalToTok term = case term of {
@@ -267,6 +153,7 @@ happyTerminalToTok term = case term of {
         TokenRightBranch -> 5#;
         TokenOCB -> 6#;
         TokenCCB -> 7#;
+        TokenH -> 8#;
         _ -> -1#;
         }
 {-# NOINLINE happyTerminalToTok #-}
@@ -275,9 +162,9 @@ happyLex kend  _kmore []       = kend notHappyAtAll []
 happyLex _kend kmore  (tk:tks) = kmore (happyTerminalToTok tk) tk tks
 {-# INLINE happyLex #-}
 
-happyNewToken action sts stk = happyLex (\tk -> happyDoAction 8# notHappyAtAll action sts stk) (\i tk -> happyDoAction i tk action sts stk)
+happyNewToken action sts stk = happyLex (\tk -> happyDoAction 9# notHappyAtAll action sts stk) (\i tk -> happyDoAction i tk action sts stk)
 
-happyReport 8# tk explist resume tks = happyReport' tks explist resume
+happyReport 9# tk explist resume tks = happyReport' tks explist resume
 happyReport _ tk explist resume tks = happyReport' (tk:tks) explist (\tks -> resume (Happy_Prelude.tail tks))
 
 
@@ -300,6 +187,15 @@ diagram tks = happySomeParser where
 
 happySeq = happyDontSeq
 
+
+--        | block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'        { [toFork $1 (ConnectedSkewerBlocks $4 (Just (ID $5))) (ConnectedSkewerBlocks $9 (Just (ID $10)))] }
+--        | block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'                       { [toFork $1 (ConnectedSkewerBlocks $4 (Just (ID $5))) (ConnectedSkewerBlocks $9 Nothing)] }
+--        | block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'                       { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 (Just (ID $9)))] }
+--        | block leftBranch '{' prods '}' rightBranch '{' prods '}'                                      { [toFork $1 (ConnectedSkewerBlocks $4 Nothing) (ConnectedSkewerBlocks $8 Nothing)] }
+--        | prods block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'  { (toFork $2 (ConnectedSkewerBlocks $5 (Just (ID $6))) (ConnectedSkewerBlocks $10 (Just (ID $11)))) : $1 }
+--        | prods block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'                 { (toFork $2 (ConnectedSkewerBlocks $5 (Just (ID $6))) (ConnectedSkewerBlocks $10 Nothing)) : $1 }
+--        | prods block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'                 { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 (Just (ID $10)))) : $1 }
+--        | prods block leftBranch '{' prods '}' rightBranch '{' prods '}'                                { (toFork $2 (ConnectedSkewerBlocks $5 Nothing) (ConnectedSkewerBlocks $9 Nothing)) : $1 }
 
 happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
 
