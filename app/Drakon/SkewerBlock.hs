@@ -158,6 +158,9 @@ toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
 toAddress :: String -> SkewerBlock
 toAddress x = Address (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
 
+toBlankAddress :: String -> SkewerBlock
+toBlankAddress x = Address (toId x) (p2 (-1.0, -1.0)) (Content "")
+
 toAction :: String -> SkewerBlock
 toAction x = Action (toId x) (p2 (-1.0, -1.0)) (toContent x)
 

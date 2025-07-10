@@ -22,13 +22,16 @@ import Diagrams.Prelude (Point(..), V2(..), p2)
 
 %%
 
+silhouette  : soloIdentifier '{' prods '}'                                                                  { [(toAddress $1) : (head $3) <> [toHeadline $1]] <> (tail $3) }
+              | soloIdentifier '{' prods soloIdentifier '}'                                                 { [(toAddress $4) : (head $3) <> [toHeadline $1]] <> (tail $3) }
+              | prods soloIdentifier '{' prods '}'                                                          { $1 <> [(toBlankAddress $2) : (head $4) <> [toHeadline $2]] }
+              | prods soloIdentifier '{' prods soloIdentifier '}'                                           { $1 <> [(toAddress $5) : (head $4) <> [toHeadline $2]] }
+
 prods : {- empty -}                                                                                     { [[]] }
+        | block leftBranch '{' prods '}' rightBranch '{' prods '}'                                      { [[toFork $1 (ConnectedSkewerBlocks [] Nothing) (ConnectedSkewerBlocks [] Nothing)]] }
         | block                                                                                         { [[toAction $1]] }
-        | soloIdentifier '{' prods '}'                                                                  { [(toAddress $1) : (head $3) <> [toHeadline $1]] <> (tail $3) }
-        | soloIdentifier '{' prods soloIdentifier '}'                                                   { [(toAddress $4) : (head $3) <> [toHeadline $1]] <> (tail $3) }
         | prods block                                                                                   { [(toAction $2) : (head $1)] <> (tail $1) }
-        | prods soloIdentifier '{' prods '}'                                                            { $1 <> [(toAddress $2) : (head $4) <> [toHeadline $2]] }
-        | prods soloIdentifier '{' prods soloIdentifier '}'                                             { $1 <> [(toAddress $5) : (head $4) <> [toHeadline $2]] }
+        | silhouette                                                                                    { $1 }
 
 {
 
