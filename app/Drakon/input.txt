@@ -1,8 +1,9 @@
 1H1 {
-  1 "action 1"
-  2 "action 2"
-  2H2
-}
-2H2 {
-  3 "action 3"
+  2 "fork 1"
+  L {
+    3 "l branch"
+  }
+  R {
+    4 "r branch"
+  }
 }
