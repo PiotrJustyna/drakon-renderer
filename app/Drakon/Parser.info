@@ -7,34 +7,38 @@ state 5 contains 2 shift/reduce conflicts.
 state 9 contains 2 shift/reduce conflicts.
 state 11 contains 2 shift/reduce conflicts.
 state 16 contains 2 shift/reduce conflicts.
-state 30 contains 2 shift/reduce conflicts.
 state 32 contains 2 shift/reduce conflicts.
-state 33 contains 2 shift/reduce conflicts.
+state 34 contains 2 shift/reduce conflicts.
+state 36 contains 2 shift/reduce conflicts.
+state 38 contains 2 shift/reduce conflicts.
 
 -----------------------------------------------------------------------------
 Grammar
 -----------------------------------------------------------------------------
 	%start_diagram -> prods                            (0)
 	prods ->                                           (1)
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'   (2)
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'   (3)
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'   (4)
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods '}'   (5)
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'   (2)
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods '}'   (3)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods soloId '}'   (4)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods '}'   (5)
 	prods -> block                                     (6)
-	prods -> prods block leftBranch '{' prods '}' rightBranch '{' prods '}'   (7)
-	prods -> prods block                               (8)
-	prods -> soloIdentifier '{' prods '}'              (9)
-	prods -> soloIdentifier '{' prods soloIdentifier '}'   (10)
-	prods -> prods soloIdentifier '{' prods '}'        (11)
-	prods -> prods soloIdentifier '{' prods soloIdentifier '}'   (12)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'   (7)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods '}'   (8)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods soloId '}'   (9)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods '}'   (10)
+	prods -> prods block                               (11)
+	prods -> soloId '{' prods '}'                      (12)
+	prods -> soloId '{' prods soloId '}'               (13)
+	prods -> prods soloId '{' prods '}'                (14)
+	prods -> prods soloId '{' prods soloId '}'         (15)
 
 -----------------------------------------------------------------------------
 Terminals
 -----------------------------------------------------------------------------
 	block          { TokenBlock $$ }
-	soloIdentifier { TokenSoloIdentifier $$ }
-	leftBranch     { TokenLeftBranch }
-	rightBranch    { TokenRightBranch }
+	soloId         { TokenSoloIdentifier $$ }
+	lBranch        { TokenLeftBranch }
+	rBranch        { TokenRightBranch }
 	'{'            { TokenOCB }
 	'}'            { TokenCCB }
 
@@ -42,7 +46,7 @@ Terminals
 Non-terminals
 -----------------------------------------------------------------------------
 	%start_diagram  rule  0
-	prods           rules 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+	prods           rules 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 
 -----------------------------------------------------------------------------
 States
@@ -54,7 +58,7 @@ State 0
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	%eof           reduce using rule 1
@@ -70,48 +74,51 @@ State 1
 State 2
 
 	%start_diagram -> prods .                           (rule 0)
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
 
 	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 8
+	soloId         shift, and enter state 8
 	%eof           accept
 
 
 State 3
 
-	prods -> block . leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block . leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}'    (rule 3)
-	prods -> block . leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block . leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 5)
+	prods -> block . lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block . lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 3)
+	prods -> block . lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 4)
+	prods -> block . lBranch '{' prods '}' rBranch '{' prods '}'    (rule 5)
 	prods -> block .                                    (rule 6)
 
 	block          reduce using rule 6
-	soloIdentifier reduce using rule 6
-	leftBranch     shift, and enter state 6
+	soloId         reduce using rule 6
+	lBranch        shift, and enter state 6
 	'}'            reduce using rule 6
 	%eof           reduce using rule 6
 
 
 State 4
 
-	prods -> soloIdentifier . '{' prods '}'             (rule 9)
-	prods -> soloIdentifier . '{' prods soloIdentifier '}'    (rule 10)
+	prods -> soloId . '{' prods '}'                     (rule 12)
+	prods -> soloId . '{' prods soloId '}'              (rule 13)
 
 	'{'            shift, and enter state 5
 
 
 State 5
 
-	prods -> soloIdentifier '{' . prods '}'             (rule 9)
-	prods -> soloIdentifier '{' . prods soloIdentifier '}'    (rule 10)
+	prods -> soloId '{' . prods '}'                     (rule 12)
+	prods -> soloId '{' . prods soloId '}'              (rule 13)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
@@ -120,43 +127,46 @@ State 5
 
 State 6
 
-	prods -> block leftBranch . '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch . '{' prods soloIdentifier '}' rightBranch '{' prods '}'    (rule 3)
-	prods -> block leftBranch . '{' prods '}' rightBranch '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch . '{' prods '}' rightBranch '{' prods '}'    (rule 5)
+	prods -> block lBranch . '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch . '{' prods soloId '}' rBranch '{' prods '}'    (rule 3)
+	prods -> block lBranch . '{' prods '}' rBranch '{' prods soloId '}'    (rule 4)
+	prods -> block lBranch . '{' prods '}' rBranch '{' prods '}'    (rule 5)
 
 	'{'            shift, and enter state 11
 
 
 State 7
 
-	prods -> prods block . leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods block .                              (rule 8)
+	prods -> prods block . lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block . lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods block . lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block . lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods block .                              (rule 11)
 
-	block          reduce using rule 8
-	soloIdentifier reduce using rule 8
-	leftBranch     shift, and enter state 10
-	'}'            reduce using rule 8
-	%eof           reduce using rule 8
+	block          reduce using rule 11
+	soloId         reduce using rule 11
+	lBranch        shift, and enter state 10
+	'}'            reduce using rule 11
+	%eof           reduce using rule 11
 
 
 State 8
 
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
 
 	'{'            shift, and enter state 9
 
 
 State 9
 
-	prods -> prods soloIdentifier '{' . prods '}'       (rule 11)
-	prods -> prods soloIdentifier '{' . prods soloIdentifier '}'    (rule 12)
+	prods -> prods soloId '{' . prods '}'               (rule 14)
+	prods -> prods soloId '{' . prods soloId '}'        (rule 15)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
@@ -165,22 +175,25 @@ State 9
 
 State 10
 
-	prods -> prods block leftBranch . '{' prods '}' rightBranch '{' prods '}'    (rule 7)
+	prods -> prods block lBranch . '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch . '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods block lBranch . '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch . '{' prods '}' rBranch '{' prods '}'    (rule 10)
 
 	'{'            shift, and enter state 16
 
 
 State 11
 
-	prods -> block leftBranch '{' . prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' . prods soloIdentifier '}' rightBranch '{' prods '}'    (rule 3)
-	prods -> block leftBranch '{' . prods '}' rightBranch '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' . prods '}' rightBranch '{' prods '}'    (rule 5)
+	prods -> block lBranch '{' . prods soloId '}' rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' . prods soloId '}' rBranch '{' prods '}'    (rule 3)
+	prods -> block lBranch '{' . prods '}' rBranch '{' prods soloId '}'    (rule 4)
+	prods -> block lBranch '{' . prods '}' rBranch '{' prods '}'    (rule 5)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
@@ -189,23 +202,26 @@ State 11
 
 State 12
 
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> soloIdentifier '{' prods . '}'             (rule 9)
-	prods -> soloIdentifier '{' prods . soloIdentifier '}'    (rule 10)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> soloId '{' prods . '}'                     (rule 12)
+	prods -> soloId '{' prods . soloId '}'              (rule 13)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
 
 	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 13
+	soloId         shift, and enter state 13
 	'}'            shift, and enter state 14
 
 
 State 13
 
-	prods -> soloIdentifier '{' prods soloIdentifier . '}'    (rule 10)
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
+	prods -> soloId '{' prods soloId . '}'              (rule 13)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
 
 	'{'            shift, and enter state 9
 	'}'            shift, and enter state 23
@@ -213,38 +229,44 @@ State 13
 
 State 14
 
-	prods -> soloIdentifier '{' prods '}' .             (rule 9)
+	prods -> soloId '{' prods '}' .                     (rule 12)
 
-	block          reduce using rule 9
-	soloIdentifier reduce using rule 9
-	'}'            reduce using rule 9
-	%eof           reduce using rule 9
+	block          reduce using rule 12
+	soloId         reduce using rule 12
+	'}'            reduce using rule 12
+	%eof           reduce using rule 12
 
 
 State 15
 
-	prods -> block leftBranch '{' prods . soloIdentifier '}' rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods . soloIdentifier '}' rightBranch '{' prods '}'    (rule 3)
-	prods -> block leftBranch '{' prods . '}' rightBranch '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' prods . '}' rightBranch '{' prods '}'    (rule 5)
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> block lBranch '{' prods . soloId '}' rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods . soloId '}' rBranch '{' prods '}'    (rule 3)
+	prods -> block lBranch '{' prods . '}' rBranch '{' prods soloId '}'    (rule 4)
+	prods -> block lBranch '{' prods . '}' rBranch '{' prods '}'    (rule 5)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
 
 	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 21
+	soloId         shift, and enter state 21
 	'}'            shift, and enter state 22
 
 
 State 16
 
-	prods -> prods block leftBranch '{' . prods '}' rightBranch '{' prods '}'    (rule 7)
+	prods -> prods block lBranch '{' . prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' . prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods block lBranch '{' . prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' . prods '}' rBranch '{' prods '}'    (rule 10)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
@@ -253,57 +275,66 @@ State 16
 
 State 17
 
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier '{' prods . '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
-	prods -> prods soloIdentifier '{' prods . soloIdentifier '}'    (rule 12)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods soloId '{' prods . '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
+	prods -> prods soloId '{' prods . soloId '}'        (rule 15)
 
 	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 18
+	soloId         shift, and enter state 18
 	'}'            shift, and enter state 19
 
 
 State 18
 
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
-	prods -> prods soloIdentifier '{' prods soloIdentifier . '}'    (rule 12)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
+	prods -> prods soloId '{' prods soloId . '}'        (rule 15)
 
 	'{'            shift, and enter state 9
-	'}'            shift, and enter state 27
+	'}'            shift, and enter state 28
 
 
 State 19
 
-	prods -> prods soloIdentifier '{' prods '}' .       (rule 11)
+	prods -> prods soloId '{' prods '}' .               (rule 14)
 
-	block          reduce using rule 11
-	soloIdentifier reduce using rule 11
-	'}'            reduce using rule 11
-	%eof           reduce using rule 11
+	block          reduce using rule 14
+	soloId         reduce using rule 14
+	'}'            reduce using rule 14
+	%eof           reduce using rule 14
 
 
 State 20
 
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods block leftBranch '{' prods . '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods . soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods block lBranch '{' prods . soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' prods . '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods block lBranch '{' prods . '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
 
 	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 8
-	'}'            shift, and enter state 26
+	soloId         shift, and enter state 26
+	'}'            shift, and enter state 27
 
 
 State 21
 
-	prods -> block leftBranch '{' prods soloIdentifier . '}' rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods soloIdentifier . '}' rightBranch '{' prods '}'    (rule 3)
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
+	prods -> block lBranch '{' prods soloId . '}' rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods soloId . '}' rBranch '{' prods '}'    (rule 3)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
 
 	'{'            shift, and enter state 9
 	'}'            shift, and enter state 25
@@ -311,229 +342,351 @@ State 21
 
 State 22
 
-	prods -> block leftBranch '{' prods '}' . rightBranch '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' prods '}' . rightBranch '{' prods '}'    (rule 5)
+	prods -> block lBranch '{' prods '}' . rBranch '{' prods soloId '}'    (rule 4)
+	prods -> block lBranch '{' prods '}' . rBranch '{' prods '}'    (rule 5)
 
-	rightBranch    shift, and enter state 24
+	rBranch        shift, and enter state 24
 
 
 State 23
 
-	prods -> soloIdentifier '{' prods soloIdentifier '}' .    (rule 10)
+	prods -> soloId '{' prods soloId '}' .              (rule 13)
 
-	block          reduce using rule 10
-	soloIdentifier reduce using rule 10
-	'}'            reduce using rule 10
-	%eof           reduce using rule 10
+	block          reduce using rule 13
+	soloId         reduce using rule 13
+	'}'            reduce using rule 13
+	%eof           reduce using rule 13
 
 
 State 24
 
-	prods -> block leftBranch '{' prods '}' rightBranch . '{' prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' prods '}' rightBranch . '{' prods '}'    (rule 5)
-
-	'{'            shift, and enter state 30
-
-
-State 25
-
-	prods -> block leftBranch '{' prods soloIdentifier '}' . rightBranch '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods soloIdentifier '}' . rightBranch '{' prods '}'    (rule 3)
-
-	rightBranch    shift, and enter state 29
-
-
-State 26
-
-	prods -> prods block leftBranch '{' prods '}' . rightBranch '{' prods '}'    (rule 7)
-
-	rightBranch    shift, and enter state 28
-
-
-State 27
-
-	prods -> prods soloIdentifier '{' prods soloIdentifier '}' .    (rule 12)
-
-	block          reduce using rule 12
-	soloIdentifier reduce using rule 12
-	'}'            reduce using rule 12
-	%eof           reduce using rule 12
-
-
-State 28
-
-	prods -> prods block leftBranch '{' prods '}' rightBranch . '{' prods '}'    (rule 7)
-
-	'{'            shift, and enter state 33
-
-
-State 29
-
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch . '{' prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch . '{' prods '}'    (rule 3)
+	prods -> block lBranch '{' prods '}' rBranch . '{' prods soloId '}'    (rule 4)
+	prods -> block lBranch '{' prods '}' rBranch . '{' prods '}'    (rule 5)
 
 	'{'            shift, and enter state 32
 
 
+State 25
+
+	prods -> block lBranch '{' prods soloId '}' . rBranch '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods soloId '}' . rBranch '{' prods '}'    (rule 3)
+
+	rBranch        shift, and enter state 31
+
+
+State 26
+
+	prods -> prods block lBranch '{' prods soloId . '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods soloId . '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
+
+	'{'            shift, and enter state 9
+	'}'            shift, and enter state 30
+
+
+State 27
+
+	prods -> prods block lBranch '{' prods '}' . rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' prods '}' . rBranch '{' prods '}'    (rule 10)
+
+	rBranch        shift, and enter state 29
+
+
+State 28
+
+	prods -> prods soloId '{' prods soloId '}' .        (rule 15)
+
+	block          reduce using rule 15
+	soloId         reduce using rule 15
+	'}'            reduce using rule 15
+	%eof           reduce using rule 15
+
+
+State 29
+
+	prods -> prods block lBranch '{' prods '}' rBranch . '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' prods '}' rBranch . '{' prods '}'    (rule 10)
+
+	'{'            shift, and enter state 36
+
+
 State 30
 
-	prods -> block leftBranch '{' prods '}' rightBranch '{' . prods soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' prods '}' rightBranch '{' . prods '}'    (rule 5)
+	prods -> prods block lBranch '{' prods soloId '}' . rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods soloId '}' . rBranch '{' prods '}'    (rule 8)
 
-	block          shift, and enter state 3
-			(reduce using rule 1)
+	rBranch        shift, and enter state 35
 
-	soloIdentifier shift, and enter state 4
-			(reduce using rule 1)
-
-	'}'            reduce using rule 1
-
-	prods          goto state 31
 
 State 31
 
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods . soloIdentifier '}'    (rule 4)
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods . '}'    (rule 5)
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> block lBranch '{' prods soloId '}' rBranch . '{' prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods soloId '}' rBranch . '{' prods '}'    (rule 3)
 
-	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 36
-	'}'            shift, and enter state 37
+	'{'            shift, and enter state 34
 
 
 State 32
 
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' . prods soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' . prods '}'    (rule 3)
+	prods -> block lBranch '{' prods '}' rBranch '{' . prods soloId '}'    (rule 4)
+	prods -> block lBranch '{' prods '}' rBranch '{' . prods '}'    (rule 5)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
 
-	prods          goto state 35
+	prods          goto state 33
 
 State 33
 
-	prods -> prods block leftBranch '{' prods '}' rightBranch '{' . prods '}'    (rule 7)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods . soloId '}'    (rule 4)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods . '}'    (rule 5)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
+
+	block          shift, and enter state 7
+	soloId         shift, and enter state 40
+	'}'            shift, and enter state 41
+
+
+State 34
+
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' . prods soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' . prods '}'    (rule 3)
 
 	block          shift, and enter state 3
 			(reduce using rule 1)
 
-	soloIdentifier shift, and enter state 4
+	soloId         shift, and enter state 4
 			(reduce using rule 1)
 
 	'}'            reduce using rule 1
 
-	prods          goto state 34
-
-State 34
-
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods block leftBranch '{' prods '}' rightBranch '{' prods . '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
-
-	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 8
-	'}'            shift, and enter state 41
-
+	prods          goto state 39
 
 State 35
 
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods . soloIdentifier '}'    (rule 2)
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods . '}'    (rule 3)
-	prods -> prods . block leftBranch '{' prods '}' rightBranch '{' prods '}'    (rule 7)
-	prods -> prods . block                              (rule 8)
-	prods -> prods . soloIdentifier '{' prods '}'       (rule 11)
-	prods -> prods . soloIdentifier '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch . '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch . '{' prods '}'    (rule 8)
 
-	block          shift, and enter state 7
-	soloIdentifier shift, and enter state 39
-	'}'            shift, and enter state 40
+	'{'            shift, and enter state 38
 
 
 State 36
 
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier . '}'    (rule 4)
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' . prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' . prods '}'    (rule 10)
 
-	'{'            shift, and enter state 9
-	'}'            shift, and enter state 38
+	block          shift, and enter state 3
+			(reduce using rule 1)
 
+	soloId         shift, and enter state 4
+			(reduce using rule 1)
+
+	'}'            reduce using rule 1
+
+	prods          goto state 37
 
 State 37
 
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods '}' .    (rule 5)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods . soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods . '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
 
-	block          reduce using rule 5
-	soloIdentifier reduce using rule 5
-	'}'            reduce using rule 5
-	%eof           reduce using rule 5
+	block          shift, and enter state 7
+	soloId         shift, and enter state 46
+	'}'            shift, and enter state 47
 
 
 State 38
 
-	prods -> block leftBranch '{' prods '}' rightBranch '{' prods soloIdentifier '}' .    (rule 4)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' . prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' . prods '}'    (rule 8)
 
-	block          reduce using rule 4
-	soloIdentifier reduce using rule 4
-	'}'            reduce using rule 4
-	%eof           reduce using rule 4
+	block          shift, and enter state 3
+			(reduce using rule 1)
 
+	soloId         shift, and enter state 4
+			(reduce using rule 1)
+
+	'}'            reduce using rule 1
+
+	prods          goto state 45
 
 State 39
 
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier . '}'    (rule 2)
-	prods -> prods soloIdentifier . '{' prods '}'       (rule 11)
-	prods -> prods soloIdentifier . '{' prods soloIdentifier '}'    (rule 12)
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods . soloId '}'    (rule 2)
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods . '}'    (rule 3)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
+
+	block          shift, and enter state 7
+	soloId         shift, and enter state 43
+	'}'            shift, and enter state 44
+
+
+State 40
+
+	prods -> block lBranch '{' prods '}' rBranch '{' prods soloId . '}'    (rule 4)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
 
 	'{'            shift, and enter state 9
 	'}'            shift, and enter state 42
 
 
-State 40
-
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods '}' .    (rule 3)
-
-	block          reduce using rule 3
-	soloIdentifier reduce using rule 3
-	'}'            reduce using rule 3
-	%eof           reduce using rule 3
-
-
 State 41
 
-	prods -> prods block leftBranch '{' prods '}' rightBranch '{' prods '}' .    (rule 7)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods '}' .    (rule 5)
 
-	block          reduce using rule 7
-	soloIdentifier reduce using rule 7
-	'}'            reduce using rule 7
-	%eof           reduce using rule 7
+	block          reduce using rule 5
+	soloId         reduce using rule 5
+	'}'            reduce using rule 5
+	%eof           reduce using rule 5
 
 
 State 42
 
-	prods -> block leftBranch '{' prods soloIdentifier '}' rightBranch '{' prods soloIdentifier '}' .    (rule 2)
+	prods -> block lBranch '{' prods '}' rBranch '{' prods soloId '}' .    (rule 4)
+
+	block          reduce using rule 4
+	soloId         reduce using rule 4
+	'}'            reduce using rule 4
+	%eof           reduce using rule 4
+
+
+State 43
+
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods soloId . '}'    (rule 2)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
+
+	'{'            shift, and enter state 9
+	'}'            shift, and enter state 51
+
+
+State 44
+
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods '}' .    (rule 3)
+
+	block          reduce using rule 3
+	soloId         reduce using rule 3
+	'}'            reduce using rule 3
+	%eof           reduce using rule 3
+
+
+State 45
+
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'    (rule 7)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods . soloId '}'    (rule 7)
+	prods -> prods . block lBranch '{' prods soloId '}' rBranch '{' prods '}'    (rule 8)
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods . '}'    (rule 8)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods soloId '}'    (rule 9)
+	prods -> prods . block lBranch '{' prods '}' rBranch '{' prods '}'    (rule 10)
+	prods -> prods . block                              (rule 11)
+	prods -> prods . soloId '{' prods '}'               (rule 14)
+	prods -> prods . soloId '{' prods soloId '}'        (rule 15)
+
+	block          shift, and enter state 7
+	soloId         shift, and enter state 49
+	'}'            shift, and enter state 50
+
+
+State 46
+
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods soloId . '}'    (rule 9)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
+
+	'{'            shift, and enter state 9
+	'}'            shift, and enter state 48
+
+
+State 47
+
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods '}' .    (rule 10)
+
+	block          reduce using rule 10
+	soloId         reduce using rule 10
+	'}'            reduce using rule 10
+	%eof           reduce using rule 10
+
+
+State 48
+
+	prods -> prods block lBranch '{' prods '}' rBranch '{' prods soloId '}' .    (rule 9)
+
+	block          reduce using rule 9
+	soloId         reduce using rule 9
+	'}'            reduce using rule 9
+	%eof           reduce using rule 9
+
+
+State 49
+
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods soloId . '}'    (rule 7)
+	prods -> prods soloId . '{' prods '}'               (rule 14)
+	prods -> prods soloId . '{' prods soloId '}'        (rule 15)
+
+	'{'            shift, and enter state 9
+	'}'            shift, and enter state 52
+
+
+State 50
+
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods '}' .    (rule 8)
+
+	block          reduce using rule 8
+	soloId         reduce using rule 8
+	'}'            reduce using rule 8
+	%eof           reduce using rule 8
+
+
+State 51
+
+	prods -> block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}' .    (rule 2)
 
 	block          reduce using rule 2
-	soloIdentifier reduce using rule 2
+	soloId         reduce using rule 2
 	'}'            reduce using rule 2
 	%eof           reduce using rule 2
+
+
+State 52
+
+	prods -> prods block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}' .    (rule 7)
+
+	block          reduce using rule 7
+	soloId         reduce using rule 7
+	'}'            reduce using rule 7
+	%eof           reduce using rule 7
 
 
 -----------------------------------------------------------------------------
 Grammar Totals
 -----------------------------------------------------------------------------
-Number of rules: 13
+Number of rules: 16
 Number of terminals: 6
 Number of non-terminals: 2
-Number of states: 43
+Number of states: 53

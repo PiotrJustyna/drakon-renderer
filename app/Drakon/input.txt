@@ -1,29 +1,11 @@
 1H1 {
-  2 "fork 1"
-  L {
-    3 "l branch"
+  1 "action 1"
+  1H1a {
+    3 "action 3"
+    2H1a
   }
-  R {
-    4 "r branch"
+  2H1a {
+    4 "action 4"
   }
   2H1
-}
-2H1 {
-  31 "fork 3"
-  L {
-    31a1 "l branch a1 2"
-  }
-  R {
-    41a1 "r branch b2 2"
-  }
-  6 "action 6"
-  234 "fork 2a"
-    L {
-      31a "l branch a1"
-      32a "l branch a2"
-    }
-    R {
-      4 "r branch"
-      6
-    }
 }
