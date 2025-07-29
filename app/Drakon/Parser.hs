@@ -113,7 +113,7 @@ happyReduction_2 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([[toFork happy_var_1 (ConnectedSkewerBlocks (head happy_var_4) (Just (ID happy_var_5))) (ConnectedSkewerBlocks (head happy_var_9) (Just (ID happy_var_10)))]]
+                 (soloForkLR happy_var_1 happy_var_4 happy_var_5 happy_var_9 happy_var_10 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -131,7 +131,7 @@ happyReduction_3 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([[toFork happy_var_1 (ConnectedSkewerBlocks (head happy_var_4) (Just (ID happy_var_5))) (ConnectedSkewerBlocks (head happy_var_9) Nothing)]]
+                 (soloForkL happy_var_1 happy_var_4 happy_var_5 happy_var_9 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -149,7 +149,7 @@ happyReduction_4 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([[toFork happy_var_1 (ConnectedSkewerBlocks (head happy_var_4) Nothing) (ConnectedSkewerBlocks (head happy_var_8) (Just (ID happy_var_9)))]]
+                 (soloForkR happy_var_1 happy_var_4 happy_var_8 happy_var_9 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -166,7 +166,7 @@ happyReduction_5 (_ `HappyStk`
         (HappyTerminal (TokenBlock happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([[toFork happy_var_1 (ConnectedSkewerBlocks (head happy_var_4) Nothing) (ConnectedSkewerBlocks (head happy_var_8) Nothing)]]
+                 (soloFork happy_var_1 happy_var_4 happy_var_8 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -195,7 +195,7 @@ happyReduction_7 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([toFork happy_var_2 (ConnectedSkewerBlocks (head happy_var_5) (Just (ID happy_var_6))) (ConnectedSkewerBlocks (head happy_var_10) (Just (ID happy_var_11))) : (head happy_var_1)] <> (tail happy_var_1)
+                 (appendForkLR happy_var_1 happy_var_2 happy_var_5 happy_var_6 happy_var_10 happy_var_11 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -214,7 +214,7 @@ happyReduction_8 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([(toFork happy_var_2 (ConnectedSkewerBlocks (head happy_var_5) (Just (ID happy_var_6))) (ConnectedSkewerBlocks (head happy_var_10) Nothing)) : (head happy_var_1)] <> (tail happy_var_1)
+                 (appendForkL happy_var_1 happy_var_2 happy_var_5 happy_var_6 happy_var_10 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -233,7 +233,7 @@ happyReduction_9 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([(toFork happy_var_2 (ConnectedSkewerBlocks (head happy_var_5) Nothing) (ConnectedSkewerBlocks (head happy_var_9) (Just (ID happy_var_10)))) : (head happy_var_1)] <> (tail happy_var_1)
+                 (appendForkR happy_var_1 happy_var_2 happy_var_5 happy_var_9 happy_var_10 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -251,7 +251,7 @@ happyReduction_10 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([(toFork happy_var_2 (ConnectedSkewerBlocks (head happy_var_5) Nothing) (ConnectedSkewerBlocks (head happy_var_9) Nothing)) : (head happy_var_1)] <> (tail happy_var_1)
+                 (appendFork happy_var_1 happy_var_2 happy_var_5 happy_var_9 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -260,7 +260,7 @@ happyReduce_11 = happySpecReduce_2  0# happyReduction_11
 happyReduction_11 (HappyTerminal (TokenBlock happy_var_2))
         (HappyAbsSyn5  happy_var_1)
          =  HappyAbsSyn5
-                 (abc happy_var_2 happy_var_1
+                 (insertAction happy_var_2 happy_var_1
         )
 happyReduction_11 _ _  = notHappyAtAll 
 
@@ -273,7 +273,7 @@ happyReduction_12 (_ `HappyStk`
         (HappyTerminal (TokenSoloIdentifier happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([(toAddress happy_var_1) : (head happy_var_3) <> [toHeadline happy_var_1]] <> (tail happy_var_3)
+                 (soloSkewer happy_var_1 happy_var_3 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -286,7 +286,7 @@ happyReduction_13 (_ `HappyStk`
         (HappyTerminal (TokenSoloIdentifier happy_var_1)) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 ([(toAddress happy_var_4) : (head happy_var_3) <> [toHeadline happy_var_1]] <> (tail happy_var_3)
+                 (soloSkewer' happy_var_1 happy_var_3 happy_var_4 -- TODO: also always 1D
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -299,7 +299,7 @@ happyReduction_14 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 (happy_var_1 <> [(head happy_var_4) <> [toHeadline happy_var_2]]
+                 (appendSkewer happy_var_1 happy_var_2 happy_var_4 -- TODO: adjust production rules to only allow 1D prods here
         ) `HappyStk` happyRest
 
 #if __GLASGOW_HASKELL__ >= 710
@@ -313,7 +313,7 @@ happyReduction_15 (_ `HappyStk`
         (HappyAbsSyn5  happy_var_1) `HappyStk`
         happyRest)
          = HappyAbsSyn5
-                 (happy_var_1 <> [(toAddress happy_var_5) : (head happy_var_4) <> [toHeadline happy_var_2]]
+                 (appendSkewer' happy_var_1 happy_var_2 happy_var_4 happy_var_5 -- TODO: adjust production rules to only allow 1D prods here
         ) `HappyStk` happyRest
 
 happyTerminalToTok term = case term of {
@@ -356,9 +356,6 @@ diagram tks = happySomeParser where
 
 happySeq = happyDontSeq
 
-
-abc :: String -> [[SkewerBlock]] -> [[SkewerBlock]]
-abc = [(toAction $2) : (head $1)] <> (tail $1)
 
 happyError = \tks i -> error ("Parse error in line " ++ show (i::Int) ++ ".\n")
 
