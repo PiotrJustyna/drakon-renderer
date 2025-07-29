@@ -6,14 +6,129 @@ Reasonably portable drakon-esque diagrams renderer. Development, compilation and
 
 This is work in progress and, while progress is being made every week, the renderer is not yet guaraneed to render drakon-correct diagrams (we're getting close, though, I feel!). Current focus is to translate [the drakon whitepaper](https://drakon.su/_media/video_i_prezentacii/graphical_syntax_.pdf) into a Haskell-friendly set of types and functions.
 
+## examples
+
 Sample diagrams the renderer can produce today:
 
-| name | output |
-| --- | --- |
-| primitive diagram 1 | ![primitive-diagram-1](./diagrams/primitive-diagram-1.svg) |
-| primitive diagram 2 | ![primitive-diagram-2](./diagrams/primitive-diagram-2.svg) |
-| primitive diagram 3 | ![primitive-diagram-3](./diagrams/primitive-diagram-3.svg) |
-| silhouette diagram 1 | ![silhouette-diagram-1](./diagrams/silhouette-diagram-1.svg) |
+### primitive diagram 1
+
+#### input
+
+```
+1 "custom content - action"
+2 "custom content - fork"
+  L {
+    3 "custom content - action"
+    4 "custom content - action"
+    5 "custom content - action"
+  }
+  R {
+    6 "custom content - action"
+    7 "custom content - action"
+    8 "custom content - fork"
+    L {
+      9 "custom content - action"
+    }
+    R {
+      10 "custom content - action"
+      11 "custom content - action"
+    }
+  }
+```
+
+#### output
+
+![primitive-diagram-1](./diagrams/primitive-diagram-1.svg)
+
+### primitive diagram 2
+
+#### input
+
+```
+1 "custom content - fork"
+  L {
+    2 "custom content - action"
+    3 "custom content - action"
+  }
+  R {
+  }
+```
+
+#### output
+
+![primitive-diagram-2](./diagrams/primitive-diagram-2.svg)
+
+### primitive diagram 3
+
+#### input
+
+```
+2 "custom content - fork"
+  L {
+    1 "custom content - action"
+    3 "custom content - action"
+    4 "custom content - action"
+    5 "custom content - action"
+  }
+  R {
+    8 "custom content - fork"
+    L {
+      9 "custom content - action"
+    }
+    R {
+      11 "custom content - action"
+    }
+  }
+```
+
+#### output
+
+![primitive-diagram-3](./diagrams/primitive-diagram-3.svg)
+
+### silhouette diagram 1
+
+#### input
+
+```
+1 {
+  1a "find a bus stop"
+  1b "has a bus arrived"
+    L {
+      1aa "passenders boarding"
+    }
+    R {
+    }
+  1c "is it your turn"
+    L {
+    }
+    R {
+      1ca "wait for your turn"
+      1c
+    }
+  1d "is it possible to enter the bus"
+    L {
+      1da "enter the bus"
+    }
+    R {
+    }
+  2
+}
+2 {
+  2a "action"
+  3
+}
+3 {
+  3a "action"
+  4
+}
+4 {
+  4a "action"
+}
+```
+
+#### output
+
+![silhouette-diagram-1](./diagrams/silhouette-diagram-1.svg)
 
 ## development environment
 
