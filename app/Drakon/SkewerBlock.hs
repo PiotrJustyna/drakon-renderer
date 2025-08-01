@@ -9,82 +9,6 @@ import Drakon.HelperDiagrams
 import Drakon.ID
 import Drakon.TypeClasses
 
-soloForkLR :: String -> [[SkewerBlock]] -> String -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-soloForkLR blockToken leftBranchSkewerBlocks lIdToken rightBranchSkewerBlocks rIdToken =
-  [[toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) (Just (ID lIdToken)))
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) (Just (ID rIdToken)))]]
-
-soloForkL :: String -> [[SkewerBlock]] -> String -> [[SkewerBlock]] -> [[SkewerBlock]]
-soloForkL blockToken leftBranchSkewerBlocks lIdToken rightBranchSkewerBlocks =
-  [[toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) (Just (ID lIdToken)))
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) Nothing)]]
-
-soloForkR :: String -> [[SkewerBlock]] -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-soloForkR blockToken leftBranchSkewerBlocks rightBranchSkewerBlocks rIdToken =
-  [[toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) Nothing)
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) (Just (ID rIdToken)))]]
-
-soloFork :: String -> [[SkewerBlock]] -> [[SkewerBlock]] -> [[SkewerBlock]]
-soloFork blockToken leftBranchSkewerBlocks rightBranchSkewerBlocks =
-  [[toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) Nothing)
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) Nothing)]]
-
-appendForkLR :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> String -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-appendForkLR existingSkewers blockToken leftBranchSkewerBlocks lIdToken rightBranchSkewerBlocks rIdToken =
-  [(toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) (Just (ID lIdToken)))
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) (Just (ID rIdToken)))) : (head existingSkewers)] <> (tail existingSkewers)
-
-appendForkL :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> String -> [[SkewerBlock]] -> [[SkewerBlock]]
-appendForkL existingSkewers blockToken leftBranchSkewerBlocks lIdToken rightBranchSkewerBlocks =
-  [(toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) (Just (ID lIdToken)))
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) Nothing)) : (head existingSkewers)] <> (tail existingSkewers)
-
-appendForkR :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-appendForkR existingSkewers blockToken leftBranchSkewerBlocks rightBranchSkewerBlocks rIdToken =
-  [(toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) Nothing)
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) (Just (ID rIdToken)))) : (head existingSkewers)] <> (tail existingSkewers)
-
-appendFork :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> [[SkewerBlock]] -> [[SkewerBlock]]
-appendFork existingSkewers blockToken leftBranchSkewerBlocks rightBranchSkewerBlocks =
-  [(toFork
-      blockToken
-      (ConnectedSkewerBlocks (head leftBranchSkewerBlocks) Nothing)
-      (ConnectedSkewerBlocks (head rightBranchSkewerBlocks) Nothing)) : (head existingSkewers)] <> (tail existingSkewers)
-
-insertAction :: String -> [[SkewerBlock]] -> [[SkewerBlock]]
-insertAction blockToken blocks =
-  [(toAction blockToken) : (head blocks)] <> (tail blocks)
-
-soloSkewer :: String -> [[SkewerBlock]] -> [[SkewerBlock]]
-soloSkewer headlineIdToken newSkewers =
-  [(head newSkewers) <> [toHeadline headlineIdToken]] <> (tail newSkewers)
-
-soloSkewer' :: String -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-soloSkewer' headlineIdToken newSkewers addressIdToken =
-  [(toAddress addressIdToken) : (head newSkewers) <> [toHeadline headlineIdToken]] <> (tail newSkewers)
-
-appendSkewer :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> [[SkewerBlock]]
-appendSkewer existingSkewers headlineIdToken newSkewers =
-  existingSkewers <> [(head newSkewers) <> [toHeadline headlineIdToken]]
-
-appendSkewer' :: [[SkewerBlock]] -> String -> [[SkewerBlock]] -> String -> [[SkewerBlock]]
-appendSkewer' existingSkewers headlineIdToken newSkewers addressIdToken =
-  existingSkewers <> [(toAddress addressIdToken) : (head newSkewers) <> [toHeadline headlineIdToken]]
-
 renderAdditionalConnection :: Point V2 Double -> ID -> Map ID (Point V2 Double) -> Diagram B
 renderAdditionalConnection sourceOrigin@(P (V2 x1 y1)) destinationId mapOfOrigins =
   case Data.Map.lookup destinationId mapOfOrigins of
@@ -197,7 +121,7 @@ heightInUnits' :: [SkewerBlock] -> Double
 heightInUnits' skewerBlocks = sum $ map heightInUnits skewerBlocks
 
 reverse'' :: [[SkewerBlock]] -> [[SkewerBlock]]
-reverse'' = foldr (\x accu -> (reverse' x) : accu) []
+reverse'' = foldl (\accu x -> (reverse' x) : accu) []
 
 reverse' :: [SkewerBlock] -> [SkewerBlock]
 reverse' = foldl (\accu x ->
@@ -237,8 +161,14 @@ toAddress x = Address (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
 toAction :: String -> SkewerBlock
 toAction x = Action (toId x) (p2 (-1.0, -1.0)) (toContent x)
 
-toFork :: String -> ConnectedSkewerBlocks -> ConnectedSkewerBlocks -> SkewerBlock
-toFork x l r = Fork (toId x) (p2 (-1.0, -1.0)) (toContent x) l r
+toFork :: String -> [SkewerBlock] -> Maybe ID -> [SkewerBlock] -> Maybe ID -> SkewerBlock
+toFork x l lId r rId =
+  Fork
+    (toId x)
+    (p2 (-1.0, -1.0))
+    (toContent x)
+    (ConnectedSkewerBlocks l lId)
+    (ConnectedSkewerBlocks r rId)
 
 getOrigin :: SkewerBlock -> Point V2 Double
 getOrigin (Action _ origin _) = origin
@@ -407,13 +337,16 @@ instance Renderer SkewerBlock where
                            , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
                            ])
                Just _ -> mempty
-  widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
+  widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r rId)) =
     (if null l
        then 1.0
        else widthInUnits' l)
       + (if null r
-           then 0.0
-           else widthInUnits' r)
+          then
+            case rId of
+              Nothing -> 0.0
+              _ -> 1.0
+          else widthInUnits' r)
   widthInUnits _ = 1.0
   heightInUnits (Fork _forkId _origin _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     1.0
