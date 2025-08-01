@@ -13,7 +13,7 @@ import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
 
 data DrakonDiagram =
   DrakonDiagram StartTerminator [[SkewerBlock]] EndTerminator
-  deriving Show
+  deriving (Show)
 
 renderSingleSkewer :: [SkewerBlock] -> Point V2 Double -> Double -> (Diagram B, Double)
 renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
@@ -26,8 +26,7 @@ renderSingleSkewer skewerBlocks origin@(P (V2 x y)) addressDepth =
       renderedSkewerBlocks = renderIcons positionedSkewerBlocks mapOfOrigins addressDepth
       finishY1 = y - skewerY - heightInUnits' positionedSkewerBlocks
       finishY2 = finishY1 - defaultBoundingBoxHeight * 0.25
-   in ( renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)] <> renderedSkewerBlocks
-      , finishY1)
+   in (renderedConnection [p2 (connectionX, startY1), p2 (connectionX, startY2)] <> renderedSkewerBlocks, finishY1)
 
 render :: DrakonDiagram -> Double -> Diagram B
 render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) addressY =

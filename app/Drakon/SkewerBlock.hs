@@ -72,7 +72,8 @@ render' (ConnectedSkewerBlocks skewerBlocks _id) (P (V2 x y)) mapOfOrigins =
 renderIcons :: [SkewerBlock] -> Map ID (Point V2 Double) -> Double -> Diagram B
 renderIcons skewerBlocks mapOfOrigins addressDepth =
   let (P (V2 firstBlockX _)) = getOrigin $ head skewerBlocks
-      renderedIcons = foldl
+      renderedIcons =
+        foldl
           (\accu singleBlock ->
              let (P (V2 x preY1)) = getOrigin singleBlock
                  connectionX = x + defaultBoundingBoxWidth * 0.5
@@ -91,8 +92,14 @@ renderIcons skewerBlocks mapOfOrigins addressDepth =
                  , postY2))
           (mempty, 0.0)
           skewerBlocks
-      connectionForMissingAddress = if (snd renderedIcons < addressDepth) then mempty else renderedConnection [p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, snd renderedIcons), p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, addressDepth - defaultBoundingBoxHeight)]
-  in (fst renderedIcons) <> connectionForMissingAddress
+      connectionForMissingAddress =
+        if (snd renderedIcons < addressDepth)
+          then mempty
+          else renderedConnection
+                 [ p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, snd renderedIcons)
+                 , p2 (firstBlockX + defaultBoundingBoxWidth * 0.5, addressDepth - defaultBoundingBoxHeight)
+                 ]
+   in (fst renderedIcons) <> connectionForMissingAddress
 
 position' :: [SkewerBlock] -> Point V2 Double -> Double -> [SkewerBlock]
 position' skewerBlocks (P (V2 x y)) addressDepth =
@@ -124,17 +131,22 @@ reverse'' :: [[SkewerBlock]] -> [[SkewerBlock]]
 reverse'' = foldl (\accu x -> (reverse' x) : accu) []
 
 reverse' :: [SkewerBlock] -> [SkewerBlock]
-reverse' = foldl (\accu x ->
-  case x of
-    Fork id origin content (ConnectedSkewerBlocks l lId) (ConnectedSkewerBlocks r rId) -> (Fork id origin content (ConnectedSkewerBlocks (reverse' l) lId) (ConnectedSkewerBlocks (reverse' r) rId)) : accu
-    _ -> x : accu) []
+reverse' =
+  foldl
+    (\accu x ->
+       case x of
+         Fork id origin content (ConnectedSkewerBlocks l lId) (ConnectedSkewerBlocks r rId) ->
+           (Fork id origin content (ConnectedSkewerBlocks (reverse' l) lId) (ConnectedSkewerBlocks (reverse' r) rId))
+             : accu
+         _ -> x : accu)
+    []
 
 toMap :: [SkewerBlock] -> Map ID (Point V2 Double)
 toMap = foldl (flip insertToMap) empty
 
 data ConnectedSkewerBlocks =
   ConnectedSkewerBlocks [SkewerBlock] (Maybe ID)
-  deriving Show
+  deriving (Show)
 
 data SkewerBlock
   = Action ID (Point V2 Double) Content
@@ -150,7 +162,7 @@ toContent text =
   let id = head $ words text
       start = length id + 2
       end = length text - 1
-  in Content (take (end - start) (drop start text))
+   in Content (take (end - start) (drop start text))
 
 toHeadline :: String -> SkewerBlock
 toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
@@ -163,12 +175,7 @@ toAction x = Action (toId x) (p2 (-1.0, -1.0)) (toContent x)
 
 toFork :: String -> [SkewerBlock] -> Maybe ID -> [SkewerBlock] -> Maybe ID -> SkewerBlock
 toFork x l lId r rId =
-  Fork
-    (toId x)
-    (p2 (-1.0, -1.0))
-    (toContent x)
-    (ConnectedSkewerBlocks l lId)
-    (ConnectedSkewerBlocks r rId)
+  Fork (toId x) (p2 (-1.0, -1.0)) (toContent x) (ConnectedSkewerBlocks l lId) (ConnectedSkewerBlocks r rId)
 
 getOrigin :: SkewerBlock -> Point V2 Double
 getOrigin (Action _ origin _) = origin
@@ -342,11 +349,10 @@ instance Renderer SkewerBlock where
        then 1.0
        else widthInUnits' l)
       + (if null r
-          then
-            case rId of
-              Nothing -> 0.0
-              _ -> 1.0
-          else widthInUnits' r)
+           then case rId of
+                  Nothing -> 0.0
+                  _ -> 1.0
+           else widthInUnits' r)
   widthInUnits _ = 1.0
   heightInUnits (Fork _forkId _origin _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r _)) =
     1.0

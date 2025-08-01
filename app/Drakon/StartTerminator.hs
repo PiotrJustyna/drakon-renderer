@@ -35,7 +35,7 @@ data StartTerminator
   | CyclicStart ID (Point V2 Double) Content
   | TitleWithParameters ID (Point V2 Double) Content
   | CyclicStartWithParameters ID (Point V2 Double) Content
-  deriving Show
+  deriving (Show)
 
 changeOrigin :: StartTerminator -> Point V2 Double -> StartTerminator
 changeOrigin (Title startId _ content) newOrigin = Title startId newOrigin content
