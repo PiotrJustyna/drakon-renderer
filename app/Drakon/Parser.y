@@ -8,35 +8,33 @@ import Drakon.SkewerBlock
 import Diagrams.Prelude (Point(..), V2(..), p2)
 }
 
-%name                                                                               diagram
-%tokentype                                                                          { Token }
-%monad                                                                              { P } { thenP } { returnP }
+%name                                       diagram
+%tokentype                                  { Token }
+%monad                                      { P } { thenP } { returnP }
 
 %token
-  block                                                                             { TokenBlock $$ }
-  soloId                                                                            { TokenSoloIdentifier $$ }
-  lBranch                                                                           { TokenLeftBranch }
-  rBranch                                                                           { TokenRightBranch }
-  '{'                                                                               { TokenOCB }
-  '}'                                                                               { TokenCCB }
+  action                                    { TokenAction $$ }
+  soloId                                    { TokenSoloIdentifier $$ }
+  '{'                                       { TokenOCB }
+  '}'                                       { TokenCCB }
 
 %%
 
-prods : {- empty -}                                                                 { [[]] }
-        | block lBranch '{' prods soloId  '}' rBranch '{' prods soloId '}'          { soloForkLR $1 $4 $5 $9 $10 -- TODO: also always 1D }
-        | block lBranch '{' prods soloId  '}' rBranch '{' prods '}'                 { soloForkL $1 $4 $5 $9 -- TODO: also always 1D }
-        | block lBranch '{' prods '}' rBranch '{' prods soloId '}'                  { soloForkR $1 $4 $8 $9 -- TODO: also always 1D }
-        | block lBranch '{' prods '}' rBranch '{' prods '}'                         { soloFork $1 $4 $8 -- TODO: also always 1D }
-        | block                                                                     { [[toAction $1]] }
-        | prods block lBranch '{' prods soloId '}' rBranch '{' prods soloId '}'     { appendForkLR $1 $2 $5 $6 $10 $11 -- TODO: also always 1D }
-        | prods block lBranch '{' prods soloId '}' rBranch '{' prods '}'            { appendForkL $1 $2 $5 $6 $10 -- TODO: also always 1D }
-        | prods block lBranch '{' prods '}' rBranch '{' prods soloId '}'            { appendForkR $1 $2 $5 $9 $10 -- TODO: also always 1D }
-        | prods block lBranch '{' prods '}' rBranch '{' prods '}'                   { appendFork $1 $2 $5 $9 -- TODO: also always 1D }
-        | prods block                                                               { insertAction $2 $1 }
-        | soloId  '{' prods '}'                                                     { soloSkewer $1 $3 -- TODO: also always 1D }
-        | soloId  '{' prods soloId '}'                                              { soloSkewer' $1 $3 $4 -- TODO: also always 1D }
-        | prods soloId  '{' prods '}'                                               { appendSkewer $1 $2 $4 -- TODO: adjust production rules to only allow 1D prods here }
-        | prods soloId  '{' prods soloId '}'                                        { appendSkewer' $1 $2 $4 $5 -- TODO: adjust production rules to only allow 1D prods here }
+skewers :   headline                                              { [$1] }
+            | skewers headline                                    { $2 : $1 }
+
+headline :  soloId '{' skewer '}'                                 { $3 <> [toHeadline $1] }
+            | soloId '{' skewer soloId '}'                        { toAddress $4 : $3 <> [toHeadline $1] }
+
+skewer :    {- empty -}                                           { [] }
+            | block                                               { [$1] }
+            | skewer block                                        { $2 : $1 }
+
+block :     action                                                { toAction $1 }
+            | action '{' skewer '}' '{' skewer '}'                { toFork $1 $3 Nothing $6 Nothing }
+            | action '{' skewer '}' '{' skewer soloId '}'         { toFork $1 $3 Nothing $6 (Just (ID $7)) }
+            | action '{' skewer soloId '}' '{' skewer '}'         { toFork $1 $3 (Just (ID $4)) $7 Nothing }
+            | action '{' skewer soloId '}' '{' skewer soloId '}'  { toFork $1 $3 (Just (ID $4)) $7 (Just (ID $8)) }
 
 {
 

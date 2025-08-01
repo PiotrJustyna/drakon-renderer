@@ -1,34 +1,16 @@
 1 {
-  1a "find a bus stop"
-  1b "has a bus arrived"
-    L {
-      1aa "passenders boarding"
-    }
-    R {
-    }
-  1c "is it your turn"
-    L {
-    }
-    R {
-      1ca "wait for your turn"
-      1c
-    }
-  1d "is it possible to enter the bus"
-    L {
-      1da "enter the bus"
-    }
-    R {
-    }
-  2
+  2 "action 2"
+  3 "fork 3"
+  {
+    3a "action 3a"
+  }
+  {
+    3
+  }
+  4 "action 4"
+  5
 }
-2 {
-  2a "action"
-  3
-}
-3 {
-  3a "action"
-  4
-}
-4 {
-  4a "action"
+5 {
+  6 "action 6"
+  7 "action 7"
 }

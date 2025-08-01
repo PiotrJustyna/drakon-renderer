@@ -1,10 +1,8 @@
 {
 module Lexer
   (alexScanTokens,
-  Token(TokenBlock,
+  Token(TokenAction,
   TokenSoloIdentifier,
-  TokenLeftBranch,
-  TokenRightBranch,
   TokenOCB,
   TokenCCB)) where
 }
@@ -23,19 +21,16 @@ $contentChar  = [$alpha $digit $white \' \, \! \-]
 tokens :-
 
   $white+                         ;
-  @id [$white]+ \"@content\"      { \s -> TokenBlock s }
-  L                               { \_ -> TokenLeftBranch }
-  R                               { \_ -> TokenRightBranch }
+  @id [$white]+ \"@content\"      { \s -> TokenAction s }
+  \"@content\"                    { \s -> TokenAction ("# " <> s) -- # is a placeholder id that will later be replaced by a unique identifier }
   @id                             { \s -> TokenSoloIdentifier s }
   \{                              { \_ -> TokenOCB }
   \}                              { \_ -> TokenCCB }
 
 {
 data Token
-  = TokenBlock String
+  = TokenAction String
   | TokenSoloIdentifier String
-  | TokenLeftBranch
-  | TokenRightBranch
   | TokenOCB
   | TokenCCB
   deriving Show
