@@ -1,6 +1,7 @@
 module Drakon.SkewerBlock where
 
 import Data.Map (Map, empty, insert, lookup)
+import Data.String.Utils (lstrip)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..), (#), p2, position, r2, rotateBy, translate, triangle)
 import Drakon.Constants
@@ -148,6 +149,10 @@ data ConnectedSkewerBlocks =
   ConnectedSkewerBlocks [SkewerBlock] (Maybe ID)
   deriving (Show)
 
+-- data FloatingSkewerBlock
+--   = Action1 ID Content
+--   | Headline1 ID Content
+
 data SkewerBlock
   = Action ID (Point V2 Double) Content
   | Headline ID (Point V2 Double) Content
@@ -160,9 +165,10 @@ toId x = ID (head $ words x)
 toContent :: String -> Content
 toContent text =
   let id = head $ words text
-      start = length id + 2
-      end = length text - 1
-   in Content (take (end - start) (drop start text))
+      idFreeContent = lstrip (drop (length id) text)
+      idFreeContent' = drop 1 idFreeContent
+      idFreeContent'' = take (length idFreeContent' - 1) idFreeContent'
+   in Content idFreeContent''
 
 toHeadline :: String -> SkewerBlock
 toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
@@ -313,7 +319,7 @@ instance Renderer SkewerBlock where
                                 ( x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
                                 , y - defaultBoundingBoxHeight * 0.5)
                             , p2 (rX - 0.1, y - defaultBoundingBoxHeight * 0.5)
-                            , p2 (rX - 0.1, rY - defaultBoundingBoxHeight * 0.25)
+                            , p2 (rX - 0.1, rY - (if null l then 0.0 else defaultBoundingBoxHeight * 0.25))
                             ]
                         Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
                 else renderedConnection
@@ -334,7 +340,7 @@ instance Renderer SkewerBlock where
                Nothing ->
                  (if null r
                     then renderedConnection
-                           [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * 1.25)
+                           [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * (if null l then 1.0 else 1.25))
                            , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
                            , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
                            ]

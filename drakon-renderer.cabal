@@ -68,7 +68,8 @@ executable drakon-renderer
                         diagrams-lib,
                         diagrams-svg,
                         text,
-                        array
+                        array,
+                        MissingH
 
     hs-source-dirs:     app,
                         app/Drakon
