@@ -1,10 +1,11 @@
 1 {
-  2 "action 2"
+  2  "action 2"
   3 "fork 3"
   {
     3a "action 3a"
   }
   {
+    3b "action 3b"
     3
   }
   4 "action 4"
