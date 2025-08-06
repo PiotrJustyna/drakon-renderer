@@ -4,11 +4,11 @@ import Data.Map (Map, empty, lookup)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..), p2)
 import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth)
-import Drakon.EndTerminator (EndTerminator, changeOrigin, render, heightInUnits)
+import Drakon.EndTerminator (EndTerminator, changeOrigin, heightInUnits, render)
 import Drakon.HelperDiagrams (renderedConnection)
 import Drakon.ID (ID)
 import Drakon.SkewerBlock (SkewerBlock, heightInUnits', position', renderIcons, toMap, widthInUnits')
-import Drakon.StartTerminator (StartTerminator, changeOrigin, render, heightInUnits)
+import Drakon.StartTerminator (StartTerminator, changeOrigin, heightInUnits, render)
 
 data DrakonDiagram =
   DrakonDiagram StartTerminator [[SkewerBlock]] EndTerminator

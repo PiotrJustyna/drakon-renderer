@@ -2,16 +2,7 @@ module Drakon.StartTerminator where
 
 import Data.Map (Map)
 import Diagrams.Backend.SVG (B)
-import Diagrams.Prelude
-  ( Diagram
-  , Point
-  , V2(..)
-  , (#)
-  , position
-  , r2
-  , roundedRect
-  , translate
-  )
+import Diagrams.Prelude (Diagram, Point, V2(..), (#), position, r2, roundedRect, translate)
 import Drakon.Constants
 import Drakon.Content (Content(..))
 import Drakon.HelperDiagrams
@@ -39,20 +30,20 @@ render title@(Title titleId origin (Content content)) _ =
           ((if troubleshootingMode
               then "[" <> show titleId <> " | " <> show origin <> "] "
               else "")
-              <> content)
+             <> content)
           (0.0 + widthInUnits title * defaultBoundingBoxWidth * 0.5)
           (0.0 - heightInUnits title * defaultBoundingBoxHeight * 0.5)
           <> (drakonStyle
                 (roundedRect
-                    (widthInUnits title * defaultBoundingBoxWidth * widthRatio)
-                    (heightInUnits title * defaultBoundingBoxHeight * 0.5)
-                    0.5)
+                   (widthInUnits title * defaultBoundingBoxWidth * widthRatio)
+                   (heightInUnits title * defaultBoundingBoxHeight * 0.5)
+                   0.5)
                 # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
           <> if troubleshootingMode
-                then boundingBox
+               then boundingBox
                       (widthInUnits title * defaultBoundingBoxWidth)
                       (heightInUnits title * defaultBoundingBoxHeight)
-                else mempty)
+               else mempty)
     ]
 render _ _ = mempty
 

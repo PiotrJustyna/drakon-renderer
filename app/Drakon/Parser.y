@@ -23,8 +23,8 @@ import Diagrams.Prelude (Point(..), V2(..), p2)
 skewers :   headline                                              { [$1] }
             | skewers headline                                    { $2 : $1 }
 
-headline :  soloId '{' skewer '}'                                 { $3 <> [toHeadline $1] }
-            | soloId '{' skewer soloId '}'                        { toAddress $4 : $3 <> [toHeadline $1] }
+headline :  action '{' skewer '}'                                 { $3 <> [toHeadline $1] }
+            | action '{' skewer soloId '}'                        { toAddress $4 : $3 <> [toHeadline $1] }
 
 skewer :    {- empty -}                                           { [] }
             | block                                               { [$1] }

@@ -151,7 +151,6 @@ data ConnectedSkewerBlocks =
 -- data FloatingSkewerBlock
 --   = Action1 ID Content
 --   | Headline1 ID Content
-
 data SkewerBlock
   = Action ID (Point V2 Double) Content
   | Headline ID (Point V2 Double) Content
@@ -170,7 +169,7 @@ toContent text =
    in Content idFreeContent''
 
 toHeadline :: String -> SkewerBlock
-toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
+toHeadline x = Headline (toId x) (p2 (-1.0, -1.0)) (toContent x)
 
 toAddress :: String -> SkewerBlock
 toAddress x = Address (toId x) (p2 (-1.0, -1.0)) (Content (head $ words x))
@@ -240,126 +239,136 @@ renderQuestion questionId origin (Content content) _mapOfOrigins =
 render :: SkewerBlock -> Map ID (Point V2 Double) -> Diagram B
 render action@(Action actionId origin (Content actionContent)) _mapOfOrigins =
   let iconHeight = heightInUnits action * defaultBoundingBoxHeight * 0.5
-    in position
+   in position
         [ ( origin
           , renderText
               ((if troubleshootingMode
                   then "[" <> show actionId <> " | " <> show origin <> "] "
                   else "")
-                  <> actionContent)
+                 <> actionContent)
               (0.0 + widthInUnits action * defaultBoundingBoxWidth * 0.5)
               (0.0 - heightInUnits action * defaultBoundingBoxHeight * 0.5)
               <> rect' (widthInUnits action * defaultBoundingBoxWidth * widthRatio) iconHeight
-                    # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                   # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
               <> if troubleshootingMode
-                    then boundingBox
+                   then boundingBox
                           (widthInUnits action * defaultBoundingBoxWidth)
                           (heightInUnits action * defaultBoundingBoxHeight)
-                    else mempty)
+                   else mempty)
         ]
 render headline@(Headline headlineId origin (Content headlineContent)) _mapOfOrigins =
   let iconHeight = heightInUnits headline * defaultBoundingBoxHeight * 0.5
-    in position
+   in position
         [ ( origin
           , renderText
               ((if troubleshootingMode
                   then "[" <> show headlineId <> " | " <> show origin <> "] "
                   else "")
-                  <> headlineContent)
+                 <> headlineContent)
               (0.0 + widthInUnits headline * defaultBoundingBoxWidth * 0.5)
               (0.0 - heightInUnits headline * defaultBoundingBoxHeight * 0.5)
               <> headlineShape (widthInUnits headline * defaultBoundingBoxWidth * widthRatio) iconHeight
-                    # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                   # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
               <> if troubleshootingMode
-                    then boundingBox
+                   then boundingBox
                           (widthInUnits headline * defaultBoundingBoxWidth)
                           (heightInUnits headline * defaultBoundingBoxHeight)
-                    else mempty)
+                   else mempty)
         ]
 render address@(Address addressId origin (Content addressContent)) _mapOfOrigins =
   let iconHeight = heightInUnits address * defaultBoundingBoxHeight * 0.5
-    in position
+   in position
         [ ( origin
           , renderText
               ((if troubleshootingMode
                   then "[" <> show addressId <> " | " <> show origin <> "] "
                   else "")
-                  <> addressContent)
+                 <> addressContent)
               (0.0 + widthInUnits address * defaultBoundingBoxWidth * 0.5)
               (0.0 - heightInUnits address * defaultBoundingBoxHeight * 0.5)
               <> addressShape (widthInUnits address * defaultBoundingBoxWidth * widthRatio) iconHeight
-                    # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
+                   # translate (r2 (defaultBoundingBoxWidth * (1 - widthRatio) / 2.0, iconHeight * (-0.5)))
               <> if troubleshootingMode
-                    then boundingBox
+                   then boundingBox
                           (widthInUnits address * defaultBoundingBoxWidth)
                           (heightInUnits address * defaultBoundingBoxHeight)
-                    else mempty)
+                   else mempty)
         ]
 render fork@(Fork forkId origin@(P (V2 x y)) content leftBranch@(ConnectedSkewerBlocks l lDetourId) rightBranch@(ConnectedSkewerBlocks r rDetourId)) _mapOfOrigins =
   let lOrigin@(P (V2 _ lY)) = P (V2 x (y - defaultBoundingBoxHeight))
       rOrigin@(P (V2 rX rY)) = P (V2 (x + widthInUnits' l * defaultBoundingBoxWidth) (y - defaultBoundingBoxHeight))
       connectionLX = x + defaultBoundingBoxWidth * 0.5
-    in renderQuestion forkId origin content _mapOfOrigins
+   in renderQuestion forkId origin content _mapOfOrigins
         <> fst (render' leftBranch lOrigin _mapOfOrigins)
         <> renderText "no" (x + defaultBoundingBoxWidth * 0.97) (y - defaultBoundingBoxHeight * 0.35)
         <> renderText "yes" (x + defaultBoundingBoxWidth * 0.42) (y - defaultBoundingBoxHeight * 0.9)
         <> case lDetourId of
-              Nothing ->
-                renderedConnection
-                  [ p2 (connectionLX, lY - heightInUnits' l * defaultBoundingBoxHeight)
-                  , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
-                  ]
-              Just _ -> mempty
+             Nothing ->
+               renderedConnection
+                 [ p2 (connectionLX, lY - heightInUnits' l * defaultBoundingBoxHeight)
+                 , p2 (connectionLX, y - heightInUnits fork * defaultBoundingBoxHeight)
+                 ]
+             Just _ -> mempty
         <> (if null r
               then (case rDetourId of
                       Nothing ->
                         renderedConnection
                           [ p2
-                              ( x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0
-                              , y - defaultBoundingBoxHeight * 0.5)
+                              (x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0, y - defaultBoundingBoxHeight * 0.5)
                           , p2 (rX - 0.1, y - defaultBoundingBoxHeight * 0.5)
-                          , p2 (rX - 0.1, rY - (if null l then 0.0 else defaultBoundingBoxHeight * 0.25))
+                          , p2
+                              ( rX - 0.1
+                              , rY
+                                  - (if null l
+                                       then 0.0
+                                       else defaultBoundingBoxHeight * 0.25))
                           ]
                       Just _ -> fst (render' rightBranch rOrigin _mapOfOrigins))
               else renderedConnection
-                      [ p2 (x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0, y - defaultBoundingBoxHeight * 0.5)
-                      , p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight * 0.5)
-                      , p2 (rX + defaultBoundingBoxWidth * 0.5, rY)
-                      ]
-                      <> fst (render' rightBranch rOrigin _mapOfOrigins))
+                     [ p2 (x + defaultBoundingBoxWidth * (widthRatio + 1) / 2.0, y - defaultBoundingBoxHeight * 0.5)
+                     , p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight * 0.5)
+                     , p2 (rX + defaultBoundingBoxWidth * 0.5, rY)
+                     ]
+                     <> fst (render' rightBranch rOrigin _mapOfOrigins))
         <> position
-              [ ( origin
-                , if troubleshootingMode
-                    then boundingBox
+             [ ( origin
+               , if troubleshootingMode
+                   then boundingBox
                           (widthInUnits fork * defaultBoundingBoxWidth)
                           (heightInUnits fork * defaultBoundingBoxHeight)
-                    else mempty)
-              ]
+                   else mempty)
+             ]
         <> case rDetourId of
-              Nothing ->
-                (if null r
+             Nothing ->
+               (if null r
                   then renderedConnection
-                          [ p2 (rX - 0.1, y - defaultBoundingBoxHeight * (if null l then 1.0 else 1.25))
-                          , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
-                          , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                          ]
+                         [ p2
+                             ( rX - 0.1
+                             , y
+                                 - defaultBoundingBoxHeight
+                                     * (if null l
+                                          then 1.0
+                                          else 1.25))
+                         , p2 (rX - 0.1, y - heightInUnits fork * defaultBoundingBoxHeight)
+                         , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                         ]
                   else renderedConnection
-                          [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
-                          , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                          , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
-                          ])
-              Just _ -> mempty
+                         [ p2 (rX + defaultBoundingBoxWidth * 0.5, y - defaultBoundingBoxHeight)
+                         , p2 (rX + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                         , p2 (x + defaultBoundingBoxWidth * 0.5, y - heightInUnits fork * defaultBoundingBoxHeight)
+                         ])
+             Just _ -> mempty
 
 widthInUnits :: SkewerBlock -> Double
 widthInUnits (Fork _ _ _ (ConnectedSkewerBlocks l _) (ConnectedSkewerBlocks r rId)) =
   (if null l
-      then 1.0
-      else widthInUnits' l)
+     then 1.0
+     else widthInUnits' l)
     + (if null r
-          then case rId of
+         then case rId of
                 Nothing -> 0.0
                 _ -> 1.0
-          else widthInUnits' r)
+         else widthInUnits' r)
 widthInUnits _ = 1.0
 
 heightInUnits :: SkewerBlock -> Double
@@ -367,11 +376,11 @@ heightInUnits (Fork _forkId _origin _ (ConnectedSkewerBlocks l _) (ConnectedSkew
   1.0
     + max
         (if null l
-            then 0.0
-            else heightInUnits' l)
+           then 0.0
+           else heightInUnits' l)
         (if null r
-            then 0.0
-            else heightInUnits' r)
+           then 0.0
+           else heightInUnits' r)
 heightInUnits Headline {} = 1.0
 heightInUnits _ = 1.0
 

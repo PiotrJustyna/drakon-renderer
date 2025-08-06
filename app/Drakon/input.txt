@@ -1,4 +1,4 @@
-1 {
+1 "qwe 0" {
   2  "action 2"
   3 "fork 3"
   {
@@ -11,7 +11,7 @@
   4 "action 4"
   5
 }
-5 {
+5 "qwe 1" {
   6 "action 6"
   7 "action 7"
 }
