@@ -7,7 +7,7 @@ import Drakon.Content (Content(Content))
 import Drakon.DrakonDiagram (DrakonDiagram(..), heightInUnits, render)
 import Drakon.EndTerminator (EndTerminator(End))
 import Drakon.ID (ID(ID))
-import Drakon.SkewerBlock(reverse'')
+import Drakon.SkewerBlock (reverse'')
 import Drakon.StartTerminator (StartTerminator(Title))
 import Lexer (alexScanTokens)
 import Parser (ParseResult(..), diagram)
@@ -15,9 +15,7 @@ import Parser (ParseResult(..), diagram)
 main :: IO ()
 main = do
   fileContent <- readFile "./app/Drakon/input.txt"
-  putStrLn "tokens:"
   let tokens = alexScanTokens fileContent
-  print tokens
   case diagram tokens 1 of
     ParseOk d -> do
       print $ length d

@@ -29,20 +29,20 @@ render end@(End endId origin (Content content)) _ =
           ((if troubleshootingMode
               then "[" <> show endId <> " | " <> show origin <> "] "
               else "")
-              <> content)
+             <> content)
           (0.0 + widthInUnits end * defaultBoundingBoxWidth * 0.5)
           (0.0 - heightInUnits end * defaultBoundingBoxHeight * 0.5)
           <> (drakonStyle
                 (roundedRect
-                    (widthInUnits end * defaultBoundingBoxWidth * widthRatio)
-                    (heightInUnits end * defaultBoundingBoxHeight * 0.5)
-                    0.5)
+                   (widthInUnits end * defaultBoundingBoxWidth * widthRatio)
+                   (heightInUnits end * defaultBoundingBoxHeight * 0.5)
+                   0.5)
                 # translate (r2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.5))))
           <> if troubleshootingMode
-                then boundingBox
+               then boundingBox
                       (widthInUnits end * defaultBoundingBoxWidth)
                       (heightInUnits end * defaultBoundingBoxHeight)
-                else mempty)
+               else mempty)
     ]
 
 widthInUnits :: EndTerminator -> Double
