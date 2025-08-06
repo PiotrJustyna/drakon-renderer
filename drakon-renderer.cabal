@@ -56,7 +56,6 @@ executable drakon-renderer
                         Drakon.ID
                         Drakon.SkewerBlock
                         Drakon.StartTerminator
-                        Drakon.TypeClasses
                         Lexer
                         Parser
 

@@ -4,12 +4,11 @@ import Data.Map (Map, empty, lookup)
 import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude (Diagram, Point(..), V2(..), p2)
 import Drakon.Constants (defaultBoundingBoxHeight, defaultBoundingBoxWidth)
-import Drakon.EndTerminator (EndTerminator, changeOrigin)
+import Drakon.EndTerminator (EndTerminator, changeOrigin, render, heightInUnits)
 import Drakon.HelperDiagrams (renderedConnection)
 import Drakon.ID (ID)
 import Drakon.SkewerBlock (SkewerBlock, heightInUnits', position', renderIcons, toMap, widthInUnits')
-import Drakon.StartTerminator (StartTerminator, changeOrigin)
-import Drakon.TypeClasses (Renderer(heightInUnits, render, widthInUnits))
+import Drakon.StartTerminator (StartTerminator, changeOrigin, render, heightInUnits)
 
 data DrakonDiagram =
   DrakonDiagram StartTerminator [[SkewerBlock]] EndTerminator
@@ -57,7 +56,7 @@ render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) addressY
                * (if length allSkewers > 1
                     then widthInUnits' (last allSkewers)
                     else 0.0))
-   in Drakon.TypeClasses.render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
+   in Drakon.StartTerminator.render (Drakon.StartTerminator.changeOrigin startTerminator (P (V2 0.0 0.0))) empty
         <> renderedConnection
              [ p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-0.75))
              , p2 (defaultBoundingBoxWidth * 0.5, defaultBoundingBoxHeight * (-1.0))
@@ -70,7 +69,7 @@ render diagram@(DrakonDiagram startTerminator allSkewers endTerminator) addressY
                  ( endTerminatorXCoordinate + defaultBoundingBoxWidth * 0.5
                  , defaultBoundingBoxHeight * (addressY - 1.25))
              ]
-        <> Drakon.TypeClasses.render
+        <> Drakon.EndTerminator.render
              (Drakon.EndTerminator.changeOrigin endTerminator (P (V2 endTerminatorXCoordinate (addressY - 1.0))))
              empty
 
@@ -79,6 +78,6 @@ widthInUnits (DrakonDiagram _ allSkewers _) = sum $ map widthInUnits' allSkewers
 
 heightInUnits :: DrakonDiagram -> Double
 heightInUnits (DrakonDiagram startTerminator allSkewers endTerminator) =
-  Drakon.TypeClasses.heightInUnits startTerminator
-    + Drakon.TypeClasses.heightInUnits endTerminator
+  Drakon.StartTerminator.heightInUnits startTerminator
+    + Drakon.EndTerminator.heightInUnits endTerminator
     + maximum (map heightInUnits' allSkewers)
